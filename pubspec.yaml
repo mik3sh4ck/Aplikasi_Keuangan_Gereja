@@ -53,6 +53,7 @@ dependencies:
 
   pdf: ^3.8.2
   printing: ^5.9.2
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

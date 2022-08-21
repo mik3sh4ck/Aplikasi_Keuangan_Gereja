@@ -29,7 +29,6 @@ void main() async {
   //   // DeviceOrientation.portraitUp,
   // ]);
 
-
   runApp(
     MultiProvider(
       providers: [
@@ -147,6 +146,7 @@ void main() async {
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(primary: primaryColor, secondary: primaryColorVariant),
         ),
+        home: MyApp(),
       ),
     ),
   );
