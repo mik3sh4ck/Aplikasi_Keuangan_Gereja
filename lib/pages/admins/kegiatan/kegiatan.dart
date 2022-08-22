@@ -2,14 +2,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class AdminDonasiPage extends StatefulWidget {
-  const AdminDonasiPage({Key? key}) : super(key: key);
+class AdminKegiatanPage extends StatefulWidget {
+  const AdminKegiatanPage({Key? key}) : super(key: key);
 
   @override
-  State<AdminDonasiPage> createState() => _AdminDonasiPageState();
+  State<AdminKegiatanPage> createState() => _AdminKegiatanPageState();
 }
 
-class _AdminDonasiPageState extends State<AdminDonasiPage> {
+class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
   @override
   void initState() {
     // TODO: implement initState

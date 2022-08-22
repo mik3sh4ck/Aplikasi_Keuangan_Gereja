@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, todo
 
+import 'dart:io';
+
 import 'package:aplikasi_keuangan_gereja/pages/admins/home/home.dart';
 import 'package:aplikasi_keuangan_gereja/pages/auth/loginactivation.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
@@ -10,8 +12,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'package:window_size/window_size.dart';
 
 import 'globals.dart';
+
+//TODO: Run This For Flutter Native Splash (after flutter pub get)
+//flutter pub run flutter_native_splash:create
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -25,10 +31,16 @@ void main() async {
       systemNavigationBarColor: Colors.transparent,
     ),
   );
-  // SystemChrome.setPreferredOrientations([
-  //   // DeviceOrientation.portraitUp,
-  // ]);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
 
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowMinSize(const Size(960, 540));
+  }
   runApp(
     MultiProvider(
       providers: [

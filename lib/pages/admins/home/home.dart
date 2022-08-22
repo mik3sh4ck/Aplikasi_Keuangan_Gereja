@@ -2,9 +2,15 @@
 
 import 'package:aplikasi_keuangan_gereja/main.dart';
 import 'package:aplikasi_keuangan_gereja/pages/Profiles/profile.dart';
+import 'package:aplikasi_keuangan_gereja/pages/admins/anggota/anggota.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/dashboard/dashboard.dart';
+import 'package:aplikasi_keuangan_gereja/pages/admins/donasi/donasi.dart';
+import 'package:aplikasi_keuangan_gereja/pages/admins/kegiatan/kegiatan.dart';
+import 'package:aplikasi_keuangan_gereja/pages/admins/settings/settings.dart';
+import 'package:aplikasi_keuangan_gereja/pages/admins/transaksi/transaksi.dart';
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,13 +30,29 @@ class _AdminHomeState extends State<AdminHome> {
   @override
   void initState() {
     // TODO: implement initState
+    SystemChrome.setPreferredOrientations(
+      [
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ],
+    );
+
     super.initState();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
+    SystemChrome.setPreferredOrientations(
+      [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ],
+    );
     _controllerSidebarX.dispose();
+
     super.dispose();
   }
 
@@ -61,6 +83,7 @@ class _AdminHomeState extends State<AdminHome> {
           ),
         ],
       ),
+      drawerEnableOpenDragGesture: false,
       drawer: NavigationSidebarX(
         controller: _controllerSidebarX,
       ),
@@ -103,7 +126,7 @@ class NavigationSidebarX extends StatelessWidget {
           color: navButtonPrimary,
         ),
         iconTheme: IconThemeData(
-          color: Color(0xFF80633d),
+          color: navButtonPrimaryVariant,
           size: 20,
         ),
         selectedIconTheme: IconThemeData(
@@ -113,7 +136,7 @@ class NavigationSidebarX extends StatelessWidget {
         itemTextPadding: EdgeInsets.only(left: 20),
         selectedItemTextPadding: EdgeInsets.only(left: 30),
         selectedItemDecoration: BoxDecoration(
-          color: Color(0xFFFFFFFF).withOpacity(0.40),
+          color: scaffoldBackgroundColor.withOpacity(0.40),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: Colors.transparent),
           boxShadow: [
@@ -179,7 +202,7 @@ class NavigationSidebarX extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.logout_rounded,
-                        color: Color(0xFF80633d),
+                        color: navButtonPrimaryVariant,
                         size: 21,
                       ),
                       Visibility(
@@ -189,7 +212,7 @@ class NavigationSidebarX extends StatelessWidget {
                           child: Text(
                             'Keluar',
                             style: TextStyle(
-                              color: Color(0xFF80633d),
+                              color: navButtonPrimaryVariant,
                             ),
                           ),
                         ),
@@ -242,36 +265,26 @@ class NavigationScreen extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
-        final pageTitle = _getTitleByIndex(controller.selectedIndex);
         switch (controller.selectedIndex) {
           case 0:
             return AdminDashboardPage();
+          case 1:
+            return AdminTransaksiPage();
+          case 2:
+            return AdminAnggotaPage();
+          case 3:
+            return AdminKegiatanPage();
+          case 4:
+            return AdminDonasiPage();
+          case 5:
+            return AdminSettingPage();
           default:
             return Text(
-              pageTitle,
+              "Halaman Tidak Tersedia",
               // style: theme.textTheme.headline5,
             );
         }
       },
     );
-  }
-}
-
-String _getTitleByIndex(int index) {
-  switch (index) {
-    case 0:
-      return "Dashboard";
-    case 1:
-      return "Transaksi";
-    case 2:
-      return "Anggota";
-    case 3:
-      return "Kegiatan";
-    case 4:
-      return "Donasi";
-    case 5:
-      return "Setting";
-    default:
-      return "Page not found";
   }
 }

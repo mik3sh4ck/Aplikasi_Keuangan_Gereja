@@ -1,5 +1,5 @@
-// ignore_for_file: prefer_const_constructors, todo
-
+//ignore_for_file: todo, prefer_const_constructors
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class AdminSettingPage extends StatefulWidget {
@@ -25,9 +25,23 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      extendBody: true,
-      extendBodyBehindAppBar: true,
+      body: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+        ),
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          controller: ScrollController(),
+          child: SafeArea(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

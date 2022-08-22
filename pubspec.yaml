@@ -40,6 +40,7 @@ dependencies:
   google_fonts: ^3.0.1
   font_awesome_flutter: ^10.1.0
   auto_size_text: ^3.0.0
+  dropdown_search: ^5.0.2
 
   fl_chart: ^0.55.1
   csc_picker: ^0.2.6
@@ -54,6 +55,11 @@ dependencies:
   pdf: ^3.8.2
   printing: ^5.9.2
   intl: ^0.17.0
+
+  window_size:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/window_size
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +91,8 @@ flutter:
     - lib/assets/images/budgeting.png
     - lib/assets/images/role.png
     - lib/assets/images/donation.png
+    - lib/assets/images/incomeicons.png
+    - lib/assets/images/outcomeicons.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

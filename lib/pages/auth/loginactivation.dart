@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/apiservices.dart';
 import '../../themes/colors.dart';
+import '../../widget.dart/responsivetext.dart';
 
 class LoginActivationController extends StatefulWidget {
   const LoginActivationController({Key? key}) : super(key: key);
@@ -114,19 +115,6 @@ class _LoginPageState extends State<LoginPage> {
         _passwordVisible = !_passwordVisible;
       });
     }
-  }
-
-  responsiveText(text, double size, FontWeight fontweight, Color color) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5),
-      child: AutoSizeText(
-        text,
-        style: TextStyle(fontSize: size, fontWeight: fontweight, color: color),
-        minFontSize: 12,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
   }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText, pw) {

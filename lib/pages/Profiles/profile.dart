@@ -1,5 +1,6 @@
 //ignore_for_file: todo, prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:aplikasi_keuangan_gereja/globals.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../services/apiservices.dart';
 import '../../themes/colors.dart';
@@ -199,445 +200,463 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: EdgeInsets.symmetric(horizontal: 32),
             width: deviceWidth,
             height: deviceHeight,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: deviceWidth * 0.12,
-                  ),
-                  SizedBox(
-                    height: 24,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(360),
-                            child: SizedBox(
-                              width: deviceWidth < 800 ? 120 : 160,
-                              height: deviceWidth < 800 ? 120 : 160,
-                              child: Image(
-                                image: imageCheck(),
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                },
+              ),
+              child: SingleChildScrollView(
+                physics: ClampingScrollPhysics(),
+                controller: ScrollController(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: deviceWidth * 0.12,
+                    ),
+                    SizedBox(
+                      height: 24,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(360),
+                              child: SizedBox(
+                                width: deviceWidth < 800 ? 120 : 160,
+                                height: deviceWidth < 800 ? 120 : 160,
+                                child: Image(
+                                  image: imageCheck(),
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    deviceWidth < 800
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Nama Lengkap",
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerNama,
+                                0.45,
+                                _readOnly,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Tanggal Lahir",
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
+                              ),
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerTTL,
+                                0.45,
+                                _readOnly,
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Nama Lengkap",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerNama,
+                                    0.45,
+                                    _readOnly,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: (deviceWidth * 0.05),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Tanggal Lahir",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerTTL,
+                                    0.45,
+                                    _readOnly,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  deviceWidth < 800
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Nama Lengkap",
-                                style: Theme.of(context).textTheme.headline6,
+                    SizedBox(
+                      height: 10,
+                    ),
+                    deviceWidth < 800
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Jenis Kelamin",
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerNama,
-                              0.45,
-                              _readOnly,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Tanggal Lahir",
-                                style: Theme.of(context).textTheme.headline6,
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerJenisKelamin,
+                                0.45,
+                                _readOnly,
                               ),
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerTTL,
-                              0.45,
-                              _readOnly,
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Nama Lengkap",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerNama,
-                                  0.45,
-                                  _readOnly,
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: (deviceWidth * 0.05),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Tanggal Lahir",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerTTL,
-                                  0.45,
-                                  _readOnly,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  deviceWidth < 800
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Jenis Kelamin",
-                                style: Theme.of(context).textTheme.headline6,
+                              SizedBox(
+                                height: 10,
                               ),
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerJenisKelamin,
-                              0.45,
-                              _readOnly,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Email",
-                                style: Theme.of(context).textTheme.headline6,
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Email",
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
                               ),
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerEmail,
-                              0.45,
-                              true,
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Jenis Kelamin",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerJenisKelamin,
-                                  0.45,
-                                  _readOnly,
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: (deviceWidth * 0.05),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Email",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerEmail,
-                                  0.45,
-                                  true,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  deviceWidth < 800
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "No Telepon",
-                                style: Theme.of(context).textTheme.headline6,
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerEmail,
+                                0.45,
+                                true,
                               ),
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerNoTelp,
-                              0.45,
-                              _readOnly,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Alamat",
-                                style: Theme.of(context).textTheme.headline6,
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Jenis Kelamin",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerJenisKelamin,
+                                    0.45,
+                                    _readOnly,
+                                  ),
+                                ],
                               ),
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerAlamat,
-                              0.45,
-                              _readOnly,
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "No Telepon",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerNoTelp,
-                                  0.45,
-                                  _readOnly,
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: (deviceWidth * 0.05),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Alamat",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
-                                  ),
-                                ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerAlamat,
-                                  0.45,
-                                  _readOnly,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  deviceWidth < 800
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Peran",
-                                style: Theme.of(context).textTheme.headline6,
+                              SizedBox(
+                                width: (deviceWidth * 0.05),
                               ),
-                            ),
-                            responsiveTextField(deviceWidth, deviceHeight,
-                                _controllerPeran, 0.45, _readOnly),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                "Kemampuan",
-                                style: Theme.of(context).textTheme.headline6,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Email",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerEmail,
+                                    0.45,
+                                    true,
+                                  ),
+                                ],
                               ),
-                            ),
-                            responsiveTextField(
-                              deviceWidth,
-                              deviceHeight,
-                              _controllerKemampuan,
-                              0.45,
-                              _readOnly,
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Peran",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
+                            ],
+                          ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    deviceWidth < 800
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "No Telepon",
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
+                              ),
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerNoTelp,
+                                0.45,
+                                _readOnly,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Alamat",
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
+                              ),
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerAlamat,
+                                0.45,
+                                _readOnly,
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "No Telepon",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
                                   ),
-                                ),
-                                responsiveTextField(deviceWidth, deviceHeight,
-                                    _controllerPeran, 0.45, _readOnly),
-                              ],
-                            ),
-                            SizedBox(
-                              width: (deviceWidth * 0.05),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Text(
-                                    "Kemampuan",
-                                    style:
-                                        Theme.of(context).textTheme.headline6,
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerNoTelp,
+                                    0.45,
+                                    _readOnly,
                                   ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: (deviceWidth * 0.05),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Alamat",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerAlamat,
+                                    0.45,
+                                    _readOnly,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    deviceWidth < 800
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Peran",
+                                  style: Theme.of(context).textTheme.headline6,
                                 ),
-                                responsiveTextField(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  _controllerKemampuan,
-                                  0.45,
-                                  _readOnly,
+                              ),
+                              responsiveTextField(deviceWidth, deviceHeight,
+                                  _controllerPeran, 0.45, _readOnly),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: Text(
+                                  "Kemampuan",
+                                  style: Theme.of(context).textTheme.headline6,
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _readOnly
-                          ? Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    readOnly();
-                                  },
-                                  child: Text("EDIT PROFILE"),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        primary: Colors.white,
-                                        side: BorderSide(
-                                          width: 1,
-                                          color: primaryColorVariant,
+                              ),
+                              responsiveTextField(
+                                deviceWidth,
+                                deviceHeight,
+                                _controllerKemampuan,
+                                0.45,
+                                _readOnly,
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Peran",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  responsiveTextField(deviceWidth, deviceHeight,
+                                      _controllerPeran, 0.45, _readOnly),
+                                ],
+                              ),
+                              SizedBox(
+                                width: (deviceWidth * 0.05),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      "Kemampuan",
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  ),
+                                  responsiveTextField(
+                                    deviceWidth,
+                                    deviceHeight,
+                                    _controllerKemampuan,
+                                    0.45,
+                                    _readOnly,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _readOnly
+                            ? Column(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      readOnly();
+                                    },
+                                    child: Text("EDIT PROFILE"),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.white,
+                                          side: BorderSide(
+                                            width: 1,
+                                            color: primaryColorVariant,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          readOnly();
+                                        },
+                                        child: Text(
+                                          "BATAL",
+                                          style: TextStyle(
+                                              color: primaryColorVariant),
                                         ),
                                       ),
-                                      onPressed: () {
-                                        readOnly();
-                                      },
-                                      child: Text(
-                                        "BATAL",
-                                        style: TextStyle(
-                                            color: primaryColorVariant),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: deviceWidth * 0.02,
+                                  ),
+                                  Column(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          readOnly();
+                                        },
+                                        child: Text("SIMPAN"),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  width: deviceWidth * 0.02,
-                                ),
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        readOnly();
-                                      },
-                                      child: Text("SIMPAN"),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 114,
-                  ),
-                ],
+                                    ],
+                                  )
+                                ],
+                              ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 114,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
