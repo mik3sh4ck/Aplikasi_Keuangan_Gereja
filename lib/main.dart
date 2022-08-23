@@ -1,7 +1,5 @@
 // ignore_for_file: prefer_const_constructors, todo
 
-import 'dart:io';
-
 import 'package:aplikasi_keuangan_gereja/pages/admins/home/home.dart';
 import 'package:aplikasi_keuangan_gereja/pages/auth/loginactivation.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
@@ -12,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
-import 'package:window_size/window_size.dart';
 
 import 'globals.dart';
 
@@ -38,9 +35,6 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowMinSize(const Size(960, 540));
-  }
   runApp(
     MultiProvider(
       providers: [
@@ -61,7 +55,7 @@ void main() async {
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               primary: buttonColor,
-              padding: EdgeInsets.symmetric(horizontal: 56, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 34, vertical: 16),
               textStyle: GoogleFonts.nunito(
                   color: lightText,
                   fontWeight: FontWeight.w800,
@@ -78,37 +72,37 @@ void main() async {
             TextTheme(
               headline1: GoogleFonts.nunito(
                 color: darkText,
-                fontWeight: FontWeight.w100,
+                fontWeight: FontWeight.w700,
                 fontSize: 101,
                 letterSpacing: -0.15,
               ),
               headline2: GoogleFonts.nunito(
                 color: darkText,
-                fontWeight: FontWeight.w100,
+                fontWeight: FontWeight.w700,
                 fontSize: 63,
                 letterSpacing: -0.015,
               ),
               headline3: GoogleFonts.nunito(
                 color: darkText,
-                fontWeight: FontWeight.normal,
+                fontWeight: FontWeight.w700,
                 fontSize: 50,
                 letterSpacing: 0.0,
               ),
               headline4: GoogleFonts.nunito(
                 color: darkText,
-                fontWeight: FontWeight.normal,
+                fontWeight: FontWeight.w700,
                 fontSize: 36,
                 letterSpacing: 0.025,
               ),
               headline5: GoogleFonts.nunito(
                 color: darkText,
-                fontWeight: FontWeight.normal,
+                fontWeight: FontWeight.w700,
                 fontSize: 25,
                 letterSpacing: 0,
               ),
               headline6: GoogleFonts.nunito(
                 color: darkText,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w700,
                 fontSize: 21,
                 letterSpacing: 0.015,
               ),

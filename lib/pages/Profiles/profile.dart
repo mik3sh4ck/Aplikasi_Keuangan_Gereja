@@ -1,4 +1,4 @@
-//ignore_for_file: todo, prefer_const_constructors, prefer_const_literals_to_create_immutables
+//ignore_for_file: todo
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   imageCheck() {
     if (_imageProfile == "") {
-      return AssetImage("lib/assets/images/defaultprofilepicture.png");
+      return const AssetImage("lib/assets/images/defaultprofilepicture.png");
     } else {
       return NetworkImage(_imageProfile);
     }
@@ -105,22 +105,22 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: InputDecoration(
             filled: true,
             fillColor: surfaceColor,
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
@@ -141,22 +141,22 @@ class _ProfilePageState extends State<ProfilePage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: surfaceColor,
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
@@ -193,11 +193,11 @@ class _ProfilePageState extends State<ProfilePage> {
             top: 0,
             child: Image(
               width: deviceWidth,
-              image: AssetImage("lib/assets/images/loginactivationheader.png"),
+              image: const AssetImage("lib/assets/images/loginactivationheader.png"),
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             width: deviceWidth,
             height: deviceHeight,
             child: ScrollConfiguration(
@@ -208,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               child: SingleChildScrollView(
-                physics: ClampingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 controller: ScrollController(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(
                       height: deviceWidth * 0.12,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 24,
                     ),
                     Row(
@@ -239,7 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -247,13 +247,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Nama Lengkap",
                                   style: Theme.of(context).textTheme.headline6,
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               responsiveTextField(
@@ -263,11 +263,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 0.45,
                                 _readOnly,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Tanggal Lahir",
                                   style: Theme.of(context).textTheme.headline6,
@@ -290,14 +290,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Nama Lengkap",
                                       style:
                                           Theme.of(context).textTheme.headline6,
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   responsiveTextField(
@@ -317,7 +317,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Tanggal Lahir",
                                       style:
@@ -335,7 +335,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     deviceWidth < 800
@@ -343,7 +343,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Jenis Kelamin",
                                   style: Theme.of(context).textTheme.headline6,
@@ -356,11 +356,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 0.45,
                                 _readOnly,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Email",
                                   style: Theme.of(context).textTheme.headline6,
@@ -383,7 +383,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Jenis Kelamin",
                                       style:
@@ -407,7 +407,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Email",
                                       style:
@@ -425,7 +425,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     deviceWidth < 800
@@ -433,7 +433,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "No Telepon",
                                   style: Theme.of(context).textTheme.headline6,
@@ -446,11 +446,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 0.45,
                                 _readOnly,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Alamat",
                                   style: Theme.of(context).textTheme.headline6,
@@ -473,7 +473,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "No Telepon",
                                       style:
@@ -497,7 +497,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Alamat",
                                       style:
@@ -515,7 +515,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     deviceWidth < 800
@@ -523,7 +523,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Peran",
                                   style: Theme.of(context).textTheme.headline6,
@@ -531,11 +531,11 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               responsiveTextField(deviceWidth, deviceHeight,
                                   _controllerPeran, 0.45, _readOnly),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Kemampuan",
                                   style: Theme.of(context).textTheme.headline6,
@@ -558,7 +558,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Peran",
                                       style:
@@ -577,7 +577,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
+                                        const EdgeInsets.symmetric(horizontal: 5),
                                     child: Text(
                                       "Kemampuan",
                                       style:
@@ -595,7 +595,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     Row(
@@ -608,7 +608,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     onPressed: () {
                                       readOnly();
                                     },
-                                    child: Text("EDIT PROFILE"),
+                                    child: const Text("EDIT PROFILE"),
                                   ),
                                 ],
                               )
@@ -644,7 +644,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         onPressed: () {
                                           readOnly();
                                         },
-                                        child: Text("SIMPAN"),
+                                        child: const Text("SIMPAN"),
                                       ),
                                     ],
                                   )
@@ -652,7 +652,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 114,
                     ),
                   ],

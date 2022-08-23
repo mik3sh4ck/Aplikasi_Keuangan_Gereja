@@ -1,4 +1,4 @@
-//ignore_for_file: TODO, prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_const_declarations
+//ignore_for_file: todo
 
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/main.dart';
@@ -38,7 +38,7 @@ class _LoginActivationControllerState extends State<LoginActivationController> {
   Widget build(BuildContext context) {
     return PageView(
       controller: _controllerPageLoginActivation,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       children: [
         LoginPage(
           controllerPageLoginActivation: _controllerPageLoginActivation,
@@ -129,28 +129,28 @@ class _LoginPageState extends State<LoginPage> {
           decoration: InputDecoration(
             filled: true,
             fillColor: surfaceColor,
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             suffixIcon: pw == true
                 ? IconButton(
-                    color: Color(0xFFeead48),
+                    color: const Color(0xFFeead48),
                     onPressed: () {
                       _passwordVisibility();
                     },
@@ -175,28 +175,28 @@ class _LoginPageState extends State<LoginPage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: surfaceColor,
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               suffixIcon: pw == true
                   ? IconButton(
-                      color: Color(0xFFeead48),
+                      color: const Color(0xFFeead48),
                       onPressed: () {
                         _passwordVisibility();
                       },
@@ -227,20 +227,20 @@ class _LoginPageState extends State<LoginPage> {
             right: 0,
             child: Image(
               width: imgBG(deviceWidth, deviceHeight),
-              image: AssetImage('lib/assets/images/loginbgimg.png'),
+              image: const AssetImage('lib/assets/images/loginbgimg.png'),
             ),
           ),
           Positioned(
             top: 0,
             child: Image(
               width: deviceWidth,
-              image: AssetImage("lib/assets/images/loginactivationheader.png"),
+              image: const AssetImage("lib/assets/images/loginactivationheader.png"),
             ),
           ),
           Container(
             width: deviceWidth,
             height: deviceHeight,
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: SingleChildScrollView(
               child: SizedBox(
                 width: deviceWidth < 800 ? deviceWidth : deviceWidth * 0.4,
@@ -256,7 +256,7 @@ class _LoginPageState extends State<LoginPage> {
                       FontWeight.w900,
                       Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     responsiveText(
@@ -265,12 +265,12 @@ class _LoginPageState extends State<LoginPage> {
                       FontWeight.w900,
                       Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     responsiveTextField(
                         deviceWidth, deviceHeight, _controllerUsername, false),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     responsiveText(
@@ -279,12 +279,12 @@ class _LoginPageState extends State<LoginPage> {
                       FontWeight.w900,
                       Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     responsiveTextField(
                         deviceWidth, deviceHeight, _controllerPassword, true),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -305,15 +305,15 @@ class _LoginPageState extends State<LoginPage> {
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            SnackBar(
-                                              content: const Text(
+                                            const SnackBar(
+                                              content: Text(
                                                   "Data yang anda masukan salah"),
                                             ),
                                           );
                                         }
                                       });
                                     },
-                                    child: Text("MASUK"),
+                                    child: const Text("MASUK"),
                                   ),
                                 ],
                               )
@@ -338,22 +338,22 @@ class _LoginPageState extends State<LoginPage> {
                                           } else {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
-                                              SnackBar(
-                                                content: const Text(
+                                              const SnackBar(
+                                                content: Text(
                                                     "Data yang anda masukan salah"),
                                               ),
                                             );
                                           }
                                         });
                                       },
-                                      child: Text("MASUK"),
+                                      child: const Text("MASUK"),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -377,7 +377,7 @@ class _LoginPageState extends State<LoginPage> {
                                       widget.controllerPageLoginActivation
                                           .animateToPage(1,
                                               duration:
-                                                  Duration(milliseconds: 700),
+                                                  const Duration(milliseconds: 700),
                                               curve: Curves.easeIn);
                                     },
                                     child: responsiveText(
@@ -413,7 +413,7 @@ class _LoginPageState extends State<LoginPage> {
                                         widget.controllerPageLoginActivation
                                             .animateToPage(1,
                                                 duration:
-                                                    Duration(milliseconds: 700),
+                                                    const Duration(milliseconds: 700),
                                                 curve: Curves.easeIn);
                                       },
                                       child: responsiveText(
@@ -428,7 +428,7 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 90,
                     ),
                   ],
@@ -506,7 +506,7 @@ class _ActivationPageState extends State<ActivationPage> {
 
   responsiveText(text, double size, FontWeight fontweight, Color color) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: AutoSizeText(
         text,
         style: TextStyle(fontSize: size, fontWeight: fontweight, color: color),
@@ -529,28 +529,28 @@ class _ActivationPageState extends State<ActivationPage> {
           decoration: InputDecoration(
             filled: true,
             fillColor: surfaceColor,
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.transparent,
               ),
             ),
             suffixIcon: pw == true
                 ? IconButton(
-                    color: Color(0xFFeead48),
+                    color: const Color(0xFFeead48),
                     onPressed: () {
                       _passwordVisibility();
                     },
@@ -575,28 +575,28 @@ class _ActivationPageState extends State<ActivationPage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: surfaceColor,
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Colors.transparent,
                 ),
               ),
               suffixIcon: pw == true
                   ? IconButton(
-                      color: Color(0xFFeead48),
+                      color: const Color(0xFFeead48),
                       onPressed: () {
                         _passwordVisibility();
                       },
@@ -626,20 +626,20 @@ class _ActivationPageState extends State<ActivationPage> {
             right: 0,
             child: Image(
               width: imgBG(deviceWidth, deviceHeight),
-              image: AssetImage('lib/assets/images/loginbgimg.png'),
+              image: const AssetImage('lib/assets/images/loginbgimg.png'),
             ),
           ),
           Positioned(
             top: 0,
             child: Image(
               width: deviceWidth,
-              image: AssetImage("lib/assets/images/loginactivationheader.png"),
+              image: const AssetImage("lib/assets/images/loginactivationheader.png"),
             ),
           ),
           Container(
             width: deviceWidth,
             height: deviceHeight,
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: SingleChildScrollView(
               child: SizedBox(
                 width: deviceWidth < 800 ? deviceWidth : deviceWidth * 0.4,
@@ -655,7 +655,7 @@ class _ActivationPageState extends State<ActivationPage> {
                       FontWeight.w900,
                       Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     responsiveText(
@@ -664,12 +664,12 @@ class _ActivationPageState extends State<ActivationPage> {
                       FontWeight.w900,
                       Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     responsiveTextField(deviceWidth, deviceHeight,
                         _controllerUsername, 0.4, false),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -682,12 +682,12 @@ class _ActivationPageState extends State<ActivationPage> {
                                 FontWeight.w900,
                                 Colors.black,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               responsiveTextField(deviceWidth, deviceHeight,
                                   _controllerNotelp, 0.4, false),
-                              SizedBox(
+                              const SizedBox(
                                 height: 25,
                               ),
                               Row(
@@ -695,7 +695,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {},
-                                    child: Text("KIRIM"),
+                                    child: const Text("KIRIM"),
                                   ),
                                 ],
                               ),
@@ -712,7 +712,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                     FontWeight.w900,
                                     Colors.black,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   responsiveTextField(deviceWidth, deviceHeight,
@@ -731,18 +731,18 @@ class _ActivationPageState extends State<ActivationPage> {
                                     FontWeight.w900,
                                     Colors.black,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   ElevatedButton(
                                     onPressed: () {},
-                                    child: Text("KIRIM"),
+                                    child: const Text("KIRIM"),
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     responsiveText(
@@ -751,12 +751,12 @@ class _ActivationPageState extends State<ActivationPage> {
                       FontWeight.w900,
                       Colors.black,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     responsiveTextField(
                         deviceWidth, deviceHeight, _controllerOtp, 0.4, false),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -769,12 +769,12 @@ class _ActivationPageState extends State<ActivationPage> {
                                 FontWeight.w900,
                                 Colors.black,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               responsiveTextField(deviceWidth, deviceHeight,
                                   _controllerPassword, 0.4, true),
-                              SizedBox(
+                              const SizedBox(
                                 height: 25,
                               ),
                               responsiveText(
@@ -783,7 +783,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                 FontWeight.w900,
                                 Colors.black,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               responsiveTextField(deviceWidth, deviceHeight,
@@ -801,7 +801,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                     FontWeight.w900,
                                     Colors.black,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   responsiveTextField(deviceWidth, deviceHeight,
@@ -820,7 +820,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                     FontWeight.w900,
                                     Colors.black,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   responsiveTextField(deviceWidth, deviceHeight,
@@ -829,7 +829,7 @@ class _ActivationPageState extends State<ActivationPage> {
                               ),
                             ],
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -840,7 +840,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {},
-                                    child: Text("AKTIVASI"),
+                                    child: const Text("AKTIVASI"),
                                   ),
                                 ],
                               )
@@ -855,14 +855,14 @@ class _ActivationPageState extends State<ActivationPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {},
-                                      child: Text("AKTIVASI"),
+                                      child: const Text("AKTIVASI"),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     deviceWidth < 800
@@ -886,7 +886,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                       widget.controllerPageLoginActivation
                                           .animateToPage(0,
                                               duration:
-                                                  Duration(milliseconds: 700),
+                                                  const Duration(milliseconds: 700),
                                               curve: Curves.easeOut);
                                     },
                                     child: responsiveText(
@@ -922,7 +922,7 @@ class _ActivationPageState extends State<ActivationPage> {
                                         widget.controllerPageLoginActivation
                                             .animateToPage(0,
                                                 duration:
-                                                    Duration(milliseconds: 700),
+                                                    const Duration(milliseconds: 700),
                                                 curve: Curves.easeOut);
                                       },
                                       child: responsiveText(
@@ -937,7 +937,7 @@ class _ActivationPageState extends State<ActivationPage> {
                               ],
                             ),
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 90,
                     ),
                   ],
