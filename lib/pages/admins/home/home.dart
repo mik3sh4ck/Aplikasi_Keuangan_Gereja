@@ -271,7 +271,7 @@ class NavigationScreen extends StatelessWidget {
           case 1:
             return AdminControllerTransaksiPage();
           case 2:
-            return AdminAnggotaPage();
+            return AdminAnggotaController();
           case 3:
             return AdminControllerKegiatanPage();
           case 4:

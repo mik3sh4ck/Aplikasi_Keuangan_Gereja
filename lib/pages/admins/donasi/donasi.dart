@@ -1,4 +1,4 @@
-//ignore_for_file: todo, prefer_const_constructors
+//ignore_for_file: todo
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -33,11 +33,11 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
           },
         ),
         child: SingleChildScrollView(
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           controller: ScrollController(),
           child: SafeArea(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
             ),
           ),
         ),

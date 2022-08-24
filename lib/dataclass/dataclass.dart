@@ -111,11 +111,13 @@ class ClassKeuangan {
 }
 
 class ClassKodeTransaksi {
+  String idKode;
   String kodeTransaksi;
   String kodeGereja;
   String namaTransaksi;
 
   ClassKodeTransaksi({
+    required this.idKode,
     required this.kodeTransaksi,
     required this.kodeGereja,
     required this.namaTransaksi,
@@ -123,6 +125,7 @@ class ClassKodeTransaksi {
 
   factory ClassKodeTransaksi.fromJSON(Map<String, dynamic> json) {
     return ClassKodeTransaksi(
+      idKode: json['kode_transaksi'],
       kodeTransaksi: json['kode_transaksi'],
       kodeGereja: json['kode_gereja'],
       namaTransaksi: json['nama_transaksi'],
