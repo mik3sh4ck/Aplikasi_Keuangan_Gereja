@@ -94,6 +94,7 @@ flutter:
     - lib/assets/images/donation.png
     - lib/assets/images/incomeicons.png
     - lib/assets/images/outcomeicons.png
+    - lib/assets/images/createaktifitas.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

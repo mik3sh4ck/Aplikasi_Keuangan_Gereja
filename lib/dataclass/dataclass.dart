@@ -129,3 +129,78 @@ class ClassKodeTransaksi {
     );
   }
 }
+
+//pada page kegiatan
+class ClassProposalKegiatan {
+  String kodeKegiatan;
+  String kodeGereja;
+  String namaKegiatan;
+  String penanggungJawabKegiatan1;
+  String penanggungJawabKegiatan2;
+
+  ClassProposalKegiatan({
+    required this.kodeKegiatan,
+    required this.kodeGereja,
+    required this.namaKegiatan,
+    required this.penanggungJawabKegiatan1,
+    required this.penanggungJawabKegiatan2,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'kode_kegiatan': kodeKegiatan,
+      'kode_gereja': kodeGereja,
+      'nama_kegiatan': namaKegiatan,
+      'penanggungjawab_1': penanggungJawabKegiatan1,
+      'penanggungjawab_2': penanggungJawabKegiatan2,
+    };
+  }
+
+  factory ClassProposalKegiatan.fromJSON(Map<String, dynamic> json) {
+    return ClassProposalKegiatan(
+      kodeKegiatan: json['kode_kegiatan'],
+      kodeGereja: json['kode_gereja'],
+      namaKegiatan: json['nama_kegiatan'],
+      penanggungJawabKegiatan1: json['penanggungjawab_1'],
+      penanggungJawabKegiatan2: json['penanggungjawab_2'],
+    );
+  }
+}
+
+class ClassItemProposalKegiatan {
+  String kodeProposalKegiatan;
+  String kodeKegiatan;
+  String namaKebutuhan;
+  int budgetKebutuhan;
+  String keteranganKebutuhan;
+
+  ClassItemProposalKegiatan({
+    required this.kodeProposalKegiatan,
+    required this.kodeKegiatan,
+    required this.namaKebutuhan,
+    required this.budgetKebutuhan,
+    required this.keteranganKebutuhan
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'kode_proposal_kegiatan' : kodeProposalKegiatan,
+      'kode_kegiatan': kodeKegiatan,
+      'jenis_kebutuhan': namaKebutuhan,
+      'budget_kebutuhan': budgetKebutuhan,
+      'keterangan_kebutuhan' : keteranganKebutuhan
+    };
+  }
+
+  factory ClassItemProposalKegiatan.fromJSON(Map<String, dynamic> json) {
+    return ClassItemProposalKegiatan(
+      kodeProposalKegiatan: json['kode_proposal_kegiatan'],
+      kodeKegiatan: json['kode_kegiatan'],
+      namaKebutuhan: json['jenis_kebutuhan'],
+      budgetKebutuhan: json['budget_kebutuhan'],
+      keteranganKebutuhan: json['keterangan_kebutuhan']
+    );
+  }
+}
+
+
