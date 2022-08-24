@@ -2,13 +2,14 @@
 
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/main.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/apiservices.dart';
 import '../../themes/colors.dart';
-import '../../widget.dart/responsivetext.dart';
+import '../../widgets/responsivetext.dart';
 
 class LoginActivationController extends StatefulWidget {
   const LoginActivationController({Key? key}) : super(key: key);
@@ -129,7 +130,8 @@ class _LoginPageState extends State<LoginPage> {
           decoration: InputDecoration(
             filled: true,
             fillColor: surfaceColor,
-            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(
@@ -175,7 +177,8 @@ class _LoginPageState extends State<LoginPage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: surfaceColor,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: const BorderSide(
@@ -234,7 +237,8 @@ class _LoginPageState extends State<LoginPage> {
             top: 0,
             child: Image(
               width: deviceWidth,
-              image: const AssetImage("lib/assets/images/loginactivationheader.png"),
+              image: const AssetImage(
+                  "lib/assets/images/loginactivationheader.png"),
             ),
           ),
           Container(
@@ -376,8 +380,8 @@ class _LoginPageState extends State<LoginPage> {
                                     onTap: () {
                                       widget.controllerPageLoginActivation
                                           .animateToPage(1,
-                                              duration:
-                                                  const Duration(milliseconds: 700),
+                                              duration: const Duration(
+                                                  milliseconds: 700),
                                               curve: Curves.easeIn);
                                     },
                                     child: responsiveText(
@@ -412,8 +416,8 @@ class _LoginPageState extends State<LoginPage> {
                                       onTap: () {
                                         widget.controllerPageLoginActivation
                                             .animateToPage(1,
-                                                duration:
-                                                    const Duration(milliseconds: 700),
+                                                duration: const Duration(
+                                                    milliseconds: 700),
                                                 curve: Curves.easeIn);
                                       },
                                       child: responsiveText(
@@ -478,16 +482,6 @@ class _ActivationPageState extends State<ActivationPage> {
     super.dispose();
   }
 
-  Future<void> setPref(String path, value) async {
-    final SharedPreferences prefs = await _prefs;
-    prefs.setBool(path, value);
-  }
-
-  getPref(String path) async {
-    final SharedPreferences prefs = await _prefs;
-    return prefs.getBool(path);
-  }
-
   imgBG(deviceWidth, deviceHeight) {
     if (deviceWidth < 800) {
       return deviceWidth;
@@ -504,19 +498,6 @@ class _ActivationPageState extends State<ActivationPage> {
     }
   }
 
-  responsiveText(text, double size, FontWeight fontweight, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: AutoSizeText(
-        text,
-        style: TextStyle(fontSize: size, fontWeight: fontweight, color: color),
-        minFontSize: 12,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
   responsiveTextField(deviceWidth, deviceHeight, controllerText, dw, pw) {
     if (deviceWidth < 800) {
       return Card(
@@ -529,7 +510,8 @@ class _ActivationPageState extends State<ActivationPage> {
           decoration: InputDecoration(
             filled: true,
             fillColor: surfaceColor,
-            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(
@@ -575,7 +557,8 @@ class _ActivationPageState extends State<ActivationPage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: surfaceColor,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: const BorderSide(
@@ -633,222 +616,229 @@ class _ActivationPageState extends State<ActivationPage> {
             top: 0,
             child: Image(
               width: deviceWidth,
-              image: const AssetImage("lib/assets/images/loginactivationheader.png"),
+              image: const AssetImage(
+                  "lib/assets/images/loginactivationheader.png"),
             ),
           ),
           Container(
             width: deviceWidth,
             height: deviceHeight,
             padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: SingleChildScrollView(
-              child: SizedBox(
-                width: deviceWidth < 800 ? deviceWidth : deviceWidth * 0.4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: deviceWidth * 0.12,
-                    ),
-                    responsiveText(
-                      "Aktivasi Akun",
-                      64,
-                      FontWeight.w900,
-                      Colors.black,
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    responsiveText(
-                      "Nama Pengguna",
-                      20,
-                      FontWeight.w900,
-                      Colors.black,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    responsiveTextField(deviceWidth, deviceHeight,
-                        _controllerUsername, 0.4, false),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    deviceWidth < 800
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              responsiveText(
-                                "Nomor Telepon",
-                                20,
-                                FontWeight.w900,
-                                Colors.black,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              responsiveTextField(deviceWidth, deviceHeight,
-                                  _controllerNotelp, 0.4, false),
-                              const SizedBox(
-                                height: 25,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text("KIRIM"),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText(
-                                    "Nomor Telepon",
-                                    20,
-                                    FontWeight.w900,
-                                    Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(deviceWidth, deviceHeight,
-                                      _controllerNotelp, 0.4, false),
-                                ],
-                              ),
-                              SizedBox(
-                                width: deviceWidth * 0.02,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText(
-                                    "",
-                                    20,
-                                    FontWeight.w900,
-                                    Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text("KIRIM"),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    responsiveText(
-                      "Kode OTP",
-                      20,
-                      FontWeight.w900,
-                      Colors.black,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    responsiveTextField(
-                        deviceWidth, deviceHeight, _controllerOtp, 0.4, false),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    deviceWidth < 800
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              responsiveText(
-                                "Kata Sandi",
-                                20,
-                                FontWeight.w900,
-                                Colors.black,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              responsiveTextField(deviceWidth, deviceHeight,
-                                  _controllerPassword, 0.4, true),
-                              const SizedBox(
-                                height: 25,
-                              ),
-                              responsiveText(
-                                "Ulangi Kata Sandi",
-                                20,
-                                FontWeight.w900,
-                                Colors.black,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              responsiveTextField(deviceWidth, deviceHeight,
-                                  _controllerConfirmPassword, 0.4, true),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText(
-                                    "Kata Sandi",
-                                    20,
-                                    FontWeight.w900,
-                                    Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(deviceWidth, deviceHeight,
-                                      _controllerPassword, 0.19, true),
-                                ],
-                              ),
-                              SizedBox(
-                                width: deviceWidth * 0.02,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText(
-                                    "Ulangi Kata Sandi",
-                                    20,
-                                    FontWeight.w900,
-                                    Colors.black,
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(deviceWidth, deviceHeight,
-                                      _controllerConfirmPassword, 0.19, true),
-                                ],
-                              ),
-                            ],
-                          ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    deviceWidth < 800
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Column(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text("AKTIVASI"),
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
-                        : SizedBox(
-                            width: deviceWidth * 0.4,
-                            child: Row(
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                },
+              ),
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                controller: ScrollController(),
+                child: SizedBox(
+                  width: deviceWidth < 800 ? deviceWidth : deviceWidth * 0.4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: deviceWidth * 0.12,
+                      ),
+                      responsiveText(
+                        "Aktivasi Akun",
+                        64,
+                        FontWeight.w900,
+                        Colors.black,
+                      ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      responsiveText(
+                        "Nama Pengguna",
+                        20,
+                        FontWeight.w900,
+                        Colors.black,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      responsiveTextField(deviceWidth, deviceHeight,
+                          _controllerUsername, 0.4, false),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      deviceWidth < 800
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                responsiveText(
+                                  "Nomor Telepon",
+                                  20,
+                                  FontWeight.w900,
+                                  Colors.black,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                responsiveTextField(deviceWidth, deviceHeight,
+                                    _controllerNotelp, 0.4, false),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {},
+                                      child: const Text("KIRIM"),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText(
+                                      "Nomor Telepon",
+                                      20,
+                                      FontWeight.w900,
+                                      Colors.black,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveTextField(
+                                        deviceWidth,
+                                        deviceHeight,
+                                        _controllerNotelp,
+                                        0.4,
+                                        false),
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: deviceWidth * 0.02,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText(
+                                      "",
+                                      20,
+                                      FontWeight.w900,
+                                      Colors.black,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {},
+                                      child: const Text("KIRIM"),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      responsiveText(
+                        "Kode OTP",
+                        20,
+                        FontWeight.w900,
+                        Colors.black,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      responsiveTextField(deviceWidth, deviceHeight,
+                          _controllerOtp, 0.4, false),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      deviceWidth < 800
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                responsiveText(
+                                  "Kata Sandi",
+                                  20,
+                                  FontWeight.w900,
+                                  Colors.black,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                responsiveTextField(deviceWidth, deviceHeight,
+                                    _controllerPassword, 0.4, true),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                responsiveText(
+                                  "Ulangi Kata Sandi",
+                                  20,
+                                  FontWeight.w900,
+                                  Colors.black,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                responsiveTextField(deviceWidth, deviceHeight,
+                                    _controllerConfirmPassword, 0.4, true),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText(
+                                      "Kata Sandi",
+                                      20,
+                                      FontWeight.w900,
+                                      Colors.black,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveTextField(
+                                        deviceWidth,
+                                        deviceHeight,
+                                        _controllerPassword,
+                                        0.19,
+                                        true),
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: deviceWidth * 0.02,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText(
+                                      "Ulangi Kata Sandi",
+                                      20,
+                                      FontWeight.w900,
+                                      Colors.black,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveTextField(
+                                        deviceWidth,
+                                        deviceHeight,
+                                        _controllerConfirmPassword,
+                                        0.19,
+                                        true),
+                                  ],
+                                ),
+                              ],
+                            ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      deviceWidth < 800
+                          ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Column(
@@ -858,51 +848,30 @@ class _ActivationPageState extends State<ActivationPage> {
                                       child: const Text("AKTIVASI"),
                                     ),
                                   ],
-                                ),
+                                )
                               ],
+                            )
+                          : SizedBox(
+                              width: deviceWidth * 0.4,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        child: const Text("AKTIVASI"),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    deviceWidth < 800
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Column(
-                                children: [
-                                  responsiveText(
-                                    "Sudah aktivasi? ",
-                                    16,
-                                    FontWeight.w900,
-                                    Colors.black,
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      widget.controllerPageLoginActivation
-                                          .animateToPage(0,
-                                              duration:
-                                                  const Duration(milliseconds: 700),
-                                              curve: Curves.easeOut);
-                                    },
-                                    child: responsiveText(
-                                      "Masuk disini",
-                                      16,
-                                      FontWeight.w900,
-                                      primaryColorVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )
-                        : SizedBox(
-                            width: deviceWidth * 0.4,
-                            child: Row(
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      deviceWidth < 800
+                          ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Column(
@@ -921,8 +890,8 @@ class _ActivationPageState extends State<ActivationPage> {
                                       onTap: () {
                                         widget.controllerPageLoginActivation
                                             .animateToPage(0,
-                                                duration:
-                                                    const Duration(milliseconds: 700),
+                                                duration: const Duration(
+                                                    milliseconds: 700),
                                                 curve: Curves.easeOut);
                                       },
                                       child: responsiveText(
@@ -935,12 +904,49 @@ class _ActivationPageState extends State<ActivationPage> {
                                   ],
                                 ),
                               ],
+                            )
+                          : SizedBox(
+                              width: deviceWidth * 0.4,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    children: [
+                                      responsiveText(
+                                        "Sudah aktivasi? ",
+                                        16,
+                                        FontWeight.w900,
+                                        Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          widget.controllerPageLoginActivation
+                                              .animateToPage(0,
+                                                  duration: const Duration(
+                                                      milliseconds: 700),
+                                                  curve: Curves.easeOut);
+                                        },
+                                        child: responsiveText(
+                                          "Masuk disini",
+                                          16,
+                                          FontWeight.w900,
+                                          primaryColorVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                    const SizedBox(
-                      height: 90,
-                    ),
-                  ],
+                      const SizedBox(
+                        height: 90,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

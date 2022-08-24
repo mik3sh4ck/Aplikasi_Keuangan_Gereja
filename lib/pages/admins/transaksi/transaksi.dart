@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
-import 'package:aplikasi_keuangan_gereja/widget.dart/loadingindicator.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -12,8 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../themes/colors.dart';
-import '../../../widget.dart/expandablefab.dart';
-import '../../../widget.dart/responsivetext.dart';
+import '../../../widgets/expandablefab.dart';
+import '../../../widgets/loadingindicator.dart';
+import '../../../widgets/responsivetext.dart';
 
 class AdminControllerTransaksiPage extends StatefulWidget {
   const AdminControllerTransaksiPage({Key? key}) : super(key: key);
@@ -78,6 +78,11 @@ class AdminTransaksiPage extends StatefulWidget {
 }
 
 class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
+  ServicesUser servicesUser = ServicesUser();
+  final List<String> _kategoriTransaksi = List.empty(growable: true);
+  final List _kodeGereja = List.empty(growable: true);
+  final List _namaTransaksi = List.empty(growable: true);
+
   var stateOfDisable = true;
   DateTime selectedDate1 = DateTime.now();
   String formattedDate1 = "";
@@ -107,6 +112,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   @override
   void initState() {
     // TODO: implement initState
+    _getKodeKategori(kodeGereja);
+
     formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
     dateFrom = formattedDate1;
     formattedDate2 = DateFormat('dd-MM-yyyy').format(selectedDate2);
@@ -120,6 +127,20 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future _getKodeKategori(kodeGereja) async {
+    var response = await servicesUser.getKodeTransaksi(kodeGereja);
+    if (response[0] != 404) {
+      // kategoriTransaksi.map((e) => ClassKodeTransaksi.fromJSON(e)).toList();
+      for (var element in response[1]) {
+        _kategoriTransaksi.add(element['kode_transaksi']);
+        _kodeGereja.add(element['kode_gereja']);
+        _namaTransaksi.add(element['nama_transaksi']);
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
   }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
@@ -400,7 +421,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                         fillColor: surfaceColor,
                                       ),
                                     ),
-                                    items: dataDropdown,
+                                    items: _kategoriTransaksi,
                                     onChanged: (val) {
                                       kategori = val.toString();
                                     },
@@ -724,7 +745,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                               color: primaryColor,
                               margin: const EdgeInsets.symmetric(vertical: 10),
                               child: DropdownSearch(
-                                items: dataDropdown,
+                                items: _kategoriTransaksi,
                                 onChanged: (val) {
                                   kategori = val.toString();
                                 },
@@ -894,8 +915,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     widget.controllerPageKategori.animateToPage(
                                         1,
                                         duration:
-                                            const Duration(milliseconds: 500),
-                                        curve: Curves.easeIn);
+                                            const Duration(milliseconds: 250),
+                                        curve: Curves.ease);
                                   },
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1041,7 +1062,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
   @override
   void initState() {
     // TODO: implement initState
-    kategoriTransaksi = servicesUser.getAllUser(kodeGereja);
+    kategoriTransaksi = servicesUser.getKodeTransaksi(kodeGereja);
     super.initState();
   }
 
@@ -1053,12 +1074,13 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
     super.dispose();
   }
 
-  responsiveTextField(deviceWidth, deviceHeight, controllerText) {
+  responsiveTextField(deviceWidth, deviceHeight, controllerText, mLength) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextField(
+        maxLength: mLength,
         controller: controllerText,
         autofocus: false,
         decoration: InputDecoration(
@@ -1091,7 +1113,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
 
   _showBuatKategoriDialog(dw, dh) {
     showDialog(
-      useRootNavigator: true,
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -1150,7 +1172,8 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  responsiveTextField(dw, dh, _controllerKode),
+                                  responsiveTextField(
+                                      dw, dh, _controllerKode, 4),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -1160,7 +1183,155 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                     height: 10,
                                   ),
                                   responsiveTextField(
-                                      dw, dh, _controllerKategori),
+                                      dw, dh, _controllerKategori, null),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    _controllerKategori.clear();
+                                    _controllerKode.clear();
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    postKodeTransaksi(
+                                            kodeGereja,
+                                            _controllerKategori.text,
+                                            _controllerKode.text,
+                                            context)
+                                        .then(
+                                      (value) {
+                                        _controllerKategori.clear();
+                                        _controllerKode.clear();
+                                        Navigator.pop(context);
+                                      },
+                                    );
+                                  }
+                                },
+                                child: const Text("Tambah"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {
+      if (mounted) {
+        kategoriTransaksi = servicesUser
+            .getKodeTransaksi(kodeGereja)
+            .whenComplete(() => setState(() {}));
+      }
+    });
+  }
+
+  _showBuatSubKategoriDialog(dw, dh, index) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw * 0.8,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw * 0.8,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              responsiveText("Tambah Sub Kategori", 26,
+                                  FontWeight.w700, darkText),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Id : $index", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveText(
+                                      "Kode", 16, FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerKode, 4),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveText("Nama Kategori", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerKategori, null),
                                 ],
                               ),
                               const SizedBox(
@@ -1214,134 +1385,20 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
     );
   }
 
-  _showBuatSubKategoriDialog(dw, dh, index) {
-    showDialog(
-      useRootNavigator: true,
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                  },
-                ),
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  controller: ScrollController(),
-                  child: SizedBox(
-                    width: dw * 0.8,
-                    child: Column(
-                      children: [
-                        Container(
-                          width: dw * 0.8,
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              responsiveText("Tambah Kategori", 26,
-                                  FontWeight.w700, darkText),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Id : $index", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText(
-                                      "Kode", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(dw, dh, _controllerKode),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText("Nama Kategori", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKategori),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 25,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (mounted) {
-                                    setState(() {});
-                                  }
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Batal"),
-                              ),
-                              const SizedBox(
-                                width: 25,
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (mounted) {
-                                    setState(() {});
-                                  }
+  Future postKodeTransaksi(
+      kodeGereja, namaKategori, kodeKategori, context) async {
+    var response = await servicesUser.inputKodeTransaksi(
+        kodeGereja, namaKategori, kodeKategori);
 
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Tambah"),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
   }
 
   @override
@@ -1372,8 +1429,8 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                           icon: const Icon(Icons.arrow_back_ios_new_rounded),
                           onPressed: () {
                             widget.controllerPageKategori.animateToPage(0,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeOut);
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.ease);
                           },
                         ),
                         const SizedBox(
@@ -1414,7 +1471,8 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                         side: BorderSide(
-                            color: navButtonPrimary.withOpacity(0.4)),
+                          color: navButtonPrimary.withOpacity(0.4),
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -1443,7 +1501,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
                                           leading: Text(snapData[1][index]
-                                              ['kode_gereja']),
+                                              ['kode_transaksi']),
                                           title: Row(
                                             children: [
                                               const SizedBox(
@@ -1451,7 +1509,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                                 child: VerticalDivider(),
                                               ),
                                               Text(snapData[1][index]
-                                                  ['email_user']),
+                                                  ['nama_transaksi']),
                                               const Spacer(),
                                               IconButton(
                                                 onPressed: () {
@@ -1490,8 +1548,8 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                                           duration:
                                                               const Duration(
                                                                   milliseconds:
-                                                                      500),
-                                                          curve: Curves.easeIn);
+                                                                      250),
+                                                          curve: Curves.ease);
                                                 },
                                                 child: const Icon(Icons
                                                     .arrow_forward_rounded),
@@ -1575,8 +1633,8 @@ class _LihatSubKategoriState extends State<LihatSubKategori> {
                           icon: const Icon(Icons.arrow_back_ios_new_rounded),
                           onPressed: () {
                             widget.controllerPageSubKategori.animateToPage(0,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeOut);
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.ease);
                           },
                         ),
                         const SizedBox(

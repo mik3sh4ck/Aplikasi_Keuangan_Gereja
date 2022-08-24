@@ -76,12 +76,14 @@ class ServicesUser {
 
   //TODO: Input Kode Transaksi
   Future inputKodeTransaksi(kodeGereja, namaTransaksi, kodeTransaksi) async {
-    final response = await http.get(Uri.parse(
-        "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi"));
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi"),
+    );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
-      var jsonRespData = json.decode(response.body)['data'];
-      return [jsonRespStatus, jsonRespData];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
     } else {
       throw Exception("Gagal mengambil data");
     }

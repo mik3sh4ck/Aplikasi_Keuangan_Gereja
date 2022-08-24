@@ -109,3 +109,23 @@ class ClassKeuangan {
     );
   }
 }
+
+class ClassKodeTransaksi {
+  String kodeTransaksi;
+  String kodeGereja;
+  String namaTransaksi;
+
+  ClassKodeTransaksi({
+    required this.kodeTransaksi,
+    required this.kodeGereja,
+    required this.namaTransaksi,
+  });
+
+  factory ClassKodeTransaksi.fromJSON(Map<String, dynamic> json) {
+    return ClassKodeTransaksi(
+      kodeTransaksi: json['kode_transaksi'],
+      kodeGereja: json['kode_gereja'],
+      namaTransaksi: json['nama_transaksi'],
+    );
+  }
+}
