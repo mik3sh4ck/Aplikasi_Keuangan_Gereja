@@ -101,14 +101,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget build(BuildContext context) {
     getUserName(kodeUser);
     List<LineChartBarData> lineChartBarData = [
-      LineChartBarData(isCurved: true, spots: [
-        FlSpot(1, 10),
-        FlSpot(2, 12),
-        FlSpot(3, 10),
-        FlSpot(4, 7),
-        FlSpot(5, 8),
-        FlSpot(6, 10),
-      ])
+      LineChartBarData(
+        isCurved: true,
+        spots: [
+          FlSpot(1, 0),
+          FlSpot(2, 12),
+          FlSpot(3, 10),
+          FlSpot(4, 7),
+          FlSpot(5, 8),
+          FlSpot(6, 10),
+        ],
+        color: primaryColor,
+        barWidth: 3,
+      )
     ];
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -194,6 +199,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                   maxX: 6,
                                   maxY: 15,
                                   lineBarsData: lineChartBarData,
+                                  gridData: FlGridData(show: false),
+                                  borderData: FlBorderData(show: false),
                                 ),
                               ))
                         ],
