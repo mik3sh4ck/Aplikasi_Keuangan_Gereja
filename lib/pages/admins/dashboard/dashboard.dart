@@ -102,14 +102,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget build(BuildContext context) {
     getUserName(kodeUser);
     List<LineChartBarData> lineChartBarData = [
-      LineChartBarData(isCurved: true, spots: [
-        const FlSpot(1, 10),
-        const FlSpot(2, 12),
-        const FlSpot(3, 10),
-        const FlSpot(4, 7),
-        const FlSpot(5, 8),
-        const FlSpot(6, 10),
-      ])
+
+      LineChartBarData(
+        isCurved: true,
+        spots: [
+          FlSpot(1, 0),
+          FlSpot(2, 12),
+          FlSpot(3, 10),
+          FlSpot(4, 7),
+          FlSpot(5, 8),
+          FlSpot(6, 10),
+        ],
+        color: primaryColor,
+        barWidth: 3,
+      )
+
     ];
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -185,19 +192,22 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.all(20),
-                            width: 800,
-                            height: 500,
-                            child: LineChart(
-                              LineChartData(
-                                minX: 1,
-                                minY: 0,
-                                maxX: 6,
-                                maxY: 15,
-                                lineBarsData: lineChartBarData,
-                              ),
-                            ),
-                          )
+
+                              padding: EdgeInsets.all(20),
+                              width: 800,
+                              height: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  minX: 1,
+                                  minY: 0,
+                                  maxX: 6,
+                                  maxY: 15,
+                                  lineBarsData: lineChartBarData,
+                                  gridData: FlGridData(show: false),
+                                  borderData: FlBorderData(show: false),
+                                ),
+                              ))
+
                         ],
                       ),
                     ],
