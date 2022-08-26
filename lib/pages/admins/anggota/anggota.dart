@@ -3,15 +3,20 @@
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:aplikasi_keuangan_gereja/widgets/responsivetext.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../services/apiservices.dart';
 import '../../../widgets/loadingindicator.dart';
 
 String _kodeRole = "";
 String _kodeUser = "";
+String _namaUser = "";
 
 class AdminAnggotaController extends StatefulWidget {
   const AdminAnggotaController({Key? key}) : super(key: key);
@@ -28,6 +33,7 @@ class _AdminAnggotaControllerState extends State<AdminAnggotaController> {
   final _controllerPageEditRole = PageController();
   final _controllerPageDetailRole = PageController();
   final _controllerPageAbsensi = PageController();
+  final _controllerPageDetailAbsensi = PageController();
   @override
   void initState() {
     // TODO: implement initState
@@ -44,6 +50,7 @@ class _AdminAnggotaControllerState extends State<AdminAnggotaController> {
     _controllerPageEditRole.dispose();
     _controllerPageDetailRole.dispose();
     _controllerPageAbsensi.dispose();
+    _controllerPageDetailAbsensi.dispose();
     super.dispose();
   }
 
@@ -103,7 +110,18 @@ class _AdminAnggotaControllerState extends State<AdminAnggotaController> {
             AdminBeriRole(controllerPageBeriRole: _controllerPageBeriRole),
           ],
         ),
-        AdminAbsensiPage(controllerPageAnggota: _controllerPageAnggota),
+        PageView(
+          controller: _controllerPageDetailAbsensi,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            AdminAbsensiPage(
+              controllerPageAnggota: _controllerPageAnggota,
+              controllerPageDetailAbsen: _controllerPageDetailAbsensi,
+            ),
+            AdminDetailAbsen(
+                controllerPageDetailAbsen: _controllerPageDetailAbsensi)
+          ],
+        ),
       ],
     );
   }
@@ -350,17 +368,19 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                                             onPressed: () {
                                               _kodeUser = snapData[1][index]
                                                   ['kode_user'];
+                                              _namaUser = snapData[1][index]
+                                                  ['nama_lengkap_user'];
                                               widget.controllerPageBeriRole
                                                   .animateToPage(1,
                                                       duration: const Duration(
                                                           milliseconds: 250),
                                                       curve: Curves.ease);
                                               debugPrint(
-                                                _kodeUser.toString(),
+                                                "$_kodeUser, $_namaUser",
                                               );
                                             },
                                             child: Text(
-                                              "Ubah Role",
+                                              "Beri Role",
                                               style: GoogleFonts.nunito(
                                                 color: primaryColorVariant,
                                                 fontWeight: FontWeight.w700,
@@ -414,10 +434,13 @@ class AdminBeriRole extends StatefulWidget {
 class _AdminBeriRoleState extends State<AdminBeriRole> {
   ServicesUser servicesUser = ServicesUser();
   late Future role;
+  List<String> roleList = List.empty(growable: true);
+  List<String> KodeRoleList = List.empty(growable: true);
   @override
   void initState() {
     // TODO: implement initState
     role = servicesUser.getRole(kodeGereja);
+    getRole(kodeGereja);
     super.initState();
   }
 
@@ -425,6 +448,16 @@ class _AdminBeriRoleState extends State<AdminBeriRole> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future getRole(kodeGereja) async {
+    var response = await servicesUser.getRole(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        roleList.add(element['nama_role']);
+        KodeRoleList.add(element['kode_role']);
+      }
+    }
   }
 
   @override
@@ -480,7 +513,34 @@ class _AdminBeriRoleState extends State<AdminBeriRole> {
                       controller: ScrollController(),
                       child: SizedBox(
                         width: deviceWidth * 0.6,
-                        child: Column(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            responsiveText(
+                                _namaUser, 22, FontWeight.w700, darkText),
+                            const SizedBox(height: 25),
+                            Card(
+                              child: DropdownSearch(
+                                items: roleList,
+                                onChanged: (val) {
+                                  for (int i = 0; i < roleList.length; i++) {
+                                    if (roleList[i] == val) {
+                                      debugPrint(KodeRoleList[i].toString());
+                                    }
+                                  }
+                                },
+                                selectedItem: "Pilih Role",
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 25,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {},
+                              child: const Text("Simpan"),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1724,7 +1784,11 @@ class _AdminDetailRoleState extends State<AdminDetailRole> {
 //TODO: Absensi Page
 class AdminAbsensiPage extends StatefulWidget {
   final PageController controllerPageAnggota;
-  const AdminAbsensiPage({Key? key, required this.controllerPageAnggota})
+  final PageController controllerPageDetailAbsen;
+  const AdminAbsensiPage(
+      {Key? key,
+      required this.controllerPageAnggota,
+      required this.controllerPageDetailAbsen})
       : super(key: key);
 
   @override
@@ -1733,16 +1797,248 @@ class AdminAbsensiPage extends StatefulWidget {
 
 class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
   ServicesUser servicesUser = ServicesUser();
+  late Future role;
+
+  final _controllerNamaAbsen = TextEditingController();
+
+  var stateOfDisable = true;
+  DateTime selectedDate = DateTime.now();
+  String formattedDate = "";
+  String date = "Date";
+
   @override
   void initState() {
     // TODO: implement initState
+    role = servicesUser.getRole(kodeGereja);
     super.initState();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
+    _controllerNamaAbsen.dispose();
     super.dispose();
+  }
+
+  Future<void> selectDate(context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Colors.amber, // header background color
+                onPrimary: Colors.black, // header text color
+                onSurface: Colors.black, // body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  primary: primaryColorVariant, // button text color
+                ),
+              ),
+            ),
+            child: child!);
+      },
+    );
+    if (picked != null && picked != selectedDate) {
+      if (mounted) {
+        selectedDate = picked;
+        formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+        date = formattedDate;
+        stateOfDisable = false;
+        debugPrint("Selected Date From $selectedDate");
+
+        setState(() {});
+      }
+    }
+  }
+
+  responsiveTextField(deviceWidth, deviceHeight, controllerText) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: navButtonPrimary.withOpacity(0.5),
+        ),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: SizedBox(
+        width: deviceWidth,
+        child: TextField(
+          controller: controllerText,
+          autofocus: false,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _showBuatAbsenDialog(dw, dh) {
+    showDialog(
+      barrierDismissible: false,
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw * 0.8,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw * 0.8,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              responsiveText(
+                                  "Buat Absen", 26, FontWeight.w700, darkText),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              responsiveText("Nama Absensi", 16,
+                                  FontWeight.w700, darkText),
+                              const SizedBox(height: 16),
+                              responsiveTextField(dw, dh, _controllerNamaAbsen),
+                              const SizedBox(height: 25),
+                              responsiveText(
+                                  "Tanggal", 16, FontWeight.w700, darkText),
+                              const SizedBox(height: 16),
+                              Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: Colors.black.withOpacity(0.3),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 25),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(date),
+                                      IconButton(
+                                        onPressed: () {
+                                          selectDate(context).then(
+                                            (value) => setState(() {}),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.calendar_month),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    selectedDate = DateTime.now();
+                                    formattedDate = "";
+                                    date = "Date";
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    selectedDate = DateTime.now();
+                                    formattedDate = "";
+                                    date = "Date";
+                                    setState(() {});
+                                  }
+
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Tambah"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -1752,6 +2048,16 @@ class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
     return Scaffold(
       body: Stack(
         children: [
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Image(
+              width: deviceWidth < 800
+                  ? (deviceHeight * 0.35)
+                  : (deviceWidth * 0.35),
+              image: const AssetImage("lib/assets/images/absen.png"),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
             child: Column(
@@ -1770,7 +2076,226 @@ class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
                     const SizedBox(
                       width: 25,
                     ),
-                    responsiveText("Buat Role", 26, FontWeight.w900, darkText),
+                    responsiveText(
+                        "Buat Absensi", 26, FontWeight.w900, darkText),
+                  ],
+                ),
+                const Divider(
+                  height: 56,
+                ),
+                Expanded(
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: SizedBox(
+                        width:
+                            deviceWidth < 800 ? deviceWidth : deviceWidth * 0.5,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _showBuatAbsenDialog(
+                                        deviceWidth, deviceHeight);
+                                  },
+                                  child: Row(
+                                    children: const [
+                                      Icon(Icons.add),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text("Buat Absensi"),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 25,
+                            ),
+                            Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: FutureBuilder(
+                                  future: role,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List snapData = snapshot.data! as List;
+                                      if (snapData[0] != 404) {
+                                        return ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(
+                                            dragDevices: {
+                                              PointerDeviceKind.touch,
+                                              PointerDeviceKind.mouse,
+                                            },
+                                          ),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            controller: ScrollController(),
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemCount: snapData[1].length,
+                                            itemBuilder: (context, index) {
+                                              return SizedBox(
+                                                width: deviceWidth * 0.7,
+                                                child: Card(
+                                                  color:
+                                                      scaffoldBackgroundColor,
+                                                  child: ListTile(
+                                                    title: Row(
+                                                      children: [
+                                                        Text(
+                                                          "Tanggal",
+                                                          style: GoogleFonts
+                                                              .nunito(
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                            fontSize: 16,
+                                                            color: darkText,
+                                                          ),
+                                                        ),
+                                                        const Spacer(),
+                                                        responsiveText(
+                                                            "Absen ${index + 1}",
+                                                            16,
+                                                            FontWeight.w700,
+                                                            darkText),
+                                                        const Spacer(),
+                                                        ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(12),
+                                                            shape:
+                                                                const CircleBorder(),
+                                                          ),
+                                                          onPressed: () {
+                                                            widget.controllerPageDetailAbsen
+                                                                .animateToPage(
+                                                                    1,
+                                                                    duration: const Duration(
+                                                                        milliseconds:
+                                                                            250),
+                                                                    curve: Curves
+                                                                        .ease);
+                                                          },
+                                                          child: const Icon(Icons
+                                                              .arrow_forward_rounded),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    return loadingIndicator(
+                                        primaryColorVariant);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AdminDetailAbsen extends StatefulWidget {
+  final PageController controllerPageDetailAbsen;
+  const AdminDetailAbsen({Key? key, required this.controllerPageDetailAbsen})
+      : super(key: key);
+
+  @override
+  State<AdminDetailAbsen> createState() => _AdminDetailAbsenState();
+}
+
+class _AdminDetailAbsenState extends State<AdminDetailAbsen> {
+  ServicesUser servicesUser = ServicesUser();
+  late Future role;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    role = servicesUser.getRole(kodeGereja);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Image(
+              width: deviceWidth < 800
+                  ? (deviceHeight * 0.4)
+                  : (deviceWidth * 0.4),
+              image: const AssetImage("lib/assets/images/absen.png"),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        widget.controllerPageDetailAbsen.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    ),
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    responsiveText(
+                        "Detail Absensi", 26, FontWeight.w900, darkText),
                   ],
                 ),
                 const Divider(
@@ -1790,60 +2315,54 @@ class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ElevatedButton(
-                            onPressed: () {},
-                            child: Wrap(
-                              children: const [
-                                Icon(Icons.add),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text("Buat Role"),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 25,
-                          ),
+                          responsiveText(
+                              "Absen", 22, FontWeight.w700, darkText),
+                          const SizedBox(height: 16),
+                          responsiveText(
+                              "Tanggal", 16, FontWeight.w700, darkText),
+                          const SizedBox(height: 16),
                           Card(
-                            child: FutureBuilder(
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  List snapData = snapshot.data! as List;
-                                  if (snapData[0] != 404) {
-                                    return ScrollConfiguration(
-                                      behavior: ScrollConfiguration.of(context)
-                                          .copyWith(
-                                        dragDevices: {
-                                          PointerDeviceKind.touch,
-                                          PointerDeviceKind.mouse,
-                                        },
-                                      ),
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.vertical,
-                                        controller: ScrollController(),
-                                        physics: const ClampingScrollPhysics(),
-                                        itemCount: snapData[1].length,
-                                        itemBuilder: (context, index) {
-                                          return SizedBox(
-                                            width: deviceWidth * 0.7,
-                                            child: Card(
-                                              shape: RoundedRectangleBorder(
-                                                side: BorderSide(
-                                                  color: navButtonPrimary
-                                                      .withOpacity(0.5),
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: Colors.black.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: FutureBuilder(
+                                future: role,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    if (snapData[0] != 404) {
+                                      return ScrollConfiguration(
+                                        behavior:
+                                            ScrollConfiguration.of(context)
+                                                .copyWith(
+                                          dragDevices: {
+                                            PointerDeviceKind.touch,
+                                            PointerDeviceKind.mouse,
+                                          },
+                                        ),
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.vertical,
+                                          controller: ScrollController(),
+                                          physics:
+                                              const ClampingScrollPhysics(),
+                                          itemCount: snapData[1].length,
+                                          itemBuilder: (context, index) {
+                                            return Card(
+                                              color:
+                                                  scaffoldBackgroundColor,
                                               child: ListTile(
                                                 title: Row(
                                                   children: [
                                                     Text(
-                                                      snapData[1][index]
-                                                          ['nama_role'],
-                                                      style: GoogleFonts.nunito(
+                                                      "Nama",
+                                                      style: GoogleFonts
+                                                          .nunito(
                                                         fontWeight:
                                                             FontWeight.w700,
                                                         fontSize: 16,
@@ -1851,55 +2370,47 @@ class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
                                                       ),
                                                     ),
                                                     const Spacer(),
-                                                    IconButton(
-                                                      onPressed: () {
+                                                    ToggleSwitch(
+                                                      minWidth: 40,
+                                                      initialLabelIndex: 0,
+                                                      cornerRadius: 10,
+                                                      activeFgColor:
+                                                          Colors.white,
+                                                      inactiveBgColor:
+                                                          surfaceColor,
+                                                      inactiveFgColor:
+                                                          Colors.white,
+                                                      totalSwitches: 2,
+                                                      activeBgColors: [
+                                                        [
+                                                          Colors.grey
+                                                              .withOpacity(
+                                                                  0.5)
+                                                        ],
+                                                        [
+                                                          correctColor
+                                                              .withOpacity(
+                                                                  0.8),
+                                                        ],
+                                                      ],
+                                                      onToggle: (index) {
                                                         debugPrint(
-                                                          index.toString(),
-                                                        );
+                                                            'switched to: $index');
                                                       },
-                                                      icon: const Icon(
-                                                          Icons.edit),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 25,
-                                                    ),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        debugPrint(
-                                                          index.toString(),
-                                                        );
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.delete_rounded),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 25,
-                                                    ),
-                                                    ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(12),
-                                                        shape:
-                                                            const CircleBorder(),
-                                                      ),
-                                                      onPressed: () {},
-                                                      child: const Icon(Icons
-                                                          .arrow_forward_rounded),
                                                     ),
                                                   ],
                                                 ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }
                                   }
-                                }
-                                return loadingIndicator(primaryColorVariant);
-                              },
+                                  return loadingIndicator(
+                                      primaryColorVariant);
+                                },
+                              ),
                             ),
                           ),
                         ],
