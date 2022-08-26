@@ -275,7 +275,7 @@ class NavigationScreen extends StatelessWidget {
           case 3:
             return AdminControllerKegiatanPage();
           case 4:
-            return AdminDonasiPage();
+            return AdminControllerDonasiPage();
           case 5:
             return AdminSettingPage();
           default:

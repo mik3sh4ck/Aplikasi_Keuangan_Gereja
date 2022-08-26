@@ -20,3 +20,18 @@ responsiveText(text, double size, FontWeight fontweight, Color color) {
     ),
   );
 }
+
+responsiveTextNoMax(text, double size, FontWeight fontweight, Color color) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 5),
+    child: AutoSizeText(
+      text,
+      style: GoogleFonts.nunito(
+        fontSize: size,
+        fontWeight: fontweight,
+        color: color,
+      ),
+      minFontSize: 12,
+    ),
+  );
+}
