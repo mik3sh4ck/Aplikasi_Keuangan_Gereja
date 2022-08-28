@@ -2321,97 +2321,261 @@ class _AdminDetailAbsenState extends State<AdminDetailAbsen> {
                           responsiveText(
                               "Tanggal", 16, FontWeight.w700, darkText),
                           const SizedBox(height: 16),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(
-                                color: Colors.black.withOpacity(0.3),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: FutureBuilder(
-                                future: role,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    List snapData = snapshot.data! as List;
-                                    if (snapData[0] != 404) {
-                                      return ScrollConfiguration(
-                                        behavior:
-                                            ScrollConfiguration.of(context)
-                                                .copyWith(
-                                          dragDevices: {
-                                            PointerDeviceKind.touch,
-                                            PointerDeviceKind.mouse,
+                          deviceWidth < 800
+                              ? Column(
+                                  children: [
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        side: BorderSide(
+                                          color: Colors.black.withOpacity(0.3),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: FutureBuilder(
+                                          future: role,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              List snapData =
+                                                  snapshot.data! as List;
+                                              if (snapData[0] != 404) {
+                                                return ScrollConfiguration(
+                                                  behavior:
+                                                      ScrollConfiguration.of(
+                                                              context)
+                                                          .copyWith(
+                                                    dragDevices: {
+                                                      PointerDeviceKind.touch,
+                                                      PointerDeviceKind.mouse,
+                                                    },
+                                                  ),
+                                                  child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    scrollDirection:
+                                                        Axis.vertical,
+                                                    controller:
+                                                        ScrollController(),
+                                                    physics:
+                                                        const ClampingScrollPhysics(),
+                                                    itemCount:
+                                                        snapData[1].length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Card(
+                                                        color:
+                                                            scaffoldBackgroundColor,
+                                                        child: ListTile(
+                                                          title: Row(
+                                                            children: [
+                                                              Text(
+                                                                "Nama",
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .nunito(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      darkText,
+                                                                ),
+                                                              ),
+                                                              const Spacer(),
+                                                              ToggleSwitch(
+                                                                minWidth: 40,
+                                                                initialLabelIndex:
+                                                                    0,
+                                                                cornerRadius:
+                                                                    10,
+                                                                activeFgColor:
+                                                                    Colors
+                                                                        .white,
+                                                                inactiveBgColor:
+                                                                    surfaceColor,
+                                                                inactiveFgColor:
+                                                                    Colors
+                                                                        .white,
+                                                                totalSwitches:
+                                                                    2,
+                                                                activeBgColors: [
+                                                                  [
+                                                                    Colors.grey
+                                                                        .withOpacity(
+                                                                            0.5)
+                                                                  ],
+                                                                  [
+                                                                    correctColor
+                                                                        .withOpacity(
+                                                                            0.8),
+                                                                  ],
+                                                                ],
+                                                                onToggle:
+                                                                    (index) {
+                                                                  debugPrint(
+                                                                      'switched to: $index');
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                            return loadingIndicator(
+                                                primaryColorVariant);
                                           },
                                         ),
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          controller: ScrollController(),
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: snapData[1].length,
-                                          itemBuilder: (context, index) {
-                                            return Card(
-                                              color:
-                                                  scaffoldBackgroundColor,
-                                              child: ListTile(
-                                                title: Row(
-                                                  children: [
-                                                    Text(
-                                                      "Nama",
-                                                      style: GoogleFonts
-                                                          .nunito(
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        fontSize: 16,
-                                                        color: darkText,
-                                                      ),
-                                                    ),
-                                                    const Spacer(),
-                                                    ToggleSwitch(
-                                                      minWidth: 40,
-                                                      initialLabelIndex: 0,
-                                                      cornerRadius: 10,
-                                                      activeFgColor:
-                                                          Colors.white,
-                                                      inactiveBgColor:
-                                                          surfaceColor,
-                                                      inactiveFgColor:
-                                                          Colors.white,
-                                                      totalSwitches: 2,
-                                                      activeBgColors: [
-                                                        [
-                                                          Colors.grey
-                                                              .withOpacity(
-                                                                  0.5)
-                                                        ],
-                                                        [
-                                                          correctColor
-                                                              .withOpacity(
-                                                                  0.8),
-                                                        ],
-                                                      ],
-                                                      onToggle: (index) {
-                                                        debugPrint(
-                                                            'switched to: $index');
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 25,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {},
+                                      child: const Text("Generate QR"),
+                                    ),
+                                    const SizedBox(
+                                      height: 25,
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Expanded(
+                                      child: Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          side: BorderSide(
+                                            color:
+                                                Colors.black.withOpacity(0.3),
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: FutureBuilder(
+                                            future: role,
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData) {
+                                                List snapData =
+                                                    snapshot.data! as List;
+                                                if (snapData[0] != 404) {
+                                                  return ScrollConfiguration(
+                                                    behavior:
+                                                        ScrollConfiguration.of(
+                                                                context)
+                                                            .copyWith(
+                                                      dragDevices: {
+                                                        PointerDeviceKind.touch,
+                                                        PointerDeviceKind.mouse,
                                                       },
                                                     ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                                    child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      controller:
+                                                          ScrollController(),
+                                                      physics:
+                                                          const ClampingScrollPhysics(),
+                                                      itemCount:
+                                                          snapData[1].length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return Card(
+                                                          color:
+                                                              scaffoldBackgroundColor,
+                                                          child: ListTile(
+                                                            title: Row(
+                                                              children: [
+                                                                Text(
+                                                                  "Nama",
+                                                                  style:
+                                                                      GoogleFonts
+                                                                          .nunito(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700,
+                                                                    fontSize:
+                                                                        16,
+                                                                    color:
+                                                                        darkText,
+                                                                  ),
+                                                                ),
+                                                                const Spacer(),
+                                                                ToggleSwitch(
+                                                                  minWidth: 40,
+                                                                  initialLabelIndex:
+                                                                      0,
+                                                                  cornerRadius:
+                                                                      10,
+                                                                  activeFgColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  inactiveBgColor:
+                                                                      surfaceColor,
+                                                                  inactiveFgColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  totalSwitches:
+                                                                      2,
+                                                                  activeBgColors: [
+                                                                    [
+                                                                      Colors
+                                                                          .grey
+                                                                          .withOpacity(
+                                                                              0.5)
+                                                                    ],
+                                                                    [
+                                                                      correctColor
+                                                                          .withOpacity(
+                                                                              0.8),
+                                                                    ],
+                                                                  ],
+                                                                  onToggle:
+                                                                      (index) {
+                                                                    debugPrint(
+                                                                        'switched to: $index');
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                              return loadingIndicator(
+                                                  primaryColorVariant);
+                                            },
+                                          ),
                                         ),
-                                      );
-                                    }
-                                  }
-                                  return loadingIndicator(
-                                      primaryColorVariant);
-                                },
-                              ),
-                            ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {},
+                                            child: const Text("Generate QR"),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          const SizedBox(
+                            height: 25,
+                          ),
+                          ElevatedButton(
+                            onPressed: () {},
+                            child: const Text("Simpan"),
                           ),
                         ],
                       ),
