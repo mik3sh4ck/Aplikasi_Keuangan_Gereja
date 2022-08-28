@@ -15,6 +15,13 @@ import '../../../widgets/expandablefab.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
+final List<String> _idKode = List.empty(growable: true);
+final List<String> _kategoriTransaksi = List.empty(growable: true);
+final List<String> _kodeGereja = List.empty(growable: true);
+final List<String> _namaTransaksi = List.empty(growable: true);
+String _idKodeTransaksi = "";
+String _kodeTransaksi = "";
+
 class AdminControllerTransaksiPage extends StatefulWidget {
   const AdminControllerTransaksiPage({Key? key}) : super(key: key);
 
@@ -79,9 +86,6 @@ class AdminTransaksiPage extends StatefulWidget {
 
 class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   ServicesUser servicesUser = ServicesUser();
-  final List<String> _kategoriTransaksi = List.empty(growable: true);
-  final List _kodeGereja = List.empty(growable: true);
-  final List _namaTransaksi = List.empty(growable: true);
 
   var stateOfDisable = true;
   DateTime selectedDate1 = DateTime.now();
@@ -134,6 +138,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     if (response[0] != 404) {
       // kategoriTransaksi.map((e) => ClassKodeTransaksi.fromJSON(e)).toList();
       for (var element in response[1]) {
+        _idKode.add(element['id'].toString());
         _kategoriTransaksi.add(element['kode_transaksi']);
         _kodeGereja.add(element['kode_gereja']);
         _namaTransaksi.add(element['nama_transaksi']);
@@ -331,6 +336,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
   _showTambahDialog(dw, dh) {
     showDialog(
+      barrierDismissible: false,
       useRootNavigator: true,
       context: context,
       builder: (context) {
@@ -755,9 +761,40 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                             const SizedBox(
                               height: 16,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: buttonColor,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 16),
+                                    textStyle: GoogleFonts.nunito(
+                                        color: lightText,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                        letterSpacing: 0.125),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    widget.controllerPageKategori.animateToPage(
+                                        1,
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        curve: Curves.ease);
+                                  },
+                                  child: Text(
+                                    "Lihat Kategori",
+                                    style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 16,
+                                ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     primary: buttonColor,
@@ -775,6 +812,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                   //TODO: search btn
                                   onPressed: () {},
                                   child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       const Icon(Icons.search),
                                       const SizedBox(
@@ -889,46 +927,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                               children: [
                                 _platformCheckAddTransaksi(
                                     deviceWidth, deviceHeight),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: buttonColor,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 16),
-                                    textStyle: GoogleFonts.nunito(
-                                        color: lightText,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 14,
-                                        letterSpacing: 0.125),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    widget.controllerPageKategori.animateToPage(
-                                        1,
-                                        duration:
-                                            const Duration(milliseconds: 250),
-                                        curve: Curves.ease);
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(Icons.add),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text("Kategori"),
-                                    ],
-                                  ),
-                                ),
                               ],
                             ),
                           ],
@@ -1173,7 +1171,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                     height: 10,
                                   ),
                                   responsiveTextField(
-                                      dw, dh, _controllerKode, 4),
+                                      dw, dh, _controllerKode, 6),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -1310,7 +1308,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  responsiveText("Id : $index", 16,
+                                  responsiveText("Id : $_kodeTransaksi", 16,
                                       FontWeight.w700, darkText),
                                   const SizedBox(
                                     height: 10,
@@ -1321,7 +1319,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                     height: 10,
                                   ),
                                   responsiveTextField(
-                                      dw, dh, _controllerKode, 4),
+                                      dw, dh, _controllerKode, 3),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -1348,6 +1346,10 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
+                                    _idKodeTransaksi = "";
+                                    _kodeTransaksi = "";
+                                    _controllerKode.clear();
+                                    _controllerKategori.clear();
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -1360,6 +1362,18 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
+                                    String temp =
+                                        "$_kodeTransaksi-${_controllerKode.text}";
+                                    postKodeSubTransaksi(
+                                        _controllerKategori.text,
+                                        temp,
+                                        _idKodeTransaksi,
+                                        context);
+
+                                    _idKodeTransaksi = "";
+                                    _kodeTransaksi = "";
+                                    _controllerKode.clear();
+                                    _controllerKategori.clear();
                                     setState(() {});
                                   }
 
@@ -1401,6 +1415,22 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
     }
   }
 
+  Future postKodeSubTransaksi(
+      namaSubKategori, kodeSubKategori, idTransaksi, context) async {
+    var response = await servicesUser.inputKodeSubTransaksi(
+        idTransaksi, namaSubKategori, kodeSubKategori);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -1408,169 +1438,210 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
     return Scaffold(
       body: Stack(
         children: [
-          ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
-            ),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              controller: ScrollController(),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                width: deviceWidth,
-                child: Column(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                          onPressed: () {
-                            widget.controllerPageKategori.animateToPage(0,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.ease);
-                          },
-                        ),
-                        const SizedBox(
-                          width: 25,
-                        ),
-                        Text(
-                          "Kategori",
-                          style: Theme.of(context).textTheme.headline5,
-                        ),
-                      ],
-                    ),
-                    const Divider(
-                      thickness: 1,
-                      height: 56,
-                    ),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _showBuatKategoriDialog(deviceWidth, deviceHeight);
-                          },
-                          child: Row(
-                            children: const [
-                              Icon(Icons.add),
-                              SizedBox(
-                                width: 16,
-                              ),
-                              Text("Buat Kategori"),
-                            ],
-                          ),
-                        ),
-                      ],
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      onPressed: () {
+                        widget.controllerPageKategori.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
                     ),
                     const SizedBox(
-                      height: 25,
+                      width: 25,
                     ),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: navButtonPrimary.withOpacity(0.4),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: FutureBuilder(
-                          future: kategoriTransaksi,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              List snapData = snapshot.data! as List;
-                              if (snapData[0] != 404) {
-                                return ScrollConfiguration(
-                                  behavior:
-                                      ScrollConfiguration.of(context).copyWith(
-                                    dragDevices: {
-                                      PointerDeviceKind.touch,
-                                      PointerDeviceKind.mouse,
-                                    },
-                                  ),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.vertical,
-                                    controller: ScrollController(),
-                                    physics: const ClampingScrollPhysics(),
-                                    itemCount: snapData[1].length,
-                                    itemBuilder: (context, index) {
-                                      return Card(
-                                        color: scaffoldBackgroundColor,
-                                        child: ListTile(
-                                          leading: Text(snapData[1][index]
-                                              ['kode_transaksi']),
-                                          title: Row(
-                                            children: [
-                                              const SizedBox(
-                                                height: 25,
-                                                child: VerticalDivider(),
-                                              ),
-                                              Text(snapData[1][index]
-                                                  ['nama_transaksi']),
-                                              const Spacer(),
-                                              IconButton(
-                                                onPressed: () {
-                                                  debugPrint(
-                                                    index.toString(),
-                                                  );
-                                                  _showBuatSubKategoriDialog(
-                                                      deviceWidth,
-                                                      deviceHeight,
-                                                      index);
-                                                },
-                                                icon: const Icon(Icons.add),
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  debugPrint(
-                                                    index.toString(),
-                                                  );
-                                                },
-                                                icon: const Icon(
-                                                    Icons.delete_rounded),
-                                              ),
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  padding:
-                                                      const EdgeInsets.all(12),
-                                                  shape: const CircleBorder(),
-                                                ),
-                                                onPressed: () {
-                                                  debugPrint(
-                                                    index.toString(),
-                                                  );
-                                                  widget
-                                                      .controllerPageSubKategori
-                                                      .animateToPage(1,
-                                                          duration:
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      250),
-                                                          curve: Curves.ease);
-                                                },
-                                                child: const Icon(Icons
-                                                    .arrow_forward_rounded),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                );
-                              }
-                            }
-                            return loadingIndicator(primaryColorVariant);
-                          },
-                        ),
-                      ),
+                    Text(
+                      "Kategori",
+                      style: Theme.of(context).textTheme.headline5,
                     ),
                   ],
                 ),
-              ),
+                const Divider(
+                  thickness: 1,
+                  height: 56,
+                ),
+                Expanded(
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: SizedBox(
+                        width: deviceWidth,
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _showBuatKategoriDialog(
+                                        deviceWidth, deviceHeight);
+                                  },
+                                  child: Row(
+                                    children: const [
+                                      Icon(Icons.add),
+                                      SizedBox(
+                                        width: 16,
+                                      ),
+                                      Text("Buat Kategori"),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 25,
+                            ),
+                            Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: navButtonPrimary.withOpacity(0.4),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: FutureBuilder(
+                                  future: kategoriTransaksi,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List snapData = snapshot.data! as List;
+                                      if (snapData[0] != 404) {
+                                        return ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(
+                                            dragDevices: {
+                                              PointerDeviceKind.touch,
+                                              PointerDeviceKind.mouse,
+                                            },
+                                          ),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            controller: ScrollController(),
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemCount: snapData[1].length,
+                                            itemBuilder: (context, index) {
+                                              return Card(
+                                                color: scaffoldBackgroundColor,
+                                                child: ListTile(
+                                                  leading: Text(snapData[1]
+                                                          [index]
+                                                      ['kode_transaksi']),
+                                                  title: Row(
+                                                    children: [
+                                                      const SizedBox(
+                                                        height: 25,
+                                                        child:
+                                                            VerticalDivider(),
+                                                      ),
+                                                      Text(snapData[1][index]
+                                                          ['nama_transaksi']),
+                                                      const Spacer(),
+                                                      IconButton(
+                                                        onPressed: () {
+                                                          _idKodeTransaksi =
+                                                              snapData[1][index]
+                                                                      ['id']
+                                                                  .toString();
+                                                          _kodeTransaksi =
+                                                              snapData[1][index]
+                                                                      [
+                                                                      'kode_transaksi']
+                                                                  .toString();
+                                                          setState(() {});
+                                                          debugPrint(
+                                                            _idKodeTransaksi
+                                                                .toString(),
+                                                          );
+                                                          _showBuatSubKategoriDialog(
+                                                              deviceWidth,
+                                                              deviceHeight,
+                                                              index);
+                                                        },
+                                                        icon: const Icon(
+                                                            Icons.add),
+                                                      ),
+                                                      IconButton(
+                                                        onPressed: () {
+                                                          _idKodeTransaksi =
+                                                              snapData[1][index]
+                                                                      ['id']
+                                                                  .toString();
+                                                          setState(() {});
+                                                          debugPrint(
+                                                            _idKodeTransaksi
+                                                                .toString(),
+                                                          );
+                                                        },
+                                                        icon: const Icon(Icons
+                                                            .delete_rounded),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(12),
+                                                          shape:
+                                                              const CircleBorder(),
+                                                        ),
+                                                        onPressed: () {
+                                                          _idKodeTransaksi =
+                                                              snapData[1][index]
+                                                                      ['id']
+                                                                  .toString();
+                                                          setState(() {});
+                                                          debugPrint(
+                                                            _idKodeTransaksi,
+                                                          );
+                                                          widget
+                                                              .controllerPageSubKategori
+                                                              .animateToPage(1,
+                                                                  duration:
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                              250),
+                                                                  curve: Curves
+                                                                      .ease);
+                                                        },
+                                                        child: const Icon(Icons
+                                                            .arrow_forward_rounded),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    return loadingIndicator(
+                                        primaryColorVariant);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
