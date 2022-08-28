@@ -118,6 +118,7 @@ class ServicesUser {
     }
   }
 
+
   Future inputRole(kodeGereja, idPrivilege, namaRole) async {
     final response = await http.post(
       Uri.parse(
@@ -127,6 +128,33 @@ class ServicesUser {
       var jsonRespStatus = json.decode(response.body)['status'];
       var jsonRespMessage = json.decode(response.body)['message'];
       return [jsonRespStatus, jsonRespMessage];
+
+  //TODO: Get Proposal Kegiatan
+  Future getAllProposalKegiatan(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}proposal-kegiatan?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+   //TODO: Get Item Proposal Kegiatan
+  Future getAllItemProposalKegiatan(kodeKegiatan) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}item-proposal-kegiatan?kode_kegiatan=$kodeKegiatan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+
     } else {
       throw Exception("Gagal mengambil data");
     }
