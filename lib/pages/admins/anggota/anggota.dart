@@ -6,7 +6,6 @@ import 'package:aplikasi_keuangan_gereja/widgets/responsivetext.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -435,7 +434,7 @@ class _AdminBeriRoleState extends State<AdminBeriRole> {
   ServicesUser servicesUser = ServicesUser();
   late Future role;
   List<String> roleList = List.empty(growable: true);
-  List<String> KodeRoleList = List.empty(growable: true);
+  List<String> kodeRoleList = List.empty(growable: true);
   @override
   void initState() {
     // TODO: implement initState
@@ -455,7 +454,7 @@ class _AdminBeriRoleState extends State<AdminBeriRole> {
     if (response[0] != 404) {
       for (var element in response[1]) {
         roleList.add(element['nama_role']);
-        KodeRoleList.add(element['kode_role']);
+        kodeRoleList.add(element['kode_role']);
       }
     }
   }
@@ -525,7 +524,7 @@ class _AdminBeriRoleState extends State<AdminBeriRole> {
                                 onChanged: (val) {
                                   for (int i = 0; i < roleList.length; i++) {
                                     if (roleList[i] == val) {
-                                      debugPrint(KodeRoleList[i].toString());
+                                      debugPrint(kodeRoleList[i].toString());
                                     }
                                   }
                                 },

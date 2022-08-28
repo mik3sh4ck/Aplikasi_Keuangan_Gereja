@@ -52,6 +52,7 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                       color: Colors.black,
                     ),
                     Container(
+                      padding: EdgeInsets.all(0),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.width,
                       child: ListView.builder(
