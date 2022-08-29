@@ -20,6 +20,7 @@ class ServicesUser {
     }
   }
 
+  //TODO: Get User
   Future getSingleUser(kodeuser) async {
     final response = await http.get(
       Uri.parse("${_linkPath}get-profile?kode_user=$kodeuser"),
@@ -34,6 +35,7 @@ class ServicesUser {
     }
   }
 
+  //TODO: Login
   Future getAuth(username, password) async {
     final response = await http.get(
       Uri.parse("${_linkPath}login?username=$username&password=$password"),
@@ -47,6 +49,7 @@ class ServicesUser {
     }
   }
 
+  //TODO: Get Kode Gereja
   Future getKodeGereja(kodeuser) async {
     final response = await http.get(
       Uri.parse("${_linkPath}get-kode-gereja?kode_user=$kodeuser"),
@@ -64,6 +67,21 @@ class ServicesUser {
   Future getKodeTransaksi(kodeGereja) async {
     final response = await http.get(
       Uri.parse("${_linkPath}kode-transaksi?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: get kode Sub Transaksi
+  Future getKodeSubTransaksi(idKodeTransaksi) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}kode-sub-transaksi?id_kode_transaksi=$idKodeTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -105,6 +123,7 @@ class ServicesUser {
     }
   }
 
+  //TODO: Get Role
   Future getRole(kodeGereja) async {
     final response = await http.get(
       Uri.parse("${_linkPath}role?kode_gereja=$kodeGereja"),
@@ -118,6 +137,7 @@ class ServicesUser {
     }
   }
 
+  //TODO: Inut Role
   Future inputRole(kodeGereja, idPrivilege, namaRole) async {
     final response = await http.post(
       Uri.parse(
