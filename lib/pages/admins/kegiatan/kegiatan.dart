@@ -10,6 +10,7 @@ import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
+
 class AdminControllerKegiatanPage extends StatefulWidget {
   const AdminControllerKegiatanPage({Key? key}) : super(key: key);
 
@@ -48,19 +49,19 @@ class _AdminControllerKegiatanPageState
           physics: const NeverScrollableScrollPhysics(),
           children: [
             PageView(
-          controller: _controllerHistoryPageKegiatan,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            AdminKegiatanPage(
-              controllerPageKegiatan: _controllerPageKegiatan,
-              controllerDetailPageKegiatan: _controllerDetailPageKegiatan,
-              controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
+              controller: _controllerHistoryPageKegiatan,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                AdminKegiatanPage(
+                  controllerPageKegiatan: _controllerPageKegiatan,
+                  controllerDetailPageKegiatan: _controllerDetailPageKegiatan,
+                  controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
+                ),
+                HistoryKegiatan(
+                  controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
+                ),
+              ],
             ),
-            HistoryKegiatan(
-              controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
-            ),
-          ],
-        ),
             DetailKebutuhanPage(
               controllerDetailPageKegiatan: _controllerDetailPageKegiatan,
             ),
@@ -136,9 +137,11 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              widget.controllerHistoryPageKegiatan.animateToPage(1,
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease);
+                              widget.controllerHistoryPageKegiatan
+                                  .animateToPage(1,
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      curve: Curves.ease);
                             },
                             icon: Icon(Icons.history_rounded),
                           ),
@@ -167,8 +170,8 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                 Text(
                                   'Buat Data Kegiatan',
                                   style: GoogleFonts.nunito(
-                                    fontWeight: FontWeight.w700, fontSize: 14
-                                  ),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14),
                                 ),
                               ],
                             ),
@@ -219,10 +222,10 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                       color: scaffoldBackgroundColor,
                                       child: ListTile(
                                         leading: responsiveText(
-                                          snapData[1][index]['nama_kegiatan'],18,
+                                            snapData[1][index]['nama_kegiatan'],
+                                            18,
                                             FontWeight.w700,
-                                            darkText
-                                        ),
+                                            darkText),
                                         trailing: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             padding: const EdgeInsets.all(12),
@@ -286,7 +289,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   void initState() {
     // TODO: implement initState
     kategoriItemProposalKegiatan =
-        servicesUserItem.getAllItemProposalKegiatan("dns007");
+        servicesUserItem.getAllItemProposalKegiatan("dns007gms001");
     super.initState();
   }
 
@@ -739,7 +742,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
   void initState() {
     // TODO: implement initState
     kategoriDetailItemProposalKegiatan =
-        servicesUserItem.getAllItemProposalKegiatan("dns007");
+        servicesUserItem.getAllItemProposalKegiatan("dns007gms001");
     super.initState();
   }
 
@@ -921,7 +924,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                             Text(datePengeluaran),
                                             IconButton(
                                               onPressed: () {
-                                                selectDatePengeluaran(context).then(
+                                                selectDatePengeluaran(context)
+                                                    .then(
                                                   (value) => setState(() {}),
                                                 );
                                               },
@@ -1119,101 +1123,103 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xFFfef5e5),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFfef5e5),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                              border: Border.all(
+                                color: Colors.black.withOpacity(0.5),
+                              ),
                             ),
-                            border: Border.all(
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                          ),
-                          width: deviceWidth / 2,
-                          padding: EdgeInsets.all(10),
-                          child: FutureBuilder(
-                            future: kategoriDetailItemProposalKegiatan,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                List snapData = snapshot.data! as List;
-                                if (snapData[0] != 404) {
-                                  return ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(
-                                      dragDevices: {
-                                        PointerDeviceKind.touch,
-                                        PointerDeviceKind.mouse,
-                                      },
-                                    ),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.vertical,
-                                      controller: ScrollController(),
-                                      physics: const ClampingScrollPhysics(),
-                                      itemCount: snapData[1].length,
-                                      itemBuilder: (context, index) {
-                                        return Card(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            side: BorderSide(
-                                              color: navButtonPrimary
-                                                  .withOpacity(0.4),
+                            //width: deviceWidth / 2,
+                            padding: EdgeInsets.all(10),
+                            child: FutureBuilder(
+                              future: kategoriDetailItemProposalKegiatan,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  List snapData = snapshot.data! as List;
+                                  if (snapData[0] != 404) {
+                                    return ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(
+                                        dragDevices: {
+                                          PointerDeviceKind.touch,
+                                          PointerDeviceKind.mouse,
+                                        },
+                                      ),
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData[1].length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              side: BorderSide(
+                                                color: navButtonPrimary
+                                                    .withOpacity(0.4),
+                                              ),
                                             ),
-                                          ),
-                                          color: scaffoldBackgroundColor,
-                                          child: ListTile(
-                                            title: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      snapData[1][index]
-                                                          ['jenis_kebutuhan'],
-                                                    ),
-                                                    Text(
-                                                      "0",
-                                                      style: TextStyle(
-                                                          fontSize: 15),
-                                                    )
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    IconButton(
-                                                        onPressed: () {
-                                                          _showTambahDialogPengeluaranKebutuhan(
-                                                              deviceWidth,
-                                                              deviceHeight);
-                                                        },
-                                                        icon: Icon(Icons.add)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    IconButton(
-                                                        onPressed: () {},
-                                                        icon: Icon(Icons
-                                                            .arrow_forward_rounded)),
-                                                  ],
-                                                ),
-                                              ],
+                                            color: scaffoldBackgroundColor,
+                                            child: ListTile(
+                                              title: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        snapData[1][index]
+                                                            ['jenis_kebutuhan'],
+                                                      ),
+                                                      Text(
+                                                        "0",
+                                                        style: TextStyle(
+                                                            fontSize: 15),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      IconButton(
+                                                          onPressed: () {
+                                                            _showTambahDialogPengeluaranKebutuhan(
+                                                                deviceWidth,
+                                                                deviceHeight);
+                                                          },
+                                                          icon: Icon(Icons.add)),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      IconButton(
+                                                          onPressed: () {},
+                                                          icon: Icon(Icons
+                                                              .arrow_forward_rounded)),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }
                                 }
-                              }
-                              return loadingIndicator(primaryColorVariant);
-                            },
+                                return loadingIndicator(primaryColorVariant);
+                              },
+                            ),
                           ),
                         ),
                       )
@@ -1232,7 +1238,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
 //TODO: Riwayat kebutuhan kegiatan
 class HistoryKegiatan extends StatefulWidget {
   final PageController controllerHistoryPageKegiatan;
-  const HistoryKegiatan({Key? key, required this.controllerHistoryPageKegiatan}) : super(key: key);
+  const HistoryKegiatan({Key? key, required this.controllerHistoryPageKegiatan})
+      : super(key: key);
 
   @override
   State<HistoryKegiatan> createState() => _HistoryKegiatanState();
@@ -1262,43 +1269,43 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
       children: [
         ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
-            ),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              controller: ScrollController(),
-              child: Container(
-                padding: EdgeInsets.all(16),
-                width: deviceWidth,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                          onPressed: () {
-                            widget.controllerHistoryPageKegiatan.animateToPage(0,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.ease);
-                          },
-                        ),
-                        const SizedBox(
-                          width: 25,
-                        ),
-                        Text(
-                          "Riwayat Kegiatan",
-                          style: Theme.of(context).textTheme.headline5,
-                        ),
-                      ],
-                    ),
-                    const Divider(
-                      thickness: 1,
-                      height: 56,
-                    ),
-                    Card(
+            dragDevices: {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            },
+          ),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            controller: ScrollController(),
+            child: Container(
+              padding: EdgeInsets.all(16),
+              width: deviceWidth,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                        onPressed: () {
+                          widget.controllerHistoryPageKegiatan.animateToPage(0,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.ease);
+                        },
+                      ),
+                      const SizedBox(
+                        width: 25,
+                      ),
+                      Text(
+                        "Riwayat Kegiatan",
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    thickness: 1,
+                    height: 56,
+                  ),
+                  Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: BorderSide(
@@ -1362,10 +1369,10 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                       ),
                     ),
                   ),
-                  ],
-                ),
+                ],
               ),
             ),
+          ),
         ),
       ],
     );

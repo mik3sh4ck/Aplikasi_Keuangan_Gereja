@@ -151,7 +151,7 @@ class ServicesUser {
   Future getAllItemProposalKegiatan(kodeKegiatan) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}item-proposal-kegiatan?kode_kegiatan=$kodeKegiatan"),
+          "${_linkPath}item-proposal-kegiatan?kode_kegiatan_gabungan=$kodeKegiatan"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
