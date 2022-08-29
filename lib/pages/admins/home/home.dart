@@ -228,7 +228,7 @@ class NavigationSidebarX extends StatelessWidget {
       items: [
         SidebarXItem(
           icon: Icons.home_rounded,
-          label: 'Home',
+          label: 'Beranda',
         ),
         SidebarXItem(
           icon: Icons.wallet_rounded,
@@ -248,7 +248,7 @@ class NavigationSidebarX extends StatelessWidget {
         ),
         SidebarXItem(
           icon: Icons.settings,
-          label: 'Setting',
+          label: 'Pengaturan',
         ),
       ],
     );
