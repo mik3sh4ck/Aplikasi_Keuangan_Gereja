@@ -1,6 +1,5 @@
 //ignore_for_file: todo, prefer_const_constructors
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,7 +8,6 @@ import 'package:intl/intl.dart';
 import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
-
 
 class AdminControllerKegiatanPage extends StatefulWidget {
   const AdminControllerKegiatanPage({Key? key}) : super(key: key);
@@ -24,6 +22,7 @@ class _AdminControllerKegiatanPageState
   final _controllerPageKegiatan = PageController();
   final _controllerDetailPageKegiatan = PageController();
   final _controllerHistoryPageKegiatan = PageController();
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -110,153 +109,171 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-        ),
-        child: SingleChildScrollView(
-          physics: ClampingScrollPhysics(),
-          controller: ScrollController(),
-          child: SafeArea(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              width: deviceWidth,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      responsiveText("Kegiatan", 30, FontWeight.w900, darkText),
-                      SizedBox(
-                        width: 25,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                responsiveText("Kegiatan", 30, FontWeight.w900, darkText),
+                SizedBox(
+                  width: 25,
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        widget.controllerHistoryPageKegiatan.animateToPage(1,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      icon: Icon(Icons.history_rounded),
+                    ),
+                    SizedBox(
+                      width: 25,
+                    ),
+                    ElevatedButton(
+                      style: TextButton.styleFrom(
+                        primary: Colors.white,
+                        backgroundColor: Color(0xFFf9ab27),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
                       ),
-                      Row(
+                      onPressed: () {
+                        widget.controllerPageKegiatan.animateToPage(1,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      child: Row(
                         children: [
-                          IconButton(
-                            onPressed: () {
-                              widget.controllerHistoryPageKegiatan
-                                  .animateToPage(1,
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.ease);
-                            },
-                            icon: Icon(Icons.history_rounded),
-                          ),
+                          Icon(Icons.add_circle_outline_rounded),
                           SizedBox(
-                            width: 25,
+                            width: 5,
                           ),
-                          ElevatedButton(
-                            style: TextButton.styleFrom(
-                              primary: Colors.white,
-                              backgroundColor: Color(0xFFf9ab27),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40),
+                          Text(
+                            'Buat Data Kegiatan',
+                            style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w700, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const Divider(
+              height: 56,
+            ),
+            Expanded(
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SafeArea(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      width: deviceWidth,
+                      child: Column(
+                        children: [
+                          Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: navButtonPrimary.withOpacity(0.4),
                               ),
                             ),
-                            onPressed: () {
-                              widget.controllerPageKegiatan.animateToPage(1,
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease);
-                            },
-                            child: Row(
-                              children: [
-                                Icon(Icons.add_circle_outline_rounded),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  'Buat Data Kegiatan',
-                                  style: GoogleFonts.nunito(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14),
-                                ),
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: FutureBuilder(
+                                future: kategoriProposalKegiatan,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    if (snapData[0] != 404) {
+                                      return ScrollConfiguration(
+                                        behavior:
+                                            ScrollConfiguration.of(context)
+                                                .copyWith(
+                                          dragDevices: {
+                                            PointerDeviceKind.touch,
+                                            PointerDeviceKind.mouse,
+                                          },
+                                        ),
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.vertical,
+                                          controller: ScrollController(),
+                                          physics:
+                                              const ClampingScrollPhysics(),
+                                          itemCount: snapData[1].length,
+                                          itemBuilder: (context, index) {
+                                            return Card(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                side: BorderSide(
+                                                  color: navButtonPrimary
+                                                      .withOpacity(0.4),
+                                                ),
+                                              ),
+                                              color: scaffoldBackgroundColor,
+                                              child: ListTile(
+                                                leading: responsiveText(
+                                                    snapData[1][index]
+                                                        ['nama_kegiatan'],
+                                                    18,
+                                                    FontWeight.w700,
+                                                    darkText),
+                                                trailing: ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            12),
+                                                    shape: const CircleBorder(),
+                                                  ),
+                                                  onPressed: () {
+                                                    widget
+                                                        .controllerDetailPageKegiatan
+                                                        .animateToPage(1,
+                                                            duration:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        250),
+                                                            curve: Curves.ease);
+                                                  },
+                                                  child: const Icon(Icons
+                                                      .arrow_forward_rounded),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }
+                                  }
+                                  return loadingIndicator(primaryColorVariant);
+                                },
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 25),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: navButtonPrimary.withOpacity(0.4),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: FutureBuilder(
-                        future: kategoriProposalKegiatan,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            List snapData = snapshot.data! as List;
-                            if (snapData[0] != 404) {
-                              return ScrollConfiguration(
-                                behavior:
-                                    ScrollConfiguration.of(context).copyWith(
-                                  dragDevices: {
-                                    PointerDeviceKind.touch,
-                                    PointerDeviceKind.mouse,
-                                  },
-                                ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  controller: ScrollController(),
-                                  physics: const ClampingScrollPhysics(),
-                                  itemCount: snapData[1].length,
-                                  itemBuilder: (context, index) {
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: BorderSide(
-                                          color:
-                                              navButtonPrimary.withOpacity(0.4),
-                                        ),
-                                      ),
-                                      color: scaffoldBackgroundColor,
-                                      child: ListTile(
-                                        leading: responsiveText(
-                                            snapData[1][index]['nama_kegiatan'],
-                                            18,
-                                            FontWeight.w700,
-                                            darkText),
-                                        trailing: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.all(12),
-                                            shape: const CircleBorder(),
-                                          ),
-                                          onPressed: () {
-                                            widget.controllerDetailPageKegiatan
-                                                .animateToPage(1,
-                                                    duration: const Duration(
-                                                        milliseconds: 250),
-                                                    curve: Curves.ease);
-                                          },
-                                          child: const Icon(
-                                              Icons.arrow_forward_rounded),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          }
-                          return loadingIndicator(primaryColorVariant);
-                        },
-                      ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -461,258 +478,291 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    return Stack(
-      children: [
-        Positioned(
-          right: 30,
-          bottom: 30,
-          child: Image(
-            width: (MediaQuery.of(context).size.width) * 0.33,
-            image: AssetImage(
-              'lib/assets/images/createaktifitas.png',
-            ),
-          ),
-        ),
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-          ),
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            controller: ScrollController(),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              width: deviceWidth,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        onPressed: () {
-                          widget.controllerPageKegiatan.animateToPage(0,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
-                        },
-                      ),
-                      const SizedBox(
-                        width: 25,
-                      ),
-                      Text(
-                        "Buat Kegiatan",
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                    ],
-                  ),
-                  const Divider(
-                    thickness: 1,
-                    height: 56,
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        responsiveText(
-                            "Kode Kegiatan", 14, FontWeight.w700, darkText),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        responsiveTextField(
-                            deviceWidth, deviceHeight, _controllerKodeKegiatan),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        responsiveText(
-                            "Nama Kegiatan", 14, FontWeight.w700, darkText),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        responsiveTextField(
-                            deviceWidth, deviceHeight, _controllerNamaKegiatan),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                responsiveText("Penanggung Jawab 1", 14,
-                                    FontWeight.w700, darkText),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                responsiveTextField(deviceWidth / 2,
-                                    deviceHeight, _controllerjawab1),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                responsiveText("Penanggung Jawab 2", 14,
-                                    FontWeight.w700, darkText),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                responsiveTextField(deviceWidth / 2,
-                                    deviceHeight, _controllerjawab2),
-                              ],
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        SizedBox(
-                          width: deviceWidth * 0.5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                style: TextButton.styleFrom(
-                                  primary: Colors.white,
-                                  backgroundColor: Color(0xFFf9ab27),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  _showTambahDialogKebutuhan(
-                                      deviceWidth, deviceHeight);
-                                },
-                                child: Icon(
-                                  Icons.add,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        SizedBox(
-                          width: deviceWidth * 0.50,
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(
-                                color: navButtonPrimary.withOpacity(0.4),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: FutureBuilder(
-                                future: kategoriItemProposalKegiatan,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    List snapData = snapshot.data! as List;
-                                    if (snapData[0] != 404) {
-                                      return ScrollConfiguration(
-                                        behavior:
-                                            ScrollConfiguration.of(context)
-                                                .copyWith(
-                                          dragDevices: {
-                                            PointerDeviceKind.touch,
-                                            PointerDeviceKind.mouse,
-                                          },
-                                        ),
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          controller: ScrollController(),
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: snapData[1].length,
-                                          itemBuilder: (context, index) {
-                                            return Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                side: BorderSide(
-                                                  color: navButtonPrimary
-                                                      .withOpacity(0.4),
-                                                ),
-                                              ),
-                                              color: scaffoldBackgroundColor,
-                                              child: ListTile(
-                                                title: Text(
-                                                  snapData[1][index]
-                                                      ['jenis_kebutuhan'],
-                                                ),
-                                                subtitle: Text(
-                                                  snapData[1][index]
-                                                          ['budget_kebutuhan']
-                                                      .toString(),
-                                                ),
-                                                trailing: IconButton(
-                                                    onPressed: () {},
-                                                    icon: Icon(Icons.close)),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  return loadingIndicator(primaryColorVariant);
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        SizedBox(
-                          width: (MediaQuery.of(context).size.width) * 0.5,
-                          child: Column(
-                            children: [
-                              ElevatedButton(
-                                style: TextButton.styleFrom(
-                                  primary: Colors.white,
-                                  backgroundColor: Color(0xFFf9ab27),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  _controllerNamaKegiatan.clear();
-                                  _controllerjawab1.clear();
-                                  _controllerjawab2.clear();
-                                  _controllerJenisKebutuhan.clear();
-                                  _controllerSaldo.clear();
-                                  _controllerKeterangan.clear();
-
-                                  widget.controllerPageKegiatan.animateToPage(0,
-                                      duration: Duration(milliseconds: 700),
-                                      curve: Curves.easeOut);
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 20, right: 20),
-                                  child: Text(
-                                    'Buat',
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned(
+            right: 30,
+            bottom: 30,
+            child: Image(
+              width: (MediaQuery.of(context).size.width) * 0.33,
+              image: AssetImage(
+                'lib/assets/images/createaktifitas.png',
               ),
             ),
           ),
-        )
-      ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      onPressed: () {
+                        widget.controllerPageKegiatan.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                    ),
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    responsiveText(
+                        "Buat Kegiatan", 26, FontWeight.w900, darkText),
+                  ],
+                ),
+                const Divider(
+                  thickness: 1,
+                  height: 56,
+                ),
+                Expanded(
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        width: deviceWidth,
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Kode Kegiatan", 14,
+                                      FontWeight.w700, darkText),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(deviceWidth, deviceHeight,
+                                      _controllerKodeKegiatan),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  responsiveText("Nama Kegiatan", 14,
+                                      FontWeight.w700, darkText),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(deviceWidth, deviceHeight,
+                                      _controllerNamaKegiatan),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          responsiveText("Penanggung Jawab 1",
+                                              14, FontWeight.w700, darkText),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          responsiveTextField(deviceWidth / 2,
+                                              deviceHeight, _controllerjawab1),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          responsiveText("Penanggung Jawab 2",
+                                              14, FontWeight.w700, darkText),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          responsiveTextField(deviceWidth / 2,
+                                              deviceHeight, _controllerjawab2),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  SizedBox(
+                                    width: deviceWidth * 0.5,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        ElevatedButton(
+                                          style: TextButton.styleFrom(
+                                            primary: Colors.white,
+                                            backgroundColor: Color(0xFFf9ab27),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(40),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            _showTambahDialogKebutuhan(
+                                                deviceWidth, deviceHeight);
+                                          },
+                                          child: Icon(
+                                            Icons.add,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  SizedBox(
+                                    width: deviceWidth * 0.50,
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        side: BorderSide(
+                                          color:
+                                              navButtonPrimary.withOpacity(0.4),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: FutureBuilder(
+                                          future: kategoriItemProposalKegiatan,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              List snapData =
+                                                  snapshot.data! as List;
+                                              if (snapData[0] != 404) {
+                                                return ScrollConfiguration(
+                                                  behavior:
+                                                      ScrollConfiguration.of(
+                                                              context)
+                                                          .copyWith(
+                                                    dragDevices: {
+                                                      PointerDeviceKind.touch,
+                                                      PointerDeviceKind.mouse,
+                                                    },
+                                                  ),
+                                                  child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    scrollDirection:
+                                                        Axis.vertical,
+                                                    controller:
+                                                        ScrollController(),
+                                                    physics:
+                                                        const ClampingScrollPhysics(),
+                                                    itemCount:
+                                                        snapData[1].length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Card(
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          side: BorderSide(
+                                                            color:
+                                                                navButtonPrimary
+                                                                    .withOpacity(
+                                                                        0.4),
+                                                          ),
+                                                        ),
+                                                        color:
+                                                            scaffoldBackgroundColor,
+                                                        child: ListTile(
+                                                          title: Text(
+                                                            snapData[1][index][
+                                                                'jenis_kebutuhan'],
+                                                          ),
+                                                          subtitle: Text(
+                                                            snapData[1][index][
+                                                                    'budget_kebutuhan']
+                                                                .toString(),
+                                                          ),
+                                                          trailing: IconButton(
+                                                              onPressed: () {},
+                                                              icon: Icon(
+                                                                  Icons.close)),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                            return loadingIndicator(
+                                                primaryColorVariant);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  SizedBox(
+                                    width: (MediaQuery.of(context).size.width) *
+                                        0.5,
+                                    child: Column(
+                                      children: [
+                                        ElevatedButton(
+                                          style: TextButton.styleFrom(
+                                            primary: Colors.white,
+                                            backgroundColor: Color(0xFFf9ab27),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(40),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            _controllerNamaKegiatan.clear();
+                                            _controllerjawab1.clear();
+                                            _controllerjawab2.clear();
+                                            _controllerJenisKebutuhan.clear();
+                                            _controllerSaldo.clear();
+                                            _controllerKeterangan.clear();
+
+                                            widget.controllerPageKegiatan
+                                                .animateToPage(0,
+                                                    duration: Duration(
+                                                        milliseconds: 700),
+                                                    curve: Curves.easeOut);
+                                          },
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 20, right: 20),
+                                            child: Text(
+                                              'Buat',
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -997,238 +1047,251 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    return Container(
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-        ),
-        child: SingleChildScrollView(
-          physics: ClampingScrollPhysics(),
-          controller: ScrollController(),
-          child: SafeArea(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              width: deviceWidth,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        onPressed: () {
-                          widget.controllerDetailPageKegiatan.animateToPage(0,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
-                        },
-                      ),
-                      const SizedBox(
-                        width: 25,
-                      ),
-                      Text(
-                        "Detail Kegiatan",
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                    ],
-                  ),
-                  const Divider(
-                    thickness: 1,
-                    height: 56,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xFFfef5e5),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
-                            ),
-                            border: Border.all(
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                          ),
-                          width: deviceWidth / 2 * 0.7,
-                          padding: EdgeInsets.all(10),
-                          child: FutureBuilder(
-                            future: kategoriDetailItemProposalKegiatan,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                List snapData = snapshot.data! as List;
-                                if (snapData[0] != 404) {
-                                  return ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(
-                                      dragDevices: {
-                                        PointerDeviceKind.touch,
-                                        PointerDeviceKind.mouse,
-                                      },
-                                    ),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.vertical,
-                                      controller: ScrollController(),
-                                      physics: const ClampingScrollPhysics(),
-                                      itemCount: snapData[1].length,
-                                      itemBuilder: (context, index) {
-                                        return Card(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            side: BorderSide(
-                                              color: navButtonPrimary
-                                                  .withOpacity(0.4),
-                                            ),
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () {
+                    widget.controllerDetailPageKegiatan.animateToPage(0,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.ease);
+                  },
+                ),
+                const SizedBox(
+                  width: 25,
+                ),
+                responsiveText(
+                    "Detail Kegiatan", 26, FontWeight.w900, darkText),
+              ],
+            ),
+            const Divider(
+              thickness: 1,
+              height: 56,
+            ),
+            Expanded(
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: Container(
+                    padding: EdgeInsets.all(0),
+                    width: deviceWidth,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFfef5e5),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                                width: deviceWidth / 2 * 0.7,
+                                padding: EdgeInsets.all(10),
+                                child: FutureBuilder(
+                                  future: kategoriDetailItemProposalKegiatan,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List snapData = snapshot.data! as List;
+                                      if (snapData[0] != 404) {
+                                        return ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(
+                                            dragDevices: {
+                                              PointerDeviceKind.touch,
+                                              PointerDeviceKind.mouse,
+                                            },
                                           ),
-                                          color: scaffoldBackgroundColor,
-                                          child: ListTile(
-                                            title: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  snapData[1][index]
-                                                      ['jenis_kebutuhan'],
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            controller: ScrollController(),
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemCount: snapData[1].length,
+                                            itemBuilder: (context, index) {
+                                              return Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  side: BorderSide(
+                                                    color: navButtonPrimary
+                                                        .withOpacity(0.4),
+                                                  ),
                                                 ),
-                                                Text(
-                                                  "RP. " +
-                                                      snapData[1][index][
-                                                              'budget_kebutuhan']
-                                                          .toString(),
-                                                  style:
-                                                      TextStyle(fontSize: 15),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                }
-                              }
-                              return loadingIndicator(primaryColorVariant);
-                            },
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFfef5e5),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                              border: Border.all(
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                            ),
-                            //width: deviceWidth / 2,
-                            padding: EdgeInsets.all(10),
-                            child: FutureBuilder(
-                              future: kategoriDetailItemProposalKegiatan,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  List snapData = snapshot.data! as List;
-                                  if (snapData[0] != 404) {
-                                    return ScrollConfiguration(
-                                      behavior: ScrollConfiguration.of(context)
-                                          .copyWith(
-                                        dragDevices: {
-                                          PointerDeviceKind.touch,
-                                          PointerDeviceKind.mouse,
-                                        },
-                                      ),
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.vertical,
-                                        controller: ScrollController(),
-                                        physics: const ClampingScrollPhysics(),
-                                        itemCount: snapData[1].length,
-                                        itemBuilder: (context, index) {
-                                          return Card(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              side: BorderSide(
-                                                color: navButtonPrimary
-                                                    .withOpacity(0.4),
-                                              ),
-                                            ),
-                                            color: scaffoldBackgroundColor,
-                                            child: ListTile(
-                                              title: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Column(
+                                                color: scaffoldBackgroundColor,
+                                                child: ListTile(
+                                                  title: Column(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         snapData[1][index]
                                                             ['jenis_kebutuhan'],
                                                       ),
                                                       Text(
-                                                        "0",
+                                                        "RP. ${snapData[1][index]['budget_kebutuhan']}",
                                                         style: TextStyle(
                                                             fontSize: 15),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      IconButton(
-                                                          onPressed: () {
-                                                            _showTambahDialogPengeluaranKebutuhan(
-                                                                deviceWidth,
-                                                                deviceHeight);
-                                                          },
-                                                          icon: Icon(Icons.add)),
-                                                      SizedBox(
-                                                        width: 5,
                                                       ),
-                                                      IconButton(
-                                                          onPressed: () {},
-                                                          icon: Icon(Icons
-                                                              .arrow_forward_rounded)),
                                                     ],
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    return loadingIndicator(
+                                        primaryColorVariant);
+                                  },
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFfef5e5),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                    border: Border.all(
+                                      color: Colors.black.withOpacity(0.5),
+                                    ),
+                                  ),
+                                  //width: deviceWidth / 2,
+                                  padding: EdgeInsets.all(10),
+                                  child: FutureBuilder(
+                                    future: kategoriDetailItemProposalKegiatan,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        List snapData = snapshot.data! as List;
+                                        if (snapData[0] != 404) {
+                                          return ScrollConfiguration(
+                                            behavior:
+                                                ScrollConfiguration.of(context)
+                                                    .copyWith(
+                                              dragDevices: {
+                                                PointerDeviceKind.touch,
+                                                PointerDeviceKind.mouse,
+                                              },
+                                            ),
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.vertical,
+                                              controller: ScrollController(),
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              itemCount: snapData[1].length,
+                                              itemBuilder: (context, index) {
+                                                return Card(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    side: BorderSide(
+                                                      color: navButtonPrimary
+                                                          .withOpacity(0.4),
+                                                    ),
+                                                  ),
+                                                  color:
+                                                      scaffoldBackgroundColor,
+                                                  child: ListTile(
+                                                    title: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              snapData[1][index]
+                                                                  [
+                                                                  'jenis_kebutuhan'],
+                                                            ),
+                                                            Text(
+                                                              "0",
+                                                              style: TextStyle(
+                                                                  fontSize: 15),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            IconButton(
+                                                                onPressed: () {
+                                                                  _showTambahDialogPengeluaranKebutuhan(
+                                                                      deviceWidth,
+                                                                      deviceHeight);
+                                                                },
+                                                                icon: Icon(
+                                                                    Icons.add)),
+                                                            SizedBox(
+                                                              width: 5,
+                                                            ),
+                                                            IconButton(
+                                                                onPressed:
+                                                                    () {},
+                                                                icon: Icon(Icons
+                                                                    .arrow_forward_rounded)),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           );
-                                        },
-                                      ),
-                                    );
-                                  }
-                                }
-                                return loadingIndicator(primaryColorVariant);
-                              },
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  )
-                ],
+                                        }
+                                      }
+                                      return loadingIndicator(
+                                          primaryColorVariant);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -1265,116 +1328,134 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    return Stack(
-      children: [
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-          ),
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            controller: ScrollController(),
-            child: Container(
-              padding: EdgeInsets.all(16),
-              width: deviceWidth,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        onPressed: () {
-                          widget.controllerHistoryPageKegiatan.animateToPage(0,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
-                        },
-                      ),
-                      const SizedBox(
-                        width: 25,
-                      ),
-                      Text(
-                        "Riwayat Kegiatan",
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                    ],
-                  ),
-                  const Divider(
-                    thickness: 1,
-                    height: 56,
-                  ),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: navButtonPrimary.withOpacity(0.4),
-                      ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      onPressed: () {
+                        widget.controllerHistoryPageKegiatan.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: FutureBuilder(
-                        future: kategoriTransaksiRiwayat,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            List snapData = snapshot.data! as List;
-                            if (snapData[0] != 404) {
-                              return ScrollConfiguration(
-                                behavior:
-                                    ScrollConfiguration.of(context).copyWith(
-                                  dragDevices: {
-                                    PointerDeviceKind.touch,
-                                    PointerDeviceKind.mouse,
-                                  },
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    responsiveText(
+                        "Riwayat Kegiatan", 26, FontWeight.w900, darkText),
+                  ],
+                ),
+                const Divider(
+                  thickness: 1,
+                  height: 56,
+                ),
+                Expanded(
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        width: deviceWidth,
+                        child: Column(
+                          children: [
+                            Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: navButtonPrimary.withOpacity(0.4),
                                 ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  controller: ScrollController(),
-                                  physics: const ClampingScrollPhysics(),
-                                  itemCount: snapData[1].length,
-                                  itemBuilder: (context, index) {
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: BorderSide(
-                                          color:
-                                              navButtonPrimary.withOpacity(0.4),
-                                        ),
-                                      ),
-                                      color: scaffoldBackgroundColor,
-                                      child: ListTile(
-                                        leading: Text(
-                                          snapData[1][index]['nama_kegiatan'],
-                                        ),
-                                        trailing: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.all(12),
-                                            shape: const CircleBorder(),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: FutureBuilder(
+                                  future: kategoriTransaksiRiwayat,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List snapData = snapshot.data! as List;
+                                      if (snapData[0] != 404) {
+                                        return ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(
+                                            dragDevices: {
+                                              PointerDeviceKind.touch,
+                                              PointerDeviceKind.mouse,
+                                            },
                                           ),
-                                          onPressed: () {},
-                                          child: const Icon(
-                                              Icons.format_list_bulleted_sharp),
-                                        ),
-                                      ),
-                                    );
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            controller: ScrollController(),
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemCount: snapData[1].length,
+                                            itemBuilder: (context, index) {
+                                              return Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  side: BorderSide(
+                                                    color: navButtonPrimary
+                                                        .withOpacity(0.4),
+                                                  ),
+                                                ),
+                                                color: scaffoldBackgroundColor,
+                                                child: ListTile(
+                                                  leading: Text(
+                                                    snapData[1][index]
+                                                        ['nama_kegiatan'],
+                                                  ),
+                                                  trailing: ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              12),
+                                                      shape:
+                                                          const CircleBorder(),
+                                                    ),
+                                                    onPressed: () {},
+                                                    child: const Icon(Icons
+                                                        .format_list_bulleted_sharp),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    return loadingIndicator(
+                                        primaryColorVariant);
                                   },
                                 ),
-                              );
-                            }
-                          }
-                          return loadingIndicator(primaryColorVariant);
-                        },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

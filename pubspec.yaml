@@ -98,6 +98,7 @@ flutter:
     - lib/assets/images/absen.png
     - lib/assets/images/createaktifitas.png
     - lib/assets/images/tangan.png
+    - lib/assets/images/success.gif
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
