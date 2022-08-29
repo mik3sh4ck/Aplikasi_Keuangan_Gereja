@@ -1,8 +1,10 @@
 //ignore_for_file: todo, prefer_const_constructors
 
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
+import 'package:aplikasi_keuangan_gereja/widgets/responsivetext.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class AdminSettingPage extends StatefulWidget {
   final PageController controllerSettingPage;
@@ -42,11 +44,7 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Pages",
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
+                    responsiveText("Page", 32, FontWeight.w800, darkText),
                     Divider(
                       thickness: 2,
                       color: Colors.black,
@@ -124,15 +122,8 @@ class _AdminSettingPageControllerState
         AdminSettingPage(
           controllerSettingPage: _controllerPageSettings,
         ),
-        PageView(
-          controller: _controllerPageAddRolePage,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            AdminAddRolePage(
-              controllerAddRolePade: _controllerPageAddRolePage,
-            ),
-            AdminSettingPage(controllerSettingPage: _controllerPageSettings),
-          ],
+        AdminAddRolePage(
+          controllerAddRolePade: _controllerPageAddRolePage,
         ),
       ],
     );
@@ -158,57 +149,82 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(16),
-        child: Column(children: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                onPressed: () {
-                  widget.controllerAddRolePade.animateToPage(1,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.ease);
-                },
+      body: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+        ),
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Column(children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () {
+                      widget.controllerAddRolePade.animateToPage(0,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    },
+                  ),
+                  responsiveText("Page", 32, FontWeight.w800, darkText),
+                ],
               ),
-              Text(
-                "Pages",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Divider(
+                color: Colors.black,
+                thickness: 2,
               ),
-            ],
+              Container(
+                decoration: BoxDecoration(
+                    color: surfaceColor,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                width: MediaQuery.of(context).size.width,
+                height: 500,
+                padding: EdgeInsets.all(15),
+                child: ListView.builder(
+                    itemCount: roles.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                        margin: EdgeInsets.all(5),
+                        child: ListTile(
+                          leading: Text(
+                            roles[index],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          trailing: ToggleSwitch(
+                            minWidth: 40,
+                            initialLabelIndex: 0,
+                            cornerRadius: 10,
+                            activeFgColor: Colors.white,
+                            inactiveBgColor: surfaceColor,
+                            inactiveFgColor: Colors.white,
+                            totalSwitches: 2,
+                            activeBgColors: [
+                              [Colors.grey.withOpacity(0.5)],
+                              [
+                                correctColor.withOpacity(0.8),
+                              ],
+                            ],
+                            onToggle: (index) {
+                              debugPrint('switched to: $index');
+                            },
+                          ),
+                          textColor: Colors.black,
+                          tileColor: Colors.white,
+                        ),
+                      );
+                    }),
+              ),
+            ]),
           ),
-          Divider(
-            color: Colors.black,
-            thickness: 2,
-          ),
-          Container(
-            decoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            width: MediaQuery.of(context).size.width,
-            height: 500,
-            padding: EdgeInsets.all(15),
-            child: ListView.builder(
-                itemCount: roles.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(20))),
-                    margin: EdgeInsets.all(5),
-                    child: ListTile(
-                      leading: Text(
-                        roles[index],
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      trailing: Text("Check Box"),
-                      textColor: Colors.black,
-                      tileColor: Colors.white,
-                    ),
-                  );
-                }),
-          ),
-        ]),
+        ),
       ),
     );
   }
