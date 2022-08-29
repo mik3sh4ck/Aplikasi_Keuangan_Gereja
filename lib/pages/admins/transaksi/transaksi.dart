@@ -1666,7 +1666,7 @@ class _LihatSubKategoriState extends State<LihatSubKategori> {
   @override
   void initState() {
     // TODO: implement initState
-    subKategoriTransaksi = servicesUser.getAllUser(kodeGereja);
+    subKategoriTransaksi = servicesUser.getKodeSubTransaksi(_idKodeTransaksi);
     super.initState();
   }
 
@@ -1725,7 +1725,8 @@ class _LihatSubKategoriState extends State<LihatSubKategori> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                         side: BorderSide(
-                            color: navButtonPrimary.withOpacity(0.4)),
+                          color: navButtonPrimary.withOpacity(0.4),
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -1753,16 +1754,22 @@ class _LihatSubKategoriState extends State<LihatSubKategori> {
                                       return Card(
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
-                                          leading: Text(snapData[1][index]
-                                              ['kode_gereja']),
+                                          leading: Text(
+                                            snapData[1][index]
+                                                    ['kode_sub_transaksi']
+                                                .toString(),
+                                          ),
                                           title: Row(
                                             children: [
                                               const SizedBox(
                                                 height: 25,
                                                 child: VerticalDivider(),
                                               ),
-                                              Text(snapData[1][index]
-                                                  ['email_user']),
+                                              Text(
+                                                snapData[1][index]
+                                                        ['nama_sub_transaksi']
+                                                    .toString(),
+                                              ),
                                               const Spacer(),
                                               IconButton(
                                                 onPressed: () {
