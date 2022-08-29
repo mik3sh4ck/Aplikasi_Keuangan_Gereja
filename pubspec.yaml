@@ -52,6 +52,7 @@ dependencies:
   open_file: ^3.2.1
   path_provider: ^2.0.11
   shared_preferences: ^2.0.15
+  image_picker: ^0.8.5
 
   pdf: ^3.8.2
   printing: ^5.9.2

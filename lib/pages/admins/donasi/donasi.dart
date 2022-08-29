@@ -1,7 +1,13 @@
 //ignore_for_file: todo
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:aplikasi_keuangan_gereja/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../services/apiservices.dart';
 import '../../../themes/colors.dart';
@@ -274,6 +280,7 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
   final _controllerJudulDonasi = TextEditingController();
   final _controllerRekeningDonasi = TextEditingController();
   final _controllerKeteranganDonasi = TextEditingController();
+  
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -403,6 +410,23 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                             const SizedBox(
                               height: 15,
                             ),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (mounted) {
+                                  setState(() {});
+                                }
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Simpan"),
+                              style: TextButton.styleFrom(
+                                elevation: 1,
+                                primary: Colors.white,
+                                backgroundColor: Color(0xFFf9ab27),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -421,7 +445,6 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                               if (mounted) {
                                 setState(() {});
                               }
-                              Navigator.pop(context);
                             },
                             child: const Text("Tambah Gambar"),
                             style: TextButton.styleFrom(
@@ -433,6 +456,37 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                               ),
                             ),
                           ),
+                          SizedBox(height: 10,),
+                          Padding(
+                              padding: EdgeInsets.all(0),
+                              child: Expanded(
+                                child: Container(
+                                  height: deviceHeight * 0.3,
+                                  width: deviceWidth * 0.15,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFfef5e5),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.image_outlined,
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ))
                         ],
                       )
                     ],
@@ -771,7 +825,8 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
   @override
   void initState() {
     // TODO: implement initState
-    kategoriHistoryDonasi = servicesUser.getAllItemProposalKegiatan("dns007");
+    kategoriHistoryDonasi =
+        servicesUser.getAllItemProposalKegiatan("dns007gms001");
     super.initState();
   }
 
