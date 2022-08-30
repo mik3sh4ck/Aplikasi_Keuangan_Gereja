@@ -228,7 +228,7 @@ class NavigationSidebarX extends StatelessWidget {
       items: [
         SidebarXItem(
           icon: Icons.home_rounded,
-          label: 'Home',
+          label: 'Beranda',
         ),
         SidebarXItem(
           icon: Icons.wallet_rounded,
@@ -248,7 +248,7 @@ class NavigationSidebarX extends StatelessWidget {
         ),
         SidebarXItem(
           icon: Icons.settings,
-          label: 'Setting',
+          label: 'Pengaturan',
         ),
       ],
     );
@@ -271,11 +271,11 @@ class NavigationScreen extends StatelessWidget {
           case 1:
             return AdminControllerTransaksiPage();
           case 2:
-            return AdminAnggotaPage();
+            return AdminAnggotaController();
           case 3:
-            return AdminKegiatanPage();
+            return AdminControllerKegiatanPage();
           case 4:
-            return AdminDonasiPage();
+            return AdminControllerDonasiPage();
           case 5:
             return AdminSettingPageController();
           default:

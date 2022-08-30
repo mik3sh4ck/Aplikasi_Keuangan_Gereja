@@ -52,6 +52,7 @@ dependencies:
   open_file: ^3.2.1
   path_provider: ^2.0.11
   shared_preferences: ^2.0.15
+  image_picker: ^0.8.5
 
   pdf: ^3.8.2
   printing: ^5.9.2
@@ -94,6 +95,11 @@ flutter:
     - lib/assets/images/donation.png
     - lib/assets/images/incomeicons.png
     - lib/assets/images/outcomeicons.png
+    - lib/assets/images/absen.png
+    - lib/assets/images/createaktifitas.png
+    - lib/assets/images/tangan.png
+    - lib/assets/images/success.gif
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
