@@ -244,7 +244,7 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                               );
                             }
                           }
-                          return loadingIndicator(primaryColorVariant);
+                          return loadingIndicator();
                         },
                       ),
                     ),
@@ -944,7 +944,7 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
                                                       12,
                                                       FontWeight.w400,
                                                       darkText),
-                                                  trailing: Container(
+                                                  trailing: SizedBox(
                                                     width:
                                                         deviceWidth / 2 * 0.2,
                                                     child: responsiveText(
@@ -959,7 +959,7 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
                                       );
                                     }
                                   }
-                                  return loadingIndicator(primaryColorVariant);
+                                  return loadingIndicator();
                                 },
                               ),
                             ),

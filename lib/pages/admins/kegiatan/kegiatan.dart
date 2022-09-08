@@ -261,7 +261,7 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                       );
                                     }
                                   }
-                                  return loadingIndicator(primaryColorVariant);
+                                  return loadingIndicator();
                                 },
                               ),
                             ),
@@ -701,7 +701,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                               }
                                             }
                                             return loadingIndicator(
-                                                primaryColorVariant);
+                                                );
                                           },
                                         ),
                                       ),
@@ -1169,7 +1169,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                       }
                                     }
                                     return loadingIndicator(
-                                        primaryColorVariant);
+                                        );
                                   },
                                 ),
                               ),
@@ -1277,7 +1277,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                         }
                                       }
                                       return loadingIndicator(
-                                          primaryColorVariant);
+                                          );
                                     },
                                   ),
                                 ),
@@ -1440,7 +1440,7 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                                       }
                                     }
                                     return loadingIndicator(
-                                        primaryColorVariant);
+                                        );
                                   },
                                 ),
                               ),

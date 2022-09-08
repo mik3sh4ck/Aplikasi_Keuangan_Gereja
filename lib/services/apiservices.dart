@@ -78,10 +78,10 @@ class ServicesUser {
   }
 
   //TODO: get kode Sub Transaksi
-  Future getKodeSubTransaksi(idKodeTransaksi) async {
+  Future getKodeSubTransaksi(idKodeGabunganTransaksi) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}kode-sub-transaksi?id_kode_transaksi=$idKodeTransaksi"),
+          "${_linkPath}kode-sub-transaksi?id_kode_transaksi=$idKodeGabunganTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -93,10 +93,11 @@ class ServicesUser {
   }
 
   //TODO: Input Kode Transaksi
-  Future inputKodeTransaksi(kodeGereja, namaTransaksi, kodeTransaksi) async {
+  Future inputKodeTransaksi(
+      kodeGereja, namaTransaksi, kodeTransaksi, statusTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi"),
+          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi&status=$statusTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -109,10 +110,10 @@ class ServicesUser {
 
   //TODO: Input Kode Sub Transaksi
   Future inputKodeSubTransaksi(
-      idKodeTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
+      idKodeGabunganTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-sub-transaksi?id_kode_transaksi=$idKodeTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
+          "${_linkPath}input-kode-sub-transaksi?id_kode_transaksi=$idKodeGabunganTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

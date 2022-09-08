@@ -10,15 +10,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 import '../../../themes/colors.dart';
 import '../../../widgets/expandablefab.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
-final List<String> _idKode = List.empty(growable: true);
-final List<String> _kategoriTransaksi = List.empty(growable: true);
-final List<String> _kodeGereja = List.empty(growable: true);
-final List<String> _namaTransaksi = List.empty(growable: true);
+final List _kategori = List.empty(growable: true);
 String _idKodeTransaksi = "";
 String _kodeTransaksi = "";
 
@@ -87,20 +85,32 @@ class AdminTransaksiPage extends StatefulWidget {
 class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   ServicesUser servicesUser = ServicesUser();
 
-  var stateOfDisable = true;
-  DateTime selectedDate1 = DateTime.now();
-  String formattedDate1 = "";
-  String dateFrom = "Date";
-  DateTime selectedDate2 = DateTime.now();
-  String formattedDate2 = "";
-  String dateTo = "Date";
+  final _controllerNominal = TextEditingController();
+  final _controllerKeterangan = TextEditingController();
+
+  final _controllerDropdownFilter = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
   String formattedDate = "";
   String date = "Date";
+
+  DateTime selectedDate1 = DateTime.now();
+  String formattedDate1 = "";
+  String dateFrom = "Date";
+
+  DateTime selectedDate2 = DateTime.now();
+  String formattedDate2 = "";
+  String dateTo = "Date";
+
+  DateTime selectedMonth = DateTime.now();
+  String formattedMonth = "";
+  String month = "Month";
+
+  int dayOfWeek = DateTime.now().weekday - 1;
+  DateTime firstDay = DateTime.now();
+  DateTime lastDay = DateTime.now();
+
   String jenisInput = "";
-  final _controllerNominal = TextEditingController();
-  final _controllerKeterangan = TextEditingController();
   String kategori = "";
 
   final List<DataRow> _rowList = List.empty(growable: true);
@@ -113,6 +123,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     "Lainnya",
   ];
 
+  int? _indexFilterTanggal;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -120,8 +132,24 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
     formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
     dateFrom = formattedDate1;
+
     formattedDate2 = DateFormat('dd-MM-yyyy').format(selectedDate2);
     dateTo = formattedDate2;
+
+    formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+    date = formattedDate;
+
+    formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
+    month = formattedMonth;
+
+    dayOfWeek = DateTime.now().weekday - 1;
+    firstDay = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day - dayOfWeek);
+    lastDay = firstDay.add(
+      const Duration(days: 6, hours: 23, minutes: 59),
+    );
+
+    _controllerDropdownFilter.addListener(_changedSearch);
 
     _generateRow();
     super.initState();
@@ -130,23 +158,56 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   @override
   void dispose() {
     // TODO: implement dispose
+    _controllerDropdownFilter.dispose();
+    _controllerNominal.dispose();
+    _controllerKeterangan.dispose();
     super.dispose();
   }
+
+  // Future _getKodeKategori(kodeGereja) async {
+  //   var response = await servicesUser.getKodeTransaksi(kodeGereja);
+  //   if (response[0] != 404) {
+  //     for (var element in response[1]) {
+  //       _tempKategori.add(element['kode_transaksi_gabungan']);
+  //       _tempKategori.add(element['nama_transaksi']);
+
+  //       _kategori.add(_tempKategori.toString());
+  //       _tempKategori.clear();
+  //     }
+  //   } else {
+  //     throw "Gagal Mengambil Data";
+  //   }
+  // }
 
   Future _getKodeKategori(kodeGereja) async {
     var response = await servicesUser.getKodeTransaksi(kodeGereja);
     if (response[0] != 404) {
-      // kategoriTransaksi.map((e) => ClassKodeTransaksi.fromJSON(e)).toList();
       for (var element in response[1]) {
-        _idKode.add(element['id'].toString());
-        _kategoriTransaksi.add(element['kode_transaksi']);
-        _kodeGereja.add(element['kode_gereja']);
-        _namaTransaksi.add(element['nama_transaksi']);
+        _kategori
+            .add("${element['kode_transaksi']} - ${element['nama_transaksi']}");
       }
     } else {
       throw "Gagal Mengambil Data";
     }
   }
+
+  // Future _getKodeKategori(kodeGereja) async {
+  //   var response = await servicesUser.getKodeTransaksi(kodeGereja);
+  //   if (response[0] != 404) {
+  //     for (var element in response[1]) {
+  //       _tempKategori.add(element['kode_transaksi_gabungan'].toString());
+  //       _tempKategori.add(element['kode_transaksi'].toString());
+  //       _tempKategori.add(element['kode_gereja'].toString());
+  //       _tempKategori.add(element['nama_transaksi'].toString());
+  //       _tempKategori.add(element['status'].toString());
+
+  //       _kategori.add(_tempKategori.toString());
+  //       _tempKategori.clear();
+  //     }
+  //   } else {
+  //     throw "Gagal Mengambil Data";
+  //   }
+  // }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
     return Card(
@@ -184,12 +245,46 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     );
   }
 
+  Future<void> selectMonth(context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
+      initialDate: selectedMonth,
+      builder: (context, child) {
+        return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Colors.amber, // header background color
+                onPrimary: Colors.black, // header text color
+                onSurface: Colors.black, // body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  primary: primaryColorVariant, // button text color
+                ),
+              ),
+            ),
+            child: child!);
+      },
+    );
+    if (picked != null && picked != selectedMonth) {
+      if (mounted) {
+        selectedMonth = picked;
+        formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
+        month = formattedMonth;
+        debugPrint("Selected Month $month");
+        setState(() {});
+      }
+    }
+  }
+
   Future<void> selectDate(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
@@ -212,7 +307,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         selectedDate = picked;
         formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
         date = formattedDate;
-        stateOfDisable = false;
         debugPrint("Selected Date From $selectedDate");
 
         setState(() {});
@@ -223,9 +317,9 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   Future<void> selectDateFrom(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate1,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      initialDate: firstDay,
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
@@ -245,11 +339,18 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     );
     if (picked != null && picked != selectedDate1) {
       if (mounted) {
-        selectedDate1 = picked;
+        dayOfWeek = picked.weekday - 1;
+        firstDay = DateTime(picked.year, picked.month, picked.day - dayOfWeek);
+        lastDay = firstDay.add(
+          const Duration(days: 6, hours: 23, minutes: 59),
+        );
+        selectedDate1 = firstDay;
+        selectedDate2 = lastDay;
         formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
+        formattedDate2 = DateFormat('dd-MM-yyyy').format(selectedDate2);
         dateFrom = formattedDate1;
-        stateOfDisable = false;
-        debugPrint("Selected Date From $selectedDate1");
+        dateTo = formattedDate2;
+        debugPrint("$dateFrom, $dateTo");
         setState(() {});
       }
     }
@@ -259,39 +360,51 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate2,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.fromSwatch().copyWith(
-                  primary: primaryColor, secondary: primaryColorVariant),
+              colorScheme: const ColorScheme.light(
+                primary: Colors.amber, // header background color
+                onPrimary: Colors.black, // header text color
+                onSurface: Colors.black, // body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  primary: primaryColorVariant, // button text color
+                ),
+              ),
             ),
             child: child!);
       },
     );
-    if (picked != null && picked != selectedDate2) {
+    if (picked != null && picked != selectedDate1) {
       if (mounted) {
-        selectedDate2 = picked;
+        dayOfWeek = picked.weekday - 1;
+        firstDay = DateTime(picked.year, picked.month, picked.day - dayOfWeek);
+        lastDay = firstDay.add(
+          const Duration(days: 6, hours: 23, minutes: 59),
+        );
+        selectedDate1 = firstDay;
+        selectedDate2 = lastDay;
+        formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
         formattedDate2 = DateFormat('dd-MM-yyyy').format(selectedDate2);
+        dateFrom = formattedDate1;
         dateTo = formattedDate2;
-        stateOfDisable = false;
-        debugPrint("Selected Date From $selectedDate2");
+        debugPrint("$dateFrom, $dateTo");
         setState(() {});
       }
     }
   }
 
-  Future<void> filterKategori() async {}
-
   Future<void> _generateRow() async {
     for (int i = 0; i < 15; i++) {
-      _addRow(
-          "DN001-01", "aaaaaaaaaaaaaaaaaaa", "11-07-2022", 10000, "Pemasukan");
+      _addRow("DN001-01", "11-07-2022", "aaaaaaaaaaaaaaaaaaa", 10000, "-");
     }
   }
 
-  void _addRow(kode, uraian, tanggal, nominal, jenis) {
+  void _addRow(kode, tanggal, deskripsi, debit, kredit) {
     setState(
       () {
         _rowList.add(
@@ -305,25 +418,25 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               ),
               DataCell(
                 Text(
-                  uraian.toString(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                Text(
                   tanggal.toString(),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               DataCell(
                 Text(
-                  "Rp. $nominal, -",
+                  deskripsi.toString(),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               DataCell(
                 Text(
-                  jenis.toString(),
+                  "Rp. $debit, -",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              DataCell(
+                Text(
+                  "Rp. $kredit",
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -357,11 +470,11 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                   physics: const ClampingScrollPhysics(),
                   controller: ScrollController(),
                   child: SizedBox(
-                    width: dw * 0.8,
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
                     child: Column(
                       children: [
                         Container(
-                          width: dw * 0.8,
+                          width: dw < 800 ? dw * 0.8 : dw * 0.4,
                           decoration: BoxDecoration(
                             color: primaryColor,
                             borderRadius: const BorderRadius.only(
@@ -375,7 +488,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                               const SizedBox(
                                 height: 16,
                               ),
-                              responsiveText("Tambah $jenisInput", 26,
+                              responsiveText("Tambah Transaksi", 26,
                                   FontWeight.w700, darkText),
                               const SizedBox(
                                 height: 16,
@@ -384,7 +497,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 25),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -392,12 +506,42 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   responsiveText(
-                                      "Uraian", 16, FontWeight.w700, darkText),
+                                      "Tanggal", 16, FontWeight.w700, darkText),
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKeterangan),
+                                  SizedBox(
+                                    width: dw,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        selectDate(context).then(
+                                          (value) => setState(() {}),
+                                        );
+                                      },
+                                      child: Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 25),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(date),
+                                              const IconButton(
+                                                onPressed: null,
+                                                icon:
+                                                    Icon(Icons.calendar_month),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -406,7 +550,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  DropdownSearch(
+                                  DropdownSearch<dynamic>(
                                     dropdownDecoratorProps:
                                         DropDownDecoratorProps(
                                       dropdownSearchDecoration: InputDecoration(
@@ -427,7 +571,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                         fillColor: surfaceColor,
                                       ),
                                     ),
-                                    items: _kategoriTransaksi,
+                                    items: _kategori,
                                     onChanged: (val) {
                                       kategori = val.toString();
                                     },
@@ -437,45 +581,58 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     height: 10,
                                   ),
                                   responsiveText(
-                                      "Tanggal", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    width: dw,
-                                    child: Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 25),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(date),
-                                            IconButton(
-                                              onPressed: () {
-                                                selectDate(context).then(
-                                                  (value) => setState(() {}),
-                                                );
-                                              },
-                                              icon: const Icon(
-                                                  Icons.calendar_month),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  responsiveText(
                                       "Nominal", 16, FontWeight.w700, darkText),
                                   const SizedBox(
                                     height: 10,
                                   ),
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: TextField(
+                                      controller: _controllerNominal,
+                                      autofocus: false,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: surfaceColor,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 0, horizontal: 25),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                            color: Colors.transparent,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                            color: Colors.transparent,
+                                          ),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                            color: Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveText("Deskripsi", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                   responsiveTextField(
-                                      dw, dh, _controllerNominal),
+                                      dw, dh, _controllerKeterangan),
                                 ],
                               ),
                               const SizedBox(
@@ -492,10 +649,10 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
-                                    kategori = "";
                                     _controllerKeterangan.clear();
                                     _controllerNominal.clear();
-                                    date = "Date";
+                                    kategori = "";
+                                    date = formattedDate;
                                     jenisInput = "";
                                     setState(() {});
                                   }
@@ -518,7 +675,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     kategori = "";
                                     _controllerKeterangan.clear();
                                     _controllerNominal.clear();
-                                    date = "Date";
+                                    date = formattedDate;
                                     jenisInput = "";
                                     setState(() {});
                                   }
@@ -547,70 +704,24 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
   _platformCheckAddTransaksi(deviceWidth, deviceHeight) {
     if (kIsWeb || Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: buttonColor,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  textStyle: GoogleFonts.nunito(
-                      color: lightText,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                      letterSpacing: 0.125),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  jenisInput = "Pemasukan";
-                  _showTambahDialog(deviceWidth, deviceHeight);
-                },
-                child: SizedBox(
-                  width: 34,
-                  height: 34,
-                  child: Image.asset("lib/assets/images/incomeicons.png"),
-                ),
-              ),
-            ],
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-          const SizedBox(
-            width: 25,
-          ),
-          Column(
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: buttonColor,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  textStyle: GoogleFonts.nunito(
-                      color: lightText,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                      letterSpacing: 0.125),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  jenisInput = "Pengeluaran";
-                  _showTambahDialog(deviceWidth, deviceHeight);
-                },
-                child: SizedBox(
-                  width: 34,
-                  height: 34,
-                  child: Image.asset("lib/assets/images/outcomeicons.png"),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
+        onPressed: () {
+          _showTambahDialog(deviceWidth, deviceHeight);
+        },
+        child: Column(
+          children: [
+            Text(
+              "Tambah Transaksi",
+              style:
+                  GoogleFonts.nunito(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+          ],
+        ),
       );
     } else {
       return Column();
@@ -660,375 +771,495 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     }
   }
 
+  _filterTanggalField() {
+    if (_indexFilterTanggal == 0) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          responsiveText("Tanggal", 14, FontWeight.w700, darkText),
+          GestureDetector(
+            onTap: () {
+              selectDate(context);
+            },
+            child: Card(
+              color: primaryColor,
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    responsiveText(date, 14, FontWeight.w700, darkText),
+                    const IconButton(
+                      onPressed: null,
+                      icon: Icon(Icons.calendar_month),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          ElevatedButton(
+            //TODO: search btn
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.search),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Cari",
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (_indexFilterTanggal == 1) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          responsiveText("Dari Tanggal", 14, FontWeight.w700, darkText),
+          GestureDetector(
+            onTap: () {
+              selectDateFrom(context);
+            },
+            child: Card(
+              color: primaryColor,
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    responsiveText(dateFrom, 14, FontWeight.w700, darkText),
+                    const IconButton(
+                      onPressed: null,
+                      icon: Icon(Icons.calendar_month),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          responsiveText("Sampai Tanggal", 14, FontWeight.w700, darkText),
+          GestureDetector(
+            onTap: () {
+              selectDateTo(context);
+            },
+            child: Card(
+              color: primaryColor,
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    responsiveText(dateTo, 14, FontWeight.w700, darkText),
+                    const IconButton(
+                      onPressed: null,
+                      icon: Icon(Icons.calendar_month),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          ElevatedButton(
+            //TODO: search btn
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.search),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Cari",
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (_indexFilterTanggal == 2) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          responsiveText("Bulan", 14, FontWeight.w700, darkText),
+          GestureDetector(
+            onTap: () {
+              selectMonth(context);
+            },
+            child: Card(
+              color: primaryColor,
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    responsiveText(month, 14, FontWeight.w700, darkText),
+                    const IconButton(
+                      onPressed: null,
+                      icon: Icon(Icons.calendar_month),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          ElevatedButton(
+            //TODO: search btn
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.search),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Cari",
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column();
+    }
+  }
+
+  _showFilterTanggal() {
+    return Visibility(
+      visible: _indexFilterTanggal != null ? true : false,
+      child: _filterTanggalField(),
+    );
+  }
+
+  _cardInfo(title, nominal) {
+    return Card(
+      elevation: 3,
+      color: primaryColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: navButtonPrimary.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            responsiveText(title, 16, FontWeight.w700, darkText),
+            Divider(
+              color: navButtonPrimary.withOpacity(0.5),
+              thickness: 1,
+              height: 10,
+            ),
+            responsiveText(nominal, 16, FontWeight.w700, darkText),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _changedSearch() {
+    debugPrint(_controllerDropdownFilter.text);
+  }
+
+  _splitString(val) {
+    var value = val.toString();
+    var split = value.indexOf(" ");
+    var temp = value.substring(0, split);
+    return temp;
+  }
+
+  _buatKodeGabungan(val) {
+    var temp = kodeGereja + _splitString(val);
+    return temp;
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-        ),
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          controller: ScrollController(),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  controller: ScrollController(),
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 220,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            responsiveText(
-                                "Transaksi", 32, FontWeight.w800, darkText),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            responsiveText(
-                                "Dari Tanggal", 14, FontWeight.w700, darkText),
-                            Card(
-                              color: primaryColor,
-                              margin: const EdgeInsets.symmetric(vertical: 10),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    responsiveText(dateFrom, 14,
-                                        FontWeight.w700, darkText),
-                                    IconButton(
-                                      onPressed: () {
-                                        selectDateFrom(context);
-                                      },
-                                      icon: const Icon(Icons.calendar_month),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            responsiveText("Sampai Tanggal", 14,
-                                FontWeight.w700, darkText),
-                            Card(
-                              color: primaryColor,
-                              margin: const EdgeInsets.symmetric(vertical: 10),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    responsiveText(
-                                        dateTo, 14, FontWeight.w700, darkText),
-                                    IconButton(
-                                      onPressed: () {
-                                        selectDateTo(context);
-                                      },
-                                      icon: const Icon(Icons.calendar_month),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            responsiveText("Filter Kategori", 14,
-                                FontWeight.w700, darkText),
-                            Card(
-                              color: primaryColor,
-                              margin: const EdgeInsets.symmetric(vertical: 10),
-                              child: DropdownSearch(
-                                items: _kategoriTransaksi,
-                                onChanged: (val) {
-                                  kategori = val.toString();
-                                },
-                                selectedItem: "pilih kategori",
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: buttonColor,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 16),
-                                    textStyle: GoogleFonts.nunito(
-                                        color: lightText,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 14,
-                                        letterSpacing: 0.125),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    widget.controllerPageKategori.animateToPage(
-                                        1,
-                                        duration:
-                                            const Duration(milliseconds: 250),
-                                        curve: Curves.ease);
-                                  },
-                                  child: Text(
-                                    "Lihat Kategori",
-                                    style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 16,
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: buttonColor,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 34, vertical: 16),
-                                    textStyle: GoogleFonts.nunito(
-                                        color: lightText,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 14,
-                                        letterSpacing: 0.125),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  //TODO: search btn
-                                  onPressed: () {},
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.search),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text(
-                                        "Cari",
-                                        style: GoogleFonts.nunito(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Card(
-                              color: primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: navButtonPrimary.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    responsiveText(
-                                        "Saldo", 16, FontWeight.w700, darkText),
-                                    Divider(
-                                      color: navButtonPrimary.withOpacity(0.5),
-                                      thickness: 1,
-                                      height: 10,
-                                    ),
-                                    responsiveText("Rp. 15.000.000", 16,
-                                        FontWeight.w700, darkText),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Card(
-                              color: primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: navButtonPrimary.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    responsiveText("Pemasukan", 16,
-                                        FontWeight.w700, darkText),
-                                    Divider(
-                                      color: navButtonPrimary.withOpacity(0.5),
-                                      thickness: 1,
-                                      height: 10,
-                                    ),
-                                    responsiveText("Rp. 15.000.000", 16,
-                                        FontWeight.w700, darkText),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Card(
-                              color: primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: navButtonPrimary.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    responsiveText("Pengeluaran", 16,
-                                        FontWeight.w700, darkText),
-                                    Divider(
-                                      color: navButtonPrimary.withOpacity(0.5),
-                                      thickness: 1,
-                                      height: 10,
-                                    ),
-                                    responsiveText("Rp. 15.000.000", 16,
-                                        FontWeight.w700, darkText),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _platformCheckAddTransaksi(
-                                    deviceWidth, deviceHeight),
-                              ],
-                            ),
-                          ],
+                responsiveText("Transaksi", 32, FontWeight.w800, darkText),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      const SizedBox(
-                        width: 16,
+                      onPressed: () {
+                        widget.controllerPageKategori.animateToPage(1,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      child: Text(
+                        "Lihat Kategori",
+                        style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700, fontSize: 14),
                       ),
-                      Column(
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    _platformCheckAddTransaksi(deviceWidth, deviceHeight),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const Divider(
+              height: 56,
+            ),
+            Expanded(
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Card(
-                            color: scaffoldBackgroundColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(
-                                color: navButtonPrimary.withOpacity(0.5),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 16,
+                          Expanded(
+                            child: InteractiveViewer(
+                              transformationController:
+                                  TransformationController(),
+                              scaleEnabled: false,
+                              child: DataTable(
+                                border: TableBorder.all(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.black.withOpacity(0.5),
+                                  style: BorderStyle.solid,
                                 ),
-                                Row(
-                                  children: [
-                                    responsiveText("Tabel Transaksi", 32,
-                                        FontWeight.w900, darkText),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 16,
-                                ),
-                                DataTable(
-                                  border: TableBorder.all(
-                                    color: navButtonPrimary.withOpacity(0.5),
-                                    borderRadius: const BorderRadius.only(
-                                      bottomLeft: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
+                                headingRowHeight: 70,
+                                dataRowHeight: 56,
+                                columns: [
+                                  DataColumn(
+                                    label: Text(
+                                      "Kode",
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
+                                      ),
                                     ),
                                   ),
-                                  columnSpacing: 60,
-                                  columns: [
-                                    DataColumn(
-                                      label: Text(
-                                        "Kode",
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                        ),
+                                  DataColumn(
+                                    label: Text(
+                                      "Tanggal",
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
                                       ),
                                     ),
-                                    DataColumn(
-                                      label: Text(
-                                        "Uraian",
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      "Deskripsi",
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
                                       ),
                                     ),
-                                    DataColumn(
-                                      label: Text(
-                                        "Tanggal",
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      "Debit",
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
                                       ),
                                     ),
-                                    DataColumn(
-                                      label: Text(
-                                        "Nominal",
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                        ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      "Kredit",
+                                      style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
                                       ),
                                     ),
-                                    DataColumn(
-                                      label: Text(
-                                        "Jenis",
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
+                                  ),
+                                ],
+                                rows: List.generate(
+                                  _rowList.length,
+                                  (index) {
+                                    return DataRow(
+                                        color: MaterialStateColor.resolveWith(
+                                          (states) {
+                                            return index % 2 == 1
+                                                ? Colors.white
+                                                : primaryColor.withOpacity(0.2);
+                                          },
                                         ),
+                                        cells: _rowList[index].cells);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 16,
+                          ),
+                          SizedBox(
+                            width: 220,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                ToggleSwitch(
+                                  initialLabelIndex: _indexFilterTanggal,
+                                  totalSwitches: 3,
+                                  labels: const ['Hari', 'Minggu', 'Bulan'],
+                                  activeBgColor: [primaryColorVariant],
+                                  activeFgColor: Colors.white,
+                                  inactiveBgColor: Colors.grey[200],
+                                  inactiveFgColor: Colors.black,
+                                  dividerColor: Colors.white,
+                                  animate: true,
+                                  animationDuration: 250,
+                                  onToggle: (index) {
+                                    setState(() {
+                                      _indexFilterTanggal = index;
+                                    });
+                                    debugPrint(
+                                        'switched to: $_indexFilterTanggal');
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                _showFilterTanggal(),
+                                const Divider(
+                                  height: 56,
+                                ),
+                                responsiveText("Filter Kategori", 14,
+                                    FontWeight.w700, darkText),
+                                Card(
+                                  color: primaryColor,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: DropdownSearch<dynamic>(
+                                    popupProps: PopupProps.menu(
+                                      showSearchBox: true,
+                                      searchFieldProps: TextFieldProps(
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: "Cari Disini",
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              _controllerDropdownFilter.clear();
+                                            },
+                                            icon: Icon(
+                                              Icons.clear,
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                            ),
+                                          ),
+                                        ),
+                                        controller: _controllerDropdownFilter,
                                       ),
                                     ),
-                                  ],
-                                  rows: _rowList,
+                                    items: _kategori,
+                                    onChanged: (val) {
+                                      debugPrint(val);
+                                      debugPrint(_splitString(val));
+                                      debugPrint(_buatKodeGabungan(val));
+                                    },
+                                    selectedItem: "pilih kategori",
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 16,
+                                ),
+                                _cardInfo("Pemasukan", "15.000.000"),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                _cardInfo("Pengeluaran", "15.000.000"),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                _cardInfo("Saldo", "15.000.000"),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                _cardInfo("Saldo Total", "15.000.000"),
+                                const SizedBox(
+                                  height: 25,
                                 ),
                               ],
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
@@ -1036,6 +1267,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     );
   }
 }
+
+enum RadioJenisTransaksi { pemasukan, pengeluaran }
 
 //TODO: buat Kategori
 class BuatKategoriPage extends StatefulWidget {
@@ -1057,6 +1290,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
 
   final _controllerKode = TextEditingController();
   final _controllerKategori = TextEditingController();
+  String _status = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -1110,6 +1344,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
   }
 
   _showBuatKategoriDialog(dw, dh) {
+    RadioJenisTransaksi? radio;
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1131,11 +1366,11 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                   physics: const ClampingScrollPhysics(),
                   controller: ScrollController(),
                   child: SizedBox(
-                    width: dw * 0.8,
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
                     child: Column(
                       children: [
                         Container(
-                          width: dw * 0.8,
+                          width: dw < 800 ? dw * 0.8 : dw * 0.4,
                           decoration: BoxDecoration(
                             color: primaryColor,
                             borderRadius: const BorderRadius.only(
@@ -1171,7 +1406,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                     height: 10,
                                   ),
                                   responsiveTextField(
-                                      dw, dh, _controllerKode, 6),
+                                      dw, dh, _controllerKode, null),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -1182,6 +1417,63 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                   ),
                                   responsiveTextField(
                                       dw, dh, _controllerKategori, null),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Radio(
+                                            value:
+                                                RadioJenisTransaksi.pemasukan,
+                                            groupValue: radio,
+                                            activeColor: primaryColorVariant,
+                                            onChanged: (val) {
+                                              radio =
+                                                  val as RadioJenisTransaksi?;
+                                              if (mounted) {
+                                                setState(() {});
+                                                _status = "pemasukan";
+                                              }
+                                            },
+                                          ),
+                                          responsiveText("Pemasukan", 14,
+                                              FontWeight.w500, darkText),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        width: 25,
+                                      ),
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Radio(
+                                            value:
+                                                RadioJenisTransaksi.pengeluaran,
+                                            groupValue: radio,
+                                            activeColor: primaryColorVariant,
+                                            onChanged: (val) {
+                                              radio =
+                                                  val as RadioJenisTransaksi?;
+                                              _status = "pengeluaran";
+
+                                              if (mounted) {
+                                                setState(() {});
+                                              }
+                                            },
+                                          ),
+                                          responsiveText("Pengeluaran", 14,
+                                              FontWeight.w500, darkText),
+                                        ],
+                                      )
+                                    ],
+                                  ),
                                 ],
                               ),
                               const SizedBox(
@@ -1200,6 +1492,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                   if (mounted) {
                                     _controllerKategori.clear();
                                     _controllerKode.clear();
+                                    _status = "";
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -1216,11 +1509,13 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                             kodeGereja,
                                             _controllerKategori.text,
                                             _controllerKode.text,
+                                            _status,
                                             context)
                                         .then(
                                       (value) {
                                         _controllerKategori.clear();
                                         _controllerKode.clear();
+                                        _status = "";
                                         Navigator.pop(context);
                                       },
                                     );
@@ -1274,11 +1569,11 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                   physics: const ClampingScrollPhysics(),
                   controller: ScrollController(),
                   child: SizedBox(
-                    width: dw * 0.8,
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
                     child: Column(
                       children: [
                         Container(
-                          width: dw * 0.8,
+                          width: dw < 800 ? dw * 0.8 : dw * 0.4,
                           decoration: BoxDecoration(
                             color: primaryColor,
                             borderRadius: const BorderRadius.only(
@@ -1319,7 +1614,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                     height: 10,
                                   ),
                                   responsiveTextField(
-                                      dw, dh, _controllerKode, 3),
+                                      dw, dh, _controllerKode, null),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -1400,9 +1695,9 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
   }
 
   Future postKodeTransaksi(
-      kodeGereja, namaKategori, kodeKategori, context) async {
+      kodeGereja, namaKategori, kodeKategori, statusKategori, context) async {
     var response = await servicesUser.inputKodeTransaksi(
-        kodeGereja, namaKategori, kodeKategori);
+        kodeGereja, namaKategori, kodeKategori, statusKategori);
 
     if (response[0] != 404) {
       return true;
@@ -1627,10 +1922,11 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                             },
                                           ),
                                         );
+                                      } else if (snapData[0] == 404) {
+                                        return noData();
                                       }
                                     }
-                                    return loadingIndicator(
-                                        primaryColorVariant);
+                                    return loadingIndicator();
                                   },
                                 ),
                               ),
@@ -1787,9 +2083,11 @@ class _LihatSubKategoriState extends State<LihatSubKategori> {
                                     },
                                   ),
                                 );
+                              } else if (snapData[0] == 404) {
+                                return noData();
                               }
                             }
-                            return loadingIndicator(primaryColorVariant);
+                            return loadingIndicator();
                           },
                         ),
                       ),

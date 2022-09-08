@@ -77,27 +77,19 @@ class _AdminAnggotaControllerState extends State<AdminAnggotaController> {
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     PageView(
-                      controller: _controllerPageEditRole,
+                      controller: _controllerPageDetailRole,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        PageView(
-                          controller: _controllerPageDetailRole,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: [
-                            AdminRolePage(
-                              controllerPageRole: _controllerPageRole,
-                              controllerPageBuatRole: _controllerPageBuatRole,
-                              controllerPageEditRole: _controllerPageEditRole,
-                              controllerPageDetailRole:
-                                  _controllerPageDetailRole,
-                            ),
-                            AdminDetailRole(
-                                controllerPageDetailRole:
-                                    _controllerPageDetailRole)
-                          ],
+                        AdminRolePage(
+                          controllerPageRole: _controllerPageRole,
+                          controllerPageBuatRole: _controllerPageBuatRole,
+                          controllerPageEditRole: _controllerPageEditRole,
+                          controllerPageDetailRole:
+                              _controllerPageDetailRole,
                         ),
-                        AdminEditRole(
-                            controllerPageEditRole: _controllerPageEditRole)
+                        AdminDetailRole(
+                            controllerPageDetailRole:
+                                _controllerPageDetailRole)
                       ],
                     ),
                     AdminBuatRole(
@@ -297,119 +289,114 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
                   controller: ScrollController(),
-                  child: SafeArea(
-                    child: FutureBuilder(
-                      future: listUser,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List snapData = snapshot.data! as List;
-                          if (snapData[0] != 404) {
-                            return ScrollConfiguration(
-                              behavior:
-                                  ScrollConfiguration.of(context).copyWith(
-                                dragDevices: {
-                                  PointerDeviceKind.touch,
-                                  PointerDeviceKind.mouse,
-                                },
-                              ),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                controller: ScrollController(),
-                                physics: const ClampingScrollPhysics(),
-                                itemCount: snapData[1].length,
-                                itemBuilder: (context, index) {
-                                  return Card(
-                                    shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                        color:
-                                            navButtonPrimary.withOpacity(0.5),
-                                      ),
-                                      borderRadius: BorderRadius.circular(30),
+                  child: FutureBuilder(
+                    future: listUser,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        List snapData = snapshot.data! as List;
+                        if (snapData[0] != 404) {
+                          return ScrollConfiguration(
+                            behavior: ScrollConfiguration.of(context).copyWith(
+                              dragDevices: {
+                                PointerDeviceKind.touch,
+                                PointerDeviceKind.mouse,
+                              },
+                            ),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              controller: ScrollController(),
+                              physics: const ClampingScrollPhysics(),
+                              itemCount: snapData[1].length,
+                              itemBuilder: (context, index) {
+                                return Card(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: navButtonPrimary.withOpacity(0.5),
                                     ),
-                                    child: ListTile(
-                                      leading: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(360),
-                                        child: const CircleAvatar(
-                                          foregroundImage: AssetImage(
-                                              "lib/assets/images/defaultprofilepicture.png"),
-                                        ),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: ListTile(
+                                    leading: ClipRRect(
+                                      borderRadius: BorderRadius.circular(360),
+                                      child: const CircleAvatar(
+                                        foregroundImage: AssetImage(
+                                            "lib/assets/images/defaultprofilepicture.png"),
                                       ),
-                                      title: Row(
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                snapData[1][index]
-                                                    ['nama_lengkap_user'],
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 16,
-                                                  color: darkText,
-                                                ),
-                                              ),
-                                              Text(
-                                                "Role: ${snapData[1][index]['kode_role']}",
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                  color:
-                                                      darkText.withOpacity(0.5),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const Spacer(),
-                                          TextButton(
-                                            onPressed: () {
-                                              _kodeUser = snapData[1][index]
-                                                  ['kode_user'];
-                                              _namaUser = snapData[1][index]
-                                                  ['nama_lengkap_user'];
-                                              widget.controllerPageBeriRole
-                                                  .animateToPage(1,
-                                                      duration: const Duration(
-                                                          milliseconds: 250),
-                                                      curve: Curves.ease);
-                                              debugPrint(
-                                                "$_kodeUser, $_namaUser",
-                                              );
-                                            },
-                                            child: Text(
-                                              "Beri Role",
+                                    ),
+                                    title: Row(
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              snapData[1][index]
+                                                  ['nama_lengkap_user'],
                                               style: GoogleFonts.nunito(
-                                                color: primaryColorVariant,
                                                 fontWeight: FontWeight.w700,
+                                                fontSize: 16,
+                                                color: darkText,
                                               ),
                                             ),
+                                            Text(
+                                              "Role: ${snapData[1][index]['kode_role']}",
+                                              style: GoogleFonts.nunito(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                                color:
+                                                    darkText.withOpacity(0.5),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        TextButton(
+                                          onPressed: () {
+                                            _kodeUser =
+                                                snapData[1][index]['kode_user'];
+                                            _namaUser = snapData[1][index]
+                                                ['nama_lengkap_user'];
+                                            widget.controllerPageBeriRole
+                                                .animateToPage(1,
+                                                    duration: const Duration(
+                                                        milliseconds: 250),
+                                                    curve: Curves.ease);
+                                            debugPrint(
+                                              "$_kodeUser, $_namaUser",
+                                            );
+                                          },
+                                          child: Text(
+                                            "Beri Role",
+                                            style: GoogleFonts.nunito(
+                                              color: primaryColorVariant,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
-                                          const SizedBox(
-                                            width: 25,
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              debugPrint(
-                                                index.toString(),
-                                              );
-                                            },
-                                            icon: const Icon(
-                                                Icons.delete_rounded),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(
+                                          width: 25,
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            debugPrint(
+                                              index.toString(),
+                                            );
+                                          },
+                                          icon:
+                                              const Icon(Icons.delete_rounded),
+                                        ),
+                                      ],
                                     ),
-                                  );
-                                },
-                              ),
-                            );
-                          }
+                                  ),
+                                );
+                              },
+                            ),
+                          );
                         }
-                        return loadingIndicator(primaryColorVariant);
-                      },
-                    ),
+                      }
+                      return loadingIndicator();
+                    },
                   ),
                 ),
               ),
@@ -703,91 +690,120 @@ class _AdminRolePageState extends State<AdminRolePage> {
                                                       .withOpacity(0.5),
                                                 ),
                                                 borderRadius:
-                                                    BorderRadius.circular(30),
+                                                    BorderRadius.circular(10),
                                               ),
-                                              child: ListTile(
-                                                title: Row(
-                                                  children: [
-                                                    Text(
-                                                      snapData[1][index]
-                                                          ['nama_role'],
-                                                      style: GoogleFonts.nunito(
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        fontSize: 16,
-                                                        color: darkText,
+                                              child: ExpansionTile(
+                                                initiallyExpanded: true,
+                                                expandedCrossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                expandedAlignment:
+                                                    Alignment.centerLeft,
+                                                childrenPadding:
+                                                    const EdgeInsets.all(16),
+                                                textColor: darkText,
+                                                iconColor: navButtonPrimary,
+                                                collapsedTextColor: darkText,
+                                                collapsedIconColor:
+                                                    navButtonPrimary,
+                                                title: const Text("Hello"),
+                                                children: [
+                                                  Divider(
+                                                    height: 0,
+                                                    color: navButtonPrimary
+                                                        .withOpacity(0.3),
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: ListView.builder(
+                                                          shrinkWrap: true,
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          controller:
+                                                              ScrollController(),
+                                                          physics:
+                                                              const ClampingScrollPhysics(),
+                                                          itemCount: 5,
+                                                          itemBuilder:
+                                                              (BuildContext
+                                                                      context,
+                                                                  int index) {
+                                                            return ListTile(
+                                                              title: Text(
+                                                                  "Detail $index"),
+                                                            );
+                                                          },
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const Spacer(),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        _kodeRole = snapData[1]
-                                                                    [index]
-                                                                ['kode_role']
-                                                            .toString();
-                                                        widget
-                                                            .controllerPageEditRole
-                                                            .animateToPage(1,
-                                                                duration:
-                                                                    const Duration(
-                                                                        milliseconds:
-                                                                            250),
-                                                                curve: Curves
-                                                                    .ease);
-                                                        debugPrint(
-                                                          _kodeRole.toString(),
-                                                        );
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.edit),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 25,
-                                                    ),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        debugPrint(
-                                                          index.toString(),
-                                                        );
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.delete_rounded),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 25,
-                                                    ),
-                                                    ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(12),
-                                                        shape:
-                                                            const CircleBorder(),
+                                                      const SizedBox(
+                                                        width: 25,
                                                       ),
-                                                      onPressed: () {
-                                                        _kodeRole = snapData[1]
-                                                                    [index]
-                                                                ['kode_role']
-                                                            .toString();
-                                                        widget
-                                                            .controllerPageDetailRole
-                                                            .animateToPage(1,
-                                                                duration:
-                                                                    const Duration(
-                                                                        milliseconds:
-                                                                            250),
-                                                                curve: Curves
-                                                                    .ease);
-                                                        debugPrint(
-                                                          _kodeRole.toString(),
-                                                        );
-                                                      },
-                                                      child: const Icon(Icons
-                                                          .arrow_forward_rounded),
-                                                    ),
-                                                  ],
-                                                ),
+                                                      Expanded(
+                                                        child: ListView.builder(
+                                                          shrinkWrap: true,
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          controller:
+                                                              ScrollController(),
+                                                          physics:
+                                                              const ClampingScrollPhysics(),
+                                                          itemCount: 5,
+                                                          itemBuilder:
+                                                              (BuildContext
+                                                                      context,
+                                                                  int index) {
+                                                            return ListTile(
+                                                              title: Text(
+                                                                  "Detail $index"),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(16),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                        ),
+                                                        onPressed: () {
+                                                          _kodeRole = snapData[
+                                                                      1][index]
+                                                                  ['kode_role']
+                                                              .toString();
+                                                          widget
+                                                              .controllerPageDetailRole
+                                                              .animateToPage(1,
+                                                                  duration:
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                              250),
+                                                                  curve: Curves
+                                                                      .ease);
+                                                          debugPrint(
+                                                            _kodeRole
+                                                                .toString(),
+                                                          );
+                                                        },
+                                                        child: const Text(
+                                                            "Detail"),
+                                                      ),
+                                                    ],
+                                                  )
+                                                ],
                                               ),
                                             ),
                                           );
@@ -796,7 +812,7 @@ class _AdminRolePageState extends State<AdminRolePage> {
                                     );
                                   }
                                 }
-                                return loadingIndicator(primaryColorVariant);
+                                return loadingIndicator();
                               },
                             ),
                           ],
@@ -1108,7 +1124,7 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                                           }
                                           return FittedBox(
                                             child: loadingIndicator(
-                                                primaryColorVariant),
+                                                ),
                                           );
                                         },
                                       ),
@@ -1123,7 +1139,7 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                           ),
                           ElevatedButton(
                             onPressed: () {},
-                            child: const Text("SIMPAN"),
+                            child: const Text("BUAT"),
                           ),
                         ],
                       ),
@@ -1139,329 +1155,6 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
   }
 }
 
-class AdminEditRole extends StatefulWidget {
-  final PageController controllerPageEditRole;
-  const AdminEditRole({Key? key, required this.controllerPageEditRole})
-      : super(key: key);
-
-  @override
-  State<AdminEditRole> createState() => _AdminEditRoleState();
-}
-
-class _AdminEditRoleState extends State<AdminEditRole> {
-  ServicesUser servicesUser = ServicesUser();
-  final _controllerNamaRole = TextEditingController();
-  final List _roleList = [
-    ['Baca', false],
-    ['Input', false],
-    ['Hapus', false],
-    ['Sunting', false],
-    ['Unduh', false],
-  ];
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _controllerNamaRole.dispose();
-    super.dispose();
-  }
-
-  responsiveTextField(deviceWidth, deviceHeight, controllerText) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: navButtonPrimary.withOpacity(0.5),
-        ),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: SizedBox(
-        width: deviceWidth < 800 ? deviceWidth : deviceWidth * 0.5,
-        child: TextField(
-          controller: controllerText,
-          autofocus: false,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: surfaceColor,
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(
-                color: Colors.transparent,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(
-                color: Colors.transparent,
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(
-                color: Colors.transparent,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final deviceWidth = MediaQuery.of(context).size.width;
-    final deviceHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Image(
-              width: deviceWidth < 800
-                  ? (deviceHeight * 0.6)
-                  : (deviceWidth * 0.4),
-              image: const AssetImage("lib/assets/images/role.png"),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        widget.controllerPageEditRole.animateToPage(0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease);
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    ),
-                    const SizedBox(
-                      width: 25,
-                    ),
-                    responsiveText("Edit Role", 26, FontWeight.w900, darkText),
-                  ],
-                ),
-                const Divider(
-                  height: 56,
-                ),
-                Expanded(
-                  child: ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context).copyWith(
-                      dragDevices: {
-                        PointerDeviceKind.touch,
-                        PointerDeviceKind.mouse,
-                      },
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      controller: ScrollController(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          responsiveText("Nama", 16, FontWeight.w700, darkText),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          responsiveTextField(
-                              deviceWidth, deviceHeight, _controllerNamaRole),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          SizedBox(
-                            width: deviceWidth < 800
-                                ? deviceWidth
-                                : deviceWidth * 0.5,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    responsiveText("Privilege", 16,
-                                        FontWeight.w700, darkText),
-                                    const SizedBox(
-                                      height: 16,
-                                    ),
-                                    SizedBox(
-                                      width: deviceWidth < 800
-                                          ? deviceWidth * 0.44
-                                          : deviceWidth * 0.22,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.vertical,
-                                        controller: ScrollController(),
-                                        physics: const ClampingScrollPhysics(),
-                                        itemCount: _roleList.length,
-                                        itemBuilder: (context, index) {
-                                          return CheckboxListTile(
-                                            checkboxShape:
-                                                RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(0),
-                                            title: Card(
-                                              shape: RoundedRectangleBorder(
-                                                side: BorderSide(
-                                                  color: navButtonPrimary
-                                                      .withOpacity(0.5),
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 16,
-                                                        vertical: 10),
-                                                child: Text(
-                                                  _roleList[index][0],
-                                                ),
-                                              ),
-                                            ),
-                                            value: _roleList[index][1],
-                                            onChanged: (e) {
-                                              _roleList[index][1] = e;
-                                              setState(() {});
-                                              debugPrint(e.toString());
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    responsiveText("Kategori", 16,
-                                        FontWeight.w700, darkText),
-                                    const SizedBox(
-                                      height: 16,
-                                    ),
-                                    SizedBox(
-                                      width: deviceWidth < 800
-                                          ? deviceWidth * 0.44
-                                          : deviceWidth * 0.22,
-                                      child: FutureBuilder(
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData) {
-                                            List snapData =
-                                                snapshot.data! as List;
-                                            if (snapData[0] != 404) {
-                                              return ScrollConfiguration(
-                                                behavior:
-                                                    ScrollConfiguration.of(
-                                                            context)
-                                                        .copyWith(
-                                                  dragDevices: {
-                                                    PointerDeviceKind.touch,
-                                                    PointerDeviceKind.mouse,
-                                                  },
-                                                ),
-                                                child: ListView.builder(
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  controller:
-                                                      ScrollController(),
-                                                  physics:
-                                                      const ClampingScrollPhysics(),
-                                                  itemCount: _roleList.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return CheckboxListTile(
-                                                      checkboxShape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
-                                                      ),
-                                                      contentPadding:
-                                                          const EdgeInsets.all(
-                                                              0),
-                                                      title: Card(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          side: BorderSide(
-                                                            color:
-                                                                navButtonPrimary
-                                                                    .withOpacity(
-                                                                        0.5),
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(30),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      16,
-                                                                  vertical: 10),
-                                                          child: Text(
-                                                            _roleList[index][0],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      value: _roleList[index]
-                                                          [1],
-                                                      onChanged: (e) {
-                                                        _roleList[index][1] = e;
-                                                        setState(() {});
-                                                        debugPrint(
-                                                            e.toString());
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              );
-                                            }
-                                          }
-                                          return FittedBox(
-                                            child: loadingIndicator(
-                                                primaryColorVariant),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          ElevatedButton(
-                            onPressed: () {},
-                            child: const Text("SIMPAN"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class AdminDetailRole extends StatefulWidget {
   final PageController controllerPageDetailRole;
@@ -1749,7 +1442,7 @@ class _AdminDetailRoleState extends State<AdminDetailRole> {
                                           }
                                           return FittedBox(
                                             child: loadingIndicator(
-                                                primaryColorVariant),
+                                                ),
                                           );
                                         },
                                       ),
@@ -1762,9 +1455,20 @@ class _AdminDetailRoleState extends State<AdminDetailRole> {
                           const SizedBox(
                             height: 25,
                           ),
-                          ElevatedButton(
-                            onPressed: () {},
-                            child: const Text("SIMPAN"),
+                          Wrap(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {},
+                                child: const Text("HAPUS"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {},
+                                child: const Text("SIMPAN"),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -2211,7 +1915,7 @@ class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
                                       }
                                     }
                                     return loadingIndicator(
-                                        primaryColorVariant);
+                                        );
                                   },
                                 ),
                               ),
@@ -2425,7 +2129,7 @@ class _AdminDetailAbsenState extends State<AdminDetailAbsen> {
                                               }
                                             }
                                             return loadingIndicator(
-                                                primaryColorVariant);
+                                                );
                                           },
                                         ),
                                       ),
@@ -2551,7 +2255,7 @@ class _AdminDetailAbsenState extends State<AdminDetailAbsen> {
                                                 }
                                               }
                                               return loadingIndicator(
-                                                  primaryColorVariant);
+                                                  );
                                             },
                                           ),
                                         ),
