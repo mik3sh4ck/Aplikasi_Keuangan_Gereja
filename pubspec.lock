@@ -64,6 +64,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.1"
+  charts_common:
+    dependency: transitive
+    description:
+      name: charts_common
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.12.0"
+  charts_flutter:
+    dependency: transitive
+    description:
+      name: charts_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.12.0"
   clock:
     dependency: transitive
     description:
@@ -106,6 +120,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  d_chart:
+    dependency: "direct main"
+    description:
+      name: d_chart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   dropdown_search:
     dependency: "direct main"
     description:
@@ -296,6 +317,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0+2"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   lottie:
     dependency: "direct main"
     description:
@@ -581,6 +609,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.12"
+  textfield_search:
+    dependency: "direct main"
+    description:
+      name: textfield_search
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.10.0"
   toggle_switch:
     dependency: "direct main"
     description:

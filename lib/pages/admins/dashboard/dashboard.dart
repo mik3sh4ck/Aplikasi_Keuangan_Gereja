@@ -1,4 +1,4 @@
-// ignore_for_file: todo
+//ignore_for_file: todo
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -9,6 +9,13 @@ import 'package:intl/intl.dart';
 
 import '../../../globals.dart';
 import '../../../widgets/responsivetext.dart';
+import 'package:d_chart/d_chart.dart';
+
+TextStyle welcomeText = GoogleFonts.nunito(
+  color: Colors.black,
+  fontWeight: FontWeight.bold,
+  fontSize: 36,
+);
 
 class AdminDashboardControllerPage extends StatefulWidget {
   const AdminDashboardControllerPage({Key? key}) : super(key: key);
@@ -78,82 +85,57 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   cardSaldo(judul, jumlah) {
-    return SizedBox(
+    return Container(
       width: 200,
-      child: Card(
+      height: 100,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
         color: primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(
-            color: navButtonPrimary.withOpacity(0.5),
-            width: 1,
+        border: Border.all(color: Colors.black),
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
+      ),
+      child: Column(
+        children: [
+          Text("$judul"),
+          const Divider(
+            color: Colors.black,
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              responsiveText(judul, 16, FontWeight.w700, darkText),
-              Divider(
-                color: navButtonPrimary.withOpacity(0.5),
-                thickness: 1,
-                height: 10,
-              ),
-              responsiveText(jumlah, 16, FontWeight.w700, darkText),
-            ],
-          ),
-        ),
+          const Spacer(),
+          Text("Rp. $jumlah"),
+        ],
       ),
     );
   }
 
   cardNews(judul, isi) {
-    return Card(
-      color: scaffoldBackgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(
-          color: navButtonPrimary.withOpacity(0.5),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 350,
-            decoration: BoxDecoration(
-              color: primaryColor,
-              border: Border.all(
-                color: navButtonPrimary.withOpacity(0.5),
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
-              ),
-            ),
-            padding: const EdgeInsets.all(10),
-            child: Text(
-              "$judul",
-              style: Theme.of(context).textTheme.subtitle1,
+    return Container(
+      padding: const EdgeInsets.all(0),
+      width: 350,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          width: 350,
+          decoration: BoxDecoration(
+            color: primaryColor,
+            border: Border.all(color: Colors.black),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(15),
+              topRight: Radius.circular(15),
             ),
           ),
-          Container(
-            width: 350,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10)),
-              border: Border.all(
-                color: navButtonPrimary.withOpacity(0.5),
-              ),
-            ),
-            child: Text("$isi"),
-          )
-        ],
-      ),
+          padding: const EdgeInsets.all(10),
+          child: Text("$judul"),
+        ),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15)),
+            border: Border.all(color: Colors.black),
+          ),
+          child: Text("$isi"),
+        )
+      ]),
     );
   }
 
@@ -167,6 +149,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
     List<LineChartBarData> lineChartBarData = [
       LineChartBarData(
         isCurved: true,
@@ -182,124 +166,124 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         barWidth: 3,
       )
     ];
-    final deviceWidth = MediaQuery.of(context).size.width;
-    final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Selamat Datang, ',
-                        style: GoogleFonts.nunito(
-                          color: darkText,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 36,
-                        ),
-                      ),
-                      Text(
-                        nama,
-                        style: GoogleFonts.nunito(
-                          color: primaryColorVariant,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 36,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 25),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: buttonColor,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 16),
-                        textStyle: GoogleFonts.nunito(
-                            color: lightText,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                            letterSpacing: 0.125),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () {
-                        widget.controllerDashboardPage.animateToPage(1,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease);
-                      },
-                      child: Row(
-                        children: [
-                          const Icon(Icons.add),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text("Buat"),
-                              Text("Berita"),
-                            ],
-                          ),
-                        ],
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Selamat Datang, ',
+                      style: GoogleFonts.nunito(
+                        color: darkText,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 36,
                       ),
                     ),
+                    Text(
+                      nama,
+                      style: GoogleFonts.nunito(
+                        color: primaryColorVariant,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 36,
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 25),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: buttonColor,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      textStyle: GoogleFonts.nunito(
+                          color: lightText,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          letterSpacing: 0.125),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      widget.controllerDashboardPage.animateToPage(1,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.add),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text("Buat"),
+                            Text("Berita"),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              const Divider(
-                height: 56,
-              ),
-              Expanded(
+                ),
+              ],
+            ),
+            const Divider(
+              height: 56,
+            ),
+            Expanded(
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
                   controller: ScrollController(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        controller: ScrollController(),
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: 350,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  cardNews('judul news',
-                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  cardNews('judul news',
-                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  cardNews('judul news',
-                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                  const SizedBox(
-                                    height: 25,
-                                  ),
-                                ],
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Selamat Datang',
+                                  style: welcomeText,
+                                ),
+                                Text(
+                                  nama,
+                                  style: welcomeText,
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                cardNews('judul news',
+                                    'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                cardNews('judul news',
+                                    'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                cardNews('judul news',
+                                    'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.')
+                              ],
                             ),
                             const SizedBox(
                               width: 20,
@@ -309,7 +293,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.center,
                                   children: [
                                     cardSaldo('Saldo', '20000'),
                                     const SizedBox(
@@ -323,32 +307,54 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                   ],
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(0),
                                   width: 800,
-                                  height: 500,
-                                  child: LineChart(
-                                    LineChartData(
-                                      minX: 1,
-                                      minY: 0,
-                                      maxX: 6,
-                                      maxY: 15,
-                                      lineBarsData: lineChartBarData,
-                                      gridData: FlGridData(show: false),
-                                      borderData: FlBorderData(show: false),
-                                    ),
+                                  height: 600,
+                                  child: DChartLine(
+                                    data: const [
+                                      {
+                                        'id': 'Line',
+                                        'data': [
+                                          {'domain': 0, 'measure': 4.1},
+                                          {'domain': 2, 'measure': 4},
+                                          {'domain': 3, 'measure': 6},
+                                          {'domain': 4, 'measure': 1},
+                                        ],
+                                      },
+                                      {
+                                        'id': 'Line1',
+                                        'data': [
+                                          {'domain': 0, 'measure': 10},
+                                          {'domain': 2, 'measure': 22},
+                                          {'domain': 3, 'measure': 3},
+                                          {'domain': 4, 'measure': 12},
+                                        ],
+                                      },
+                                      {
+                                        'id': 'Line3',
+                                        'data': [
+                                          {'domain': 0, 'measure': 11},
+                                          {'domain': 2, 'measure': 2},
+                                          {'domain': 3, 'measure': 1},
+                                          {'domain': 4, 'measure': 15},
+                                        ],
+                                      },
+                                    ],
+                                    lineColor: (lineData, index, id) =>
+                                        Colors.amber,
                                   ),
                                 )
                               ],
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

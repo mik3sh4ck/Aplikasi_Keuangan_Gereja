@@ -45,6 +45,7 @@ dependencies:
   font_awesome_flutter: ^10.1.0
   auto_size_text: ^3.0.0
   dropdown_search: ^5.0.2
+  textfield_search: ^0.10.0
   carousel_slider: ^4.1.1
   pinput: ^2.2.12
 
@@ -62,6 +63,7 @@ dependencies:
   pdf: ^3.8.2
   printing: ^5.9.2
   intl: ^0.17.0
+  d_chart: ^0.0.4
 
   # window_size:
   #   git:
