@@ -1,8 +1,10 @@
 //ignore_for_file: todo, prefer_const_constructors
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/foundation.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,6 +43,9 @@ class _AdminControllerKegiatanPageState
   final _controllerPageAbsensiKegiatan = PageController();
   final _controllerPageDetailAbsensiKegiatan = PageController();
   final _controllerDetailPengeluaranKebutuhan = PageController();
+
+
+  @override
 
   void initState() {
     // TODO: implement initState
@@ -315,7 +320,7 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                               );
                             }
                           }
-                          return loadingIndicator(primaryColorVariant);
+                          return loadingIndicator();
                         },
                       ),
                     ),
@@ -353,6 +358,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   final _controllerJabatanAnggota = TextEditingController();
   final _controllerNamaAnggota = TextEditingController();
 
+
+  final myController = TextEditingController();
+
   final List _jabatanList = [];
   final List _namaAnggotaList = [];
 
@@ -371,8 +379,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   DateTime selectedDateSampaiKegiatan = DateTime.now();
   String formattedDateSampaiKegiatan = "";
   String dateSampaiKegiatan = "Date";
-
-  TextEditingController myController = TextEditingController();
 
   Future _getAllUser(kodeGereja) async {
     var response = await servicesUserItem.getAllUser(kodeGereja);
@@ -858,6 +864,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -959,6 +966,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         Row(
                           children: [
                             Container(
+
+                              padding: EdgeInsets.all(0),
+
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -997,6 +1007,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ),
                             ),
                             Container(
+
+                              padding: EdgeInsets.all(0),
+
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1165,8 +1178,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           );
                                         }
                                       }
-                                      return loadingIndicator(
-                                          primaryColorVariant);
+
+                                      return loadingIndicator();
+
                                     },
                                   ),
                                   SizedBox(
@@ -1335,8 +1349,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           );
                                         }
                                       }
-                                      return loadingIndicator(
-                                          primaryColorVariant);
+
+                                      return loadingIndicator();
+
                                     },
                                   ),
                                   SizedBox(
@@ -1732,196 +1747,284 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    return Container(
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-        ),
-        child: SingleChildScrollView(
-          physics: ClampingScrollPhysics(),
-          controller: ScrollController(),
-          child: SafeArea(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              width: deviceWidth,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        onPressed: () {
-                          widget.controllerDetailPageKegiatan.animateToPage(0,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
-                        },
-                      ),
-                      const SizedBox(
-                        width: 25,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Detail Kegiatan " + _namaKegiatan,
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                          Text(
-                            "($_kodeKegiatan)",
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Divider(
-                    thickness: 1,
-                    height: 56,
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: ElevatedButton(
+
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+        },
+      ),
+      child: SingleChildScrollView(
+        physics: ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: SafeArea(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            width: deviceWidth,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
                       onPressed: () {
-                        widget.controllerPageAbsensiKegiatan.animateToPage(1,
+                        widget.controllerDetailPageKegiatan.animateToPage(0,
                             duration: const Duration(milliseconds: 250),
                             curve: Curves.ease);
                       },
-                      child: const Text("Absen"),
-                      style: TextButton.styleFrom(
-                        elevation: 1,
-                        primary: Colors.white,
-                        backgroundColor: Color(0xFFf9ab27),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                    ),
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Detail Kegiatan $_namaKegiatan",
+                          style: Theme.of(context).textTheme.headline5,
                         ),
+                        Text(
+                          "($_kodeKegiatan)",
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const Divider(
+                  thickness: 1,
+                  height: 56,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      widget.controllerPageAbsensiKegiatan.animateToPage(1,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    },
+                    style: TextButton.styleFrom(
+                      elevation: 1,
+                      primary: Colors.white,
+                      backgroundColor: Color(0xFFf9ab27),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
+                    child: const Text("Absen"),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      responsiveText("Tabel Anggota Kegiatan", 20,
-                          FontWeight.w700, darkText),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        width: deviceWidth,
-                        decoration: BoxDecoration(
-                          color: Color(0xFFfef5e5),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          border: Border.all(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    responsiveText("Tabel Anggota Kegiatan", 20,
+                        FontWeight.w700, darkText),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: deviceWidth,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFfef5e5),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
                         ),
-                        //width: deviceWidth / 2,
-                        padding: EdgeInsets.all(10),
-                        child: FutureBuilder(
-                          future: kategoriDetailItemProposalKegiatan,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              List snapData = snapshot.data! as List;
-                              if (snapData[0] != 404) {
-                                return ScrollConfiguration(
-                                  behavior:
-                                      ScrollConfiguration.of(context).copyWith(
-                                    dragDevices: {
-                                      PointerDeviceKind.touch,
-                                      PointerDeviceKind.mouse,
-                                    },
-                                  ),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.vertical,
-                                    controller: ScrollController(),
-                                    physics: const ClampingScrollPhysics(),
-                                    itemCount: 5,
-                                    itemBuilder: (context, index) {
-                                      return Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          side: BorderSide(
-                                            color: navButtonPrimary
-                                                .withOpacity(0.4),
-                                          ),
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ),
+                      //width: deviceWidth / 2,
+                      padding: EdgeInsets.all(10),
+                      child: FutureBuilder(
+                        future: kategoriDetailItemProposalKegiatan,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            List snapData = snapshot.data! as List;
+                            if (snapData[0] != 404) {
+                              return ScrollConfiguration(
+                                behavior:
+                                    ScrollConfiguration.of(context).copyWith(
+                                  dragDevices: {
+                                    PointerDeviceKind.touch,
+                                    PointerDeviceKind.mouse,
+                                  },
+                                ),
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.vertical,
+                                  controller: ScrollController(),
+                                  physics: const ClampingScrollPhysics(),
+                                  itemCount: 5,
+                                  itemBuilder: (context, index) {
+                                    return Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: BorderSide(
+                                          color:
+                                              navButtonPrimary.withOpacity(0.4),
                                         ),
-                                        color: scaffoldBackgroundColor,
-                                        child: ListTile(
-                                          title: Text(
-                                            "Nama",
-                                          ),
+                                      ),
+                                      color: scaffoldBackgroundColor,
+                                      child: ListTile(
+                                        title: Text(
+                                          "Nama",
                                         ),
-                                      );
-                                    },
-                                  ),
-                                );
-                              }
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
                             }
-                            return loadingIndicator(primaryColorVariant);
-                          },
+                          }
+                          return loadingIndicator();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: deviceWidth / 2 * 0.4,
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFfef5e5),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.5),
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: deviceWidth / 2 * 0.4,
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFfef5e5),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          border: Border.all(
-                            color: Colors.black.withOpacity(0.5),
+                      child: responsiveText("Overbudget : " "25.5%", 18,
+                          FontWeight.w500, darkText),
+                    )),
+                SizedBox(
+                  height: 10,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: responsiveTextNoMax(
+                      "*"
+                      "is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's.",
+                      15,
+                      FontWeight.w500,
+                      Colors.blueAccent),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              responsiveText("Tabel Budget", 20,
+                                  FontWeight.w700, darkText),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFfef5e5),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                                width: deviceWidth / 2 * 0.8,
+                                padding: EdgeInsets.all(10),
+                                child: FutureBuilder(
+                                  future: kategoriDetailItemProposalKegiatan,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List snapData = snapshot.data! as List;
+                                      if (snapData[0] != 404) {
+                                        return ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(
+                                            dragDevices: {
+                                              PointerDeviceKind.touch,
+                                              PointerDeviceKind.mouse,
+                                            },
+                                          ),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            controller: ScrollController(),
+                                            physics:
+                                                const ClampingScrollPhysics(),
+                                            itemCount: snapData[1].length,
+                                            itemBuilder: (context, index) {
+                                              return Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  side: BorderSide(
+                                                    color: navButtonPrimary
+                                                        .withOpacity(0.4),
+                                                  ),
+                                                ),
+                                                color: scaffoldBackgroundColor,
+                                                child: ListTile(
+                                                  title: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(snapData[1][index]
+                                                          ['jenis_kebutuhan']),
+                                                      Text(
+                                                        "RP. ${snapData[1][index]['budget_kebutuhan']}",
+                                                        style: TextStyle(
+                                                            fontSize: 15),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    return loadingIndicator();
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: responsiveText("Overbudget : " + "25.5%", 18,
-                            FontWeight.w500, darkText),
-                      )),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: responsiveTextNoMax(
-                        "*" +
-                            "is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's.",
-                        15,
-                        FontWeight.w500,
-                        Colors.blueAccent),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
+                        Expanded(
+                          child: Padding(
+
                             padding: EdgeInsets.all(5),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                responsiveText("Tabel Budget", 20,
+
+                                responsiveText("Tabel Persenan", 20,
+
                                     FontWeight.w700, darkText),
                                 SizedBox(
                                   height: 10,
@@ -1936,7 +2039,9 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                       color: Colors.black.withOpacity(0.5),
                                     ),
                                   ),
-                                  width: deviceWidth / 2 * 0.8,
+
+                                  //width: deviceWidth / 2,
+
                                   padding: EdgeInsets.all(10),
                                   child: FutureBuilder(
                                     future: kategoriDetailItemProposalKegiatan,
@@ -1979,17 +2084,17 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                           CrossAxisAlignment
                                                               .start,
                                                       children: [
-                                                        Text(snapData[1][index][
-                                                            'jenis_kebutuhan']),
+
                                                         Text(
-                                                          "RP. " +
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'budget_kebutuhan']
-                                                                  .toString(),
+                                                          snapData[1][index][
+                                                              'jenis_kebutuhan'],
+                                                        ),
+                                                        Text(
+                                                          "0%",
                                                           style: TextStyle(
                                                               fontSize: 15),
-                                                        ),
+                                                        )
+
                                                       ],
                                                     ),
                                                   ),
@@ -1999,256 +2104,163 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                           );
                                         }
                                       }
-                                      return loadingIndicator(
-                                          primaryColorVariant);
+
+                                      return loadingIndicator();
+
                                     },
                                   ),
                                 ),
                               ],
+
                             ),
                           ),
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.all(5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Tabel Persenan", 20,
-                                      FontWeight.w700, darkText),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFfef5e5),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black.withOpacity(0.5),
-                                      ),
-                                    ),
-                                    //width: deviceWidth / 2,
-                                    padding: EdgeInsets.all(10),
-                                    child: FutureBuilder(
-                                      future:
-                                          kategoriDetailItemProposalKegiatan,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          List snapData =
-                                              snapshot.data! as List;
-                                          if (snapData[0] != 404) {
-                                            return ScrollConfiguration(
-                                              behavior: ScrollConfiguration.of(
-                                                      context)
-                                                  .copyWith(
-                                                dragDevices: {
-                                                  PointerDeviceKind.touch,
-                                                  PointerDeviceKind.mouse,
-                                                },
-                                              ),
-                                              child: ListView.builder(
-                                                shrinkWrap: true,
-                                                scrollDirection: Axis.vertical,
-                                                controller: ScrollController(),
-                                                physics:
-                                                    const ClampingScrollPhysics(),
-                                                itemCount: snapData[1].length,
-                                                itemBuilder: (context, index) {
-                                                  return Card(
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
-                                                      side: BorderSide(
-                                                        color: navButtonPrimary
-                                                            .withOpacity(0.4),
-                                                      ),
-                                                    ),
-                                                    color:
-                                                        scaffoldBackgroundColor,
-                                                    child: ListTile(
-                                                      title: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            snapData[1][index][
-                                                                'jenis_kebutuhan'],
-                                                          ),
-                                                          Text(
-                                                            "0%",
-                                                            style: TextStyle(
-                                                                fontSize: 15),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          }
-                                        }
-                                        return loadingIndicator(
-                                            primaryColorVariant);
-                                      },
-                                    ),
-                                  ),
-                                ],
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          responsiveText(
+                              "Tabel Real", 20, FontWeight.w700, darkText),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFfef5e5),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                              border: Border.all(
+                                color: Colors.black.withOpacity(0.5),
                               ),
                             ),
-                          )
+                            //width: deviceWidth / 2,
+                            padding: EdgeInsets.all(10),
+                            child: FutureBuilder(
+                              future: kategoriDetailItemProposalKegiatan,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  List snapData = snapshot.data! as List;
+                                  if (snapData[0] != 404) {
+                                    return ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(
+                                        dragDevices: {
+                                          PointerDeviceKind.touch,
+                                          PointerDeviceKind.mouse,
+                                        },
+                                      ),
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData[1].length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              side: BorderSide(
+                                                color: navButtonPrimary
+                                                    .withOpacity(0.4),
+                                              ),
+                                            ),
+                                            color: scaffoldBackgroundColor,
+                                            child: ListTile(
+                                              title: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        snapData[1][index]
+                                                            ['jenis_kebutuhan'],
+                                                      ),
+                                                      Text(
+                                                        "0",
+                                                        style: TextStyle(
+                                                            fontSize: 15),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      IconButton(
+                                                          onPressed: () {
+                                                            _kodeItemKebutuhan =
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'kode_item_proposal_gabungan']
+                                                                    .toString();
+                                                            _showTambahDialogPengeluaranKebutuhan(
+                                                                deviceWidth,
+                                                                deviceHeight);
+                                                          },
+                                                          icon:
+                                                              Icon(Icons.add)),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      IconButton(
+                                                          onPressed: () {
+                                                            _kodeItemKebutuhan =
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'kode_item_proposal_gabungan']
+                                                                    .toString();
+                                                            _namaItemKebutuhan =
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'jenis_kebutuhan']
+                                                                    .toString();
+                                                            widget.controllerDetailPengeluaranKebutuhan
+                                                                .animateToPage(
+                                                                    1,
+                                                                    duration: const Duration(
+                                                                        milliseconds:
+                                                                            250),
+                                                                    curve: Curves
+                                                                        .ease);
+                                                          },
+                                                          icon: Icon(Icons
+                                                              .arrow_forward_rounded)),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }
+                                }
+                                return loadingIndicator();
+                              },
+                            ),
+                          ),
                         ],
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            responsiveText(
-                                "Tabel Real", 20, FontWeight.w700, darkText),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Color(0xFFfef5e5),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: Colors.black.withOpacity(0.5),
-                                ),
-                              ),
-                              //width: deviceWidth / 2,
-                              padding: EdgeInsets.all(10),
-                              child: FutureBuilder(
-                                future: kategoriDetailItemProposalKegiatan,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    List snapData = snapshot.data! as List;
-                                    if (snapData[0] != 404) {
-                                      return ScrollConfiguration(
-                                        behavior:
-                                            ScrollConfiguration.of(context)
-                                                .copyWith(
-                                          dragDevices: {
-                                            PointerDeviceKind.touch,
-                                            PointerDeviceKind.mouse,
-                                          },
-                                        ),
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          controller: ScrollController(),
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          itemCount: snapData[1].length,
-                                          itemBuilder: (context, index) {
-                                            return Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                side: BorderSide(
-                                                  color: navButtonPrimary
-                                                      .withOpacity(0.4),
-                                                ),
-                                              ),
-                                              color: scaffoldBackgroundColor,
-                                              child: ListTile(
-                                                title: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          snapData[1][index][
-                                                              'jenis_kebutuhan'],
-                                                        ),
-                                                        Text(
-                                                          "0",
-                                                          style: TextStyle(
-                                                              fontSize: 15),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        IconButton(
-                                                            onPressed: () {
-                                                              _kodeItemKebutuhan =
-                                                                  snapData[1][index]
-                                                                          [
-                                                                          'kode_item_proposal_gabungan']
-                                                                      .toString();
-                                                              _showTambahDialogPengeluaranKebutuhan(
-                                                                  deviceWidth,
-                                                                  deviceHeight);
-                                                            },
-                                                            icon: Icon(
-                                                                Icons.add)),
-                                                        SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        IconButton(
-                                                            onPressed: () {
-                                                              _kodeItemKebutuhan =
-                                                                  snapData[1][index]
-                                                                          [
-                                                                          'kode_item_proposal_gabungan']
-                                                                      .toString();
-                                                              _namaItemKebutuhan =
-                                                                  snapData[1][index]
-                                                                          [
-                                                                          'jenis_kebutuhan']
-                                                                      .toString();
-                                                              widget.controllerDetailPengeluaranKebutuhan.animateToPage(
-                                                                  1,
-                                                                  duration:
-                                                                      const Duration(
-                                                                          milliseconds:
-                                                                              250),
-                                                                  curve: Curves
-                                                                      .ease);
-                                                            },
-                                                            icon: Icon(Icons
-                                                                .arrow_forward_rounded)),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  return loadingIndicator(primaryColorVariant);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  )
-                ],
-              ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                )
+              ],
+
             ),
           ),
         ),
@@ -2386,7 +2398,7 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                               );
                             }
                           }
-                          return loadingIndicator(primaryColorVariant);
+                          return loadingIndicator();
                         },
                       ),
                     ),
@@ -2432,6 +2444,9 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
     // TODO: implement dispose
     super.dispose();
   }
+
+
+  @override
 
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -2556,7 +2571,9 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                 );
                               }
                             }
-                            return loadingIndicator(primaryColorVariant);
+
+                            return loadingIndicator();
+
                           },
                         ),
                       ),
@@ -2641,6 +2658,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
       ),
     );
   }
+
+
+  @override
 
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -2789,7 +2809,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                 );
                               }
                             }
-                            return loadingIndicator(primaryColorVariant);
+
+                            return loadingIndicator();
+
                           },
                         ),
                       ),
@@ -2886,6 +2908,8 @@ class _DetailPengeluaranKebutuhanState
     );
   }
 
+  @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2915,7 +2939,9 @@ class _DetailPengeluaranKebutuhanState
                     width: 25,
                   ),
                   Text(
-                    "Detail Pengeluaran Kebutuhan " + _namaItemKebutuhan,
+
+                    "Detail Pengeluaran Kebutuhan $_namaItemKebutuhan",
+
                     style: Theme.of(context).textTheme.headline5,
                   ),
                 ],
@@ -2975,7 +3001,9 @@ class _DetailPengeluaranKebutuhanState
                                     child: ListTile(
                                       title: Text(
                                         snapData[1][index]
-                                            ['pengeluaran_kebutuhan'].toString(),
+
+                                                ['pengeluaran_kebutuhan'].toString(),
+
                                       ),
                                       subtitle: Text(
                                         snapData[1][index][
@@ -2991,7 +3019,9 @@ class _DetailPengeluaranKebutuhanState
                             );
                           }
                         }
-                        return loadingIndicator(primaryColorVariant);
+
+                        return loadingIndicator();
+
                       },
                     ),
                   ),

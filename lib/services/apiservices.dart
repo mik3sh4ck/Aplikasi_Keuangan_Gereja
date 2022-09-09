@@ -78,10 +78,10 @@ class ServicesUser {
   }
 
   //TODO: get kode Sub Transaksi
-  Future getKodeSubTransaksi(idKodeTransaksi) async {
+  Future getKodeSubTransaksi(kodeGabunganTransaksi) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}kode-sub-transaksi?id_kode_transaksi=$idKodeTransaksi"),
+          "${_linkPath}kode-sub-transaksi?kode_transaksi_gabungan=$kodeGabunganTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -93,10 +93,11 @@ class ServicesUser {
   }
 
   //TODO: Input Kode Transaksi
-  Future inputKodeTransaksi(kodeGereja, namaTransaksi, kodeTransaksi) async {
+  Future inputKodeTransaksi(
+      kodeGereja, namaTransaksi, kodeTransaksi, statusTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi"),
+          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi&status=$statusTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -109,10 +110,47 @@ class ServicesUser {
 
   //TODO: Input Kode Sub Transaksi
   Future inputKodeSubTransaksi(
-      idKodeTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
+      kodeGabunganTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-sub-transaksi?id_kode_transaksi=$idKodeTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
+          "${_linkPath}input-kode-sub-transaksi?kode_transaksi_gabungan=$kodeGabunganTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get Transaksi
+  Future getTransaksi(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}transaksi?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Input Transaksi
+  Future inputTransaksi(
+      kodeGereja,
+      kodeTransaksiGabungan,
+      kodeSubTransaksi,
+      kodeKegiatanGabungan,
+      deskripsiTransaksi,
+      tanggalTransaksi,
+      jenisTransaksi,
+      nominalTransaksi) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-transaksi?kode_transaksi_gabungan=$kodeTransaksiGabungan&kode_sub_transaksi=$kodeSubTransaksi&kode_gereja=$kodeGereja&kode_kegiatan_gabungan=$kodeKegiatanGabungan&uraian_transaksi=$deskripsiTransaksi&tanggal_transaksi=$tanggalTransaksi&jenis_transaksi=$jenisTransaksi&nominal=$nominalTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -152,7 +190,7 @@ class ServicesUser {
     }
   }
 
-  //TODO: Get Proposal Kegiatan
+//TODO: Get Proposal Kegiatan
   Future getAllProposalKegiatan(kodeGereja) async {
     final response = await http.get(
       Uri.parse("${_linkPath}proposal-kegiatan?kode_gereja=$kodeGereja"),
@@ -184,7 +222,15 @@ class ServicesUser {
   }
 
   //TODO: Input Kegiatan
-Future inputProposalKegiatan(kodeProposalKegiatan, kodeProposalGereja, namaProposalKegiatan, penanggungjawabProposalKegiatan, mulaiProposalKegiatan, selesaiProposalKegiatan, lokasiProposalKegiatan, keteranganProposalKegiatan) async {
+  Future inputProposalKegiatan(
+      kodeProposalKegiatan,
+      kodeProposalGereja,
+      namaProposalKegiatan,
+      penanggungjawabProposalKegiatan,
+      mulaiProposalKegiatan,
+      selesaiProposalKegiatan,
+      lokasiProposalKegiatan,
+      keteranganProposalKegiatan) async {
     final response = await http.post(
       Uri.parse(
           "${_linkPath}input-proposal-kegiatan?kode_kegiatan=$kodeProposalKegiatan&kode_gereja=$kodeProposalGereja&nama_kegiatan=$namaProposalKegiatan&penanggungjawab_1=$penanggungjawabProposalKegiatan&tanggal_acara_dimulai=$mulaiProposalKegiatan&tanggal_acara_selesai=$selesaiProposalKegiatan&lokasi_kegiatan=$lokasiProposalKegiatan&keterangan_kegiatan=$keteranganProposalKegiatan"),
@@ -198,8 +244,10 @@ Future inputProposalKegiatan(kodeProposalKegiatan, kodeProposalGereja, namaPropo
     }
   }
 
-  //TODO: Input Item Kebutuhan 
-  Future inputItemKebutuhan(kodeItemProposalKegiatan, kodeProposalKegiatan, kodeProposalGereja, jenisKebutuhan, budgetKebutuhan) async {
+
+  //TODO: Input Item Kebutuhan
+  Future inputItemKebutuhan(kodeItemProposalKegiatan, kodeProposalKegiatan,
+      kodeProposalGereja, jenisKebutuhan, budgetKebutuhan) async {
     final response = await http.post(
       Uri.parse(
           "${_linkPath}input-item-proposal-kegiatan?kode_item_proposal_kegiatan=$kodeItemProposalKegiatan&kode_kegiatan=$kodeProposalKegiatan&kode_gereja=$kodeProposalGereja&jenis_kebutuhan=$jenisKebutuhan&budget_kebutuhan=$budgetKebutuhan"),
@@ -229,7 +277,9 @@ Future inputProposalKegiatan(kodeProposalKegiatan, kodeProposalGereja, namaPropo
   }
 
   //TODO: Input kebutuhan kegiatan
-  Future inputKebutuhanKegiatan(tanggalKebutuhan, keteranganPengeluaran, pengeluaranKebutuhan, kodeItemProposalKegiatan) async {
+  Future inputKebutuhanKegiatan(tanggalKebutuhan, keteranganPengeluaran,
+      pengeluaranKebutuhan, kodeItemProposalKegiatan) async {
+
     final response = await http.post(
       Uri.parse(
           "${_linkPath}input-kebutuhan-kegiatan?tanggal_kebutuhan=$tanggalKebutuhan&keterangan_pengeluaran_kebutuhan=$keteranganPengeluaran&pengeluaran_kebutuhan=$pengeluaranKebutuhan&kode_item_proposal_gabungan=$kodeItemProposalKegiatan"),
@@ -243,7 +293,8 @@ Future inputProposalKegiatan(kodeProposalKegiatan, kodeProposalGereja, namaPropo
     }
   }
 
-    //TODO: Get pengeluaran item kebutuhan
+
+  //TODO: Get pengeluaran item kebutuhan
   Future getPengeluaranKebutuhan(kodeGabunganPengeluaran) async {
     final response = await http.get(
       Uri.parse(

@@ -1,13 +1,7 @@
 //ignore_for_file: todo
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:aplikasi_keuangan_gereja/main.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../services/apiservices.dart';
 import '../../../themes/colors.dart';
@@ -27,6 +21,7 @@ class _AdminControllerDonasiPageState extends State<AdminControllerDonasiPage> {
   final _controllerDetailDonasi = PageController();
   final _controllerHistoryDonasi = PageController();
 
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -130,7 +125,7 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       responsiveText("Donasi", 26, FontWeight.w900, darkText),
-                      SizedBox(
+                      const SizedBox(
                         width: 25,
                       ),
                       Row(
@@ -141,15 +136,15 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                                   duration: const Duration(milliseconds: 250),
                                   curve: Curves.ease);
                             },
-                            icon: Icon(Icons.history_rounded),
+                            icon: const Icon(Icons.history_rounded),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 25,
                           ),
                           ElevatedButton(
                             style: TextButton.styleFrom(
                               primary: Colors.white,
-                              backgroundColor: Color(0xFFf9ab27),
+                              backgroundColor: const Color(0xFFf9ab27),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(40),
                               ),
@@ -161,8 +156,8 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                             },
                             child: Row(
                               children: [
-                                Icon(Icons.add_circle_outline_rounded),
-                                SizedBox(
+                                const Icon(Icons.add_circle_outline_rounded),
+                                const SizedBox(
                                   width: 5,
                                 ),
                                 Text(
@@ -181,7 +176,7 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                   const Divider(
                     height: 56,
                   ),
-                  SizedBox(height: 25),
+                  const SizedBox(height: 25),
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -254,7 +249,7 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                               );
                             }
                           }
-                          return loadingIndicator(primaryColorVariant);
+                          return loadingIndicator();
                         },
                       ),
                     ),
@@ -334,7 +329,7 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
           right: 0,
           child: Image(
             width: (MediaQuery.of(context).size.width) * 0.35,
-            image: AssetImage('lib/assets/images/tangan.png'),
+            image: const AssetImage('lib/assets/images/tangan.png'),
           ),
         ),
         ScrollConfiguration(
@@ -345,7 +340,7 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
             },
           ),
           child: SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             controller: ScrollController(),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -420,15 +415,15 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                                 }
                                 Navigator.pop(context);
                               },
-                              child: const Text("Simpan"),
                               style: TextButton.styleFrom(
                                 elevation: 1,
                                 primary: Colors.white,
-                                backgroundColor: Color(0xFFf9ab27),
+                                backgroundColor: const Color(0xFFf9ab27),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
+                              child: const Text("Simpan"),
                             ),
                           ],
                         ),
@@ -440,7 +435,7 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                         children: [
                           responsiveText(
                               "Unggah Kode QR", 16, FontWeight.w700, darkText),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           ElevatedButton(
@@ -449,26 +444,26 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                                 setState(() {});
                               }
                             },
-                            child: const Text("Tambah Gambar"),
                             style: TextButton.styleFrom(
                               elevation: 1,
                               primary: Colors.white,
-                              backgroundColor: Color(0xFFf9ab27),
+                              backgroundColor: const Color(0xFFf9ab27),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
+                            child: const Text("Tambah Gambar"),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Padding(
-                              padding: EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(0),
                               child: Expanded(
                                 child: Container(
                                   height: deviceHeight * 0.3,
                                   width: deviceWidth * 0.15,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Color(0xFFfef5e5),
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(10),
@@ -480,7 +475,7 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      children: [
+                                      children: const [
                                         Icon(
                                           Icons.image_outlined,
                                         ),
@@ -690,7 +685,7 @@ class _DetailDonasiPageState extends State<DetailDonasiPage> {
             },
           ),
           child: SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             controller: ScrollController(),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -721,11 +716,11 @@ class _DetailDonasiPageState extends State<DetailDonasiPage> {
                     height: 56,
                   ),
                   Container(
-                    margin: EdgeInsets.all(20),
-                    padding: EdgeInsets.all(20),
+                    margin: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFFfef5e5),
+                      color: const Color(0xFFfef5e5),
                       border: Border.all(
                         color: Colors.black.withOpacity(0.5),
                       ),
@@ -735,69 +730,65 @@ class _DetailDonasiPageState extends State<DetailDonasiPage> {
                       children: [
                         Expanded(
                           flex: 2,
-                          child: Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                responsiveText("Judul Donasi", 25,
-                                    FontWeight.w800, Color(0xFF000000)),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-                                responsiveTextNoMax(
-                                    "is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                                    15,
-                                    FontWeight.w600,
-                                    Color(0xFF000000)),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-                                Row(
-                                  children: [
-                                    responsiveText("Total Donasi : Rp. 0", 16,
-                                        FontWeight.w800, Color(0xFF000000)),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.edit,
-                                      ),
-                                      onPressed: () {
-                                        _showTambahDialogNominalDonasi(
-                                            deviceWidth, deviceHeight);
-                                      },
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 15,
-                                ),
-                                ElevatedButton(
-                                    style: TextButton.styleFrom(
-                                      primary: Colors.white,
-                                      backgroundColor: Color(0xFFf9ab27),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(40),
-                                      ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              responsiveText("Judul Donasi", 25,
+                                  FontWeight.w800, const Color(0xFF000000)),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              responsiveTextNoMax(
+                                  "is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+                                  15,
+                                  FontWeight.w600,
+                                  const Color(0xFF000000)),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              Row(
+                                children: [
+                                  responsiveText("Total Donasi : Rp. 0", 16,
+                                      FontWeight.w800, const Color(0xFF000000)),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
                                     ),
-                                    onPressed: () {},
-                                    child: Text("Tutup Donasi")),
-                              ],
-                            ),
+                                    onPressed: () {
+                                      _showTambahDialogNominalDonasi(
+                                          deviceWidth, deviceHeight);
+                                    },
+                                  )
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              ElevatedButton(
+                                  style: TextButton.styleFrom(
+                                    primary: Colors.white,
+                                    backgroundColor: const Color(0xFFf9ab27),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40),
+                                    ),
+                                  ),
+                                  onPressed: () {},
+                                  child: const Text("Tutup Donasi")),
+                            ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
                         Expanded(
                           flex: 1,
-                          child: Container(
-                            child: Column(
-                              children: [
-                                Image.network(
-                                  "https://images.tokopedia.net/img/cache/700/product-1/2018/11/8/39617213/39617213_91fd0f0c-03c2-43b4-861a-64e9f04e8f24_700_700.jpeg",
-                                )
-                              ],
-                            ),
+                          child: Column(
+                            children: [
+                              Image.network(
+                                "https://images.tokopedia.net/img/cache/700/product-1/2018/11/8/39617213/39617213_91fd0f0c-03c2-43b4-861a-64e9f04e8f24_700_700.jpeg",
+                              )
+                            ],
                           ),
                         )
                       ],
@@ -841,6 +832,7 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -854,7 +846,7 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
             },
           ),
           child: SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             controller: ScrollController(),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -939,10 +931,8 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
                                           trailing: Container(
                                             width: deviceWidth / 2 * 0.2,
                                             child: responsiveText(
-                                                "Rp. " +
-                                                    snapData[1][index]
-                                                            ['budget_kebutuhan']
-                                                        .toString(),
+                                                "Rp. ${snapData[1][index]
+                                                            ['budget_kebutuhan']}",
                                                 16,
                                                 FontWeight.w700,
                                                 darkText),
@@ -953,7 +943,7 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
                               );
                             }
                           }
-                          return loadingIndicator(primaryColorVariant);
+                          return loadingIndicator();
                         },
                       ),
                     ),

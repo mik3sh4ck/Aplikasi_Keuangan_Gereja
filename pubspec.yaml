@@ -36,6 +36,9 @@ dependencies:
 
   flutter_native_splash: ^2.2.7
   loading_animation_widget: ^1.2.0+2
+  animations: ^2.0.4
+  getwidget: ^3.0.1
+  lottie: ^1.4.2
 
   sidebarx: ^0.9.0
   google_fonts: ^3.0.1
@@ -43,6 +46,10 @@ dependencies:
   auto_size_text: ^3.0.0
   dropdown_search: ^5.0.2
   textfield_search: ^0.10.0
+
+  carousel_slider: ^4.1.1
+  pinput: ^2.2.12
+
 
   fl_chart: ^0.55.1
   csc_picker: ^0.2.6
@@ -58,6 +65,7 @@ dependencies:
   pdf: ^3.8.2
   printing: ^5.9.2
   intl: ^0.17.0
+  d_chart: ^0.0.4
 
   # window_size:
   #   git:
@@ -99,7 +107,12 @@ flutter:
     - lib/assets/images/absen.png
     - lib/assets/images/createaktifitas.png
     - lib/assets/images/tangan.png
-
+    - lib/assets/lotties/error_404.json
+    - lib/assets/lotties/loading_animation.json
+    - lib/assets/lotties/success.json
+    - lib/assets/lotties/success_v2.json
+    - lib/assets/lotties/no_data.json
+    - lib/assets/lotties/search_not_found.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
