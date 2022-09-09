@@ -122,14 +122,14 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
           controller: ScrollController(),
           child: SafeArea(
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
               width: deviceWidth,
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      responsiveText("Donasi", 30, FontWeight.w900, darkText),
+                      responsiveText("Donasi", 26, FontWeight.w900, darkText),
                       SizedBox(
                         width: 25,
                       ),
@@ -177,6 +177,9 @@ class _AdminDonasiPageState extends State<AdminDonasiPage> {
                         ],
                       ),
                     ],
+                  ),
+                  const Divider(
+                    height: 56,
                   ),
                   SizedBox(height: 25),
                   Card(
@@ -280,7 +283,7 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
   final _controllerJudulDonasi = TextEditingController();
   final _controllerRekeningDonasi = TextEditingController();
   final _controllerKeteranganDonasi = TextEditingController();
-  
+
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -456,7 +459,9 @@ class _BuatDonasiPageState extends State<BuatDonasiPage> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 10,),
+                          SizedBox(
+                            height: 10,
+                          ),
                           Padding(
                               padding: EdgeInsets.all(0),
                               child: Expanded(
