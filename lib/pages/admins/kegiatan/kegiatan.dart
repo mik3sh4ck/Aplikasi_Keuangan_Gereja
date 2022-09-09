@@ -1,5 +1,10 @@
 //ignore_for_file: todo, prefer_const_constructors
+import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
+
+import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,7 +44,9 @@ class _AdminControllerKegiatanPageState
   final _controllerPageDetailAbsensiKegiatan = PageController();
   final _controllerDetailPengeluaranKebutuhan = PageController();
 
+
   @override
+
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -350,6 +357,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   final _controllerKeteranganKegiatan = TextEditingController();
   final _controllerJabatanAnggota = TextEditingController();
   final _controllerNamaAnggota = TextEditingController();
+
 
   final myController = TextEditingController();
 
@@ -958,7 +966,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         Row(
                           children: [
                             Container(
+
                               padding: EdgeInsets.all(0),
+
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -997,7 +1007,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ),
                             ),
                             Container(
+
                               padding: EdgeInsets.all(0),
+
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1166,7 +1178,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           );
                                         }
                                       }
+
                                       return loadingIndicator();
+
                                     },
                                   ),
                                   SizedBox(
@@ -1335,7 +1349,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           );
                                         }
                                       }
+
                                       return loadingIndicator();
+
                                     },
                                   ),
                                   SizedBox(
@@ -1735,6 +1751,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
+
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
         dragDevices: {
@@ -2000,11 +2017,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                         ),
                         Expanded(
                           child: Padding(
+
                             padding: EdgeInsets.all(5),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+
                                 responsiveText("Tabel Persenan", 20,
+
                                     FontWeight.w700, darkText),
                                 SizedBox(
                                   height: 10,
@@ -2019,7 +2039,9 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                       color: Colors.black.withOpacity(0.5),
                                     ),
                                   ),
+
                                   //width: deviceWidth / 2,
+
                                   padding: EdgeInsets.all(10),
                                   child: FutureBuilder(
                                     future: kategoriDetailItemProposalKegiatan,
@@ -2062,6 +2084,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                           CrossAxisAlignment
                                                               .start,
                                                       children: [
+
                                                         Text(
                                                           snapData[1][index][
                                                               'jenis_kebutuhan'],
@@ -2071,6 +2094,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                           style: TextStyle(
                                                               fontSize: 15),
                                                         )
+
                                                       ],
                                                     ),
                                                   ),
@@ -2080,11 +2104,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                           );
                                         }
                                       }
+
                                       return loadingIndicator();
+
                                     },
                                   ),
                                 ),
                               ],
+
                             ),
                           ),
                         )
@@ -2233,6 +2260,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                   ],
                 )
               ],
+
             ),
           ),
         ),
@@ -2417,7 +2445,9 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
     super.dispose();
   }
 
+
   @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2541,7 +2571,9 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                 );
                               }
                             }
+
                             return loadingIndicator();
+
                           },
                         ),
                       ),
@@ -2627,7 +2659,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
     );
   }
 
+
   @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2775,7 +2809,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                 );
                               }
                             }
+
                             return loadingIndicator();
+
                           },
                         ),
                       ),
@@ -2873,6 +2909,7 @@ class _DetailPengeluaranKebutuhanState
   }
 
   @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2902,7 +2939,9 @@ class _DetailPengeluaranKebutuhanState
                     width: 25,
                   ),
                   Text(
+
                     "Detail Pengeluaran Kebutuhan $_namaItemKebutuhan",
+
                     style: Theme.of(context).textTheme.headline5,
                   ),
                 ],
@@ -2962,8 +3001,9 @@ class _DetailPengeluaranKebutuhanState
                                     child: ListTile(
                                       title: Text(
                                         snapData[1][index]
-                                                ['pengeluaran_kebutuhan']
-                                            .toString(),
+
+                                                ['pengeluaran_kebutuhan'].toString(),
+
                                       ),
                                       subtitle: Text(
                                         snapData[1][index][
@@ -2979,7 +3019,9 @@ class _DetailPengeluaranKebutuhanState
                             );
                           }
                         }
+
                         return loadingIndicator();
+
                       },
                     ),
                   ),

@@ -244,6 +244,7 @@ class ServicesUser {
     }
   }
 
+
   //TODO: Input Item Kebutuhan
   Future inputItemKebutuhan(kodeItemProposalKegiatan, kodeProposalKegiatan,
       kodeProposalGereja, jenisKebutuhan, budgetKebutuhan) async {
@@ -278,6 +279,7 @@ class ServicesUser {
   //TODO: Input kebutuhan kegiatan
   Future inputKebutuhanKegiatan(tanggalKebutuhan, keteranganPengeluaran,
       pengeluaranKebutuhan, kodeItemProposalKegiatan) async {
+
     final response = await http.post(
       Uri.parse(
           "${_linkPath}input-kebutuhan-kegiatan?tanggal_kebutuhan=$tanggalKebutuhan&keterangan_pengeluaran_kebutuhan=$keteranganPengeluaran&pengeluaran_kebutuhan=$pengeluaranKebutuhan&kode_item_proposal_gabungan=$kodeItemProposalKegiatan"),
@@ -290,6 +292,7 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
 
   //TODO: Get pengeluaran item kebutuhan
   Future getPengeluaranKebutuhan(kodeGabunganPengeluaran) async {
@@ -307,3 +310,4 @@ class ServicesUser {
     }
   }
 }
+
