@@ -78,10 +78,10 @@ class ServicesUser {
   }
 
   //TODO: get kode Sub Transaksi
-  Future getKodeSubTransaksi(idKodeGabunganTransaksi) async {
+  Future getKodeSubTransaksi(kodeGabunganTransaksi) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}kode-sub-transaksi?id_kode_transaksi=$idKodeGabunganTransaksi"),
+          "${_linkPath}kode-sub-transaksi?kode_transaksi_gabungan=$kodeGabunganTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -110,10 +110,47 @@ class ServicesUser {
 
   //TODO: Input Kode Sub Transaksi
   Future inputKodeSubTransaksi(
-      idKodeGabunganTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
+      kodeGabunganTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-sub-transaksi?id_kode_transaksi=$idKodeGabunganTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
+          "${_linkPath}input-kode-sub-transaksi?kode_transaksi_gabungan=$kodeGabunganTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get Transaksi
+  Future getTransaksi(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}transaksi?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Input Transaksi
+  Future inputTransaksi(
+      kodeGereja,
+      kodeTransaksiGabungan,
+      kodeSubTransaksi,
+      kodeKegiatanGabungan,
+      deskripsiTransaksi,
+      tanggalTransaksi,
+      jenisTransaksi,
+      nominalTransaksi) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-transaksi?kode_transaksi_gabungan=$kodeTransaksiGabungan&kode_sub_transaksi=$kodeSubTransaksi&kode_gereja=$kodeGereja&kode_kegiatan_gabungan=$kodeKegiatanGabungan&uraian_transaksi=$deskripsiTransaksi&tanggal_transaksi=$tanggalTransaksi&jenis_transaksi=$jenisTransaksi&nominal=$nominalTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -138,7 +175,7 @@ class ServicesUser {
     }
   }
 
-  //TODO: Inut Role
+  //TODO: Input Role
   Future inputRole(kodeGereja, idPrivilege, namaRole) async {
     final response = await http.post(
       Uri.parse(

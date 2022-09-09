@@ -17,7 +17,9 @@ import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
 final List _kategori = List.empty(growable: true);
-String _idKodeTransaksi = "";
+final List _subKategori = List.empty(growable: true);
+final List _kodeRefKegiatan = List.empty(growable: true);
+String _kodeGabunganTransaksi = "";
 String _kodeTransaksi = "";
 
 class AdminControllerTransaksiPage extends StatefulWidget {
@@ -110,25 +112,18 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   DateTime firstDay = DateTime.now();
   DateTime lastDay = DateTime.now();
 
-  String jenisInput = "";
   String kategori = "";
 
   final List<DataRow> _rowList = List.empty(growable: true);
 
-  List<String> dataDropdown = [
-    "Kolekte",
-    "Sumbangan",
-    "Kas",
-    "Sponsor",
-    "Lainnya",
-  ];
-
   int? _indexFilterTanggal;
+  bool _kategoriNotEmpty = false;
 
   @override
   void initState() {
     // TODO: implement initState
     _getKodeKategori(kodeGereja);
+    _getTransaksi(kodeGereja);
 
     formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
     dateFrom = formattedDate1;
@@ -151,7 +146,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
     _controllerDropdownFilter.addListener(_changedSearch);
 
-    _generateRow();
     super.initState();
   }
 
@@ -163,21 +157,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _controllerKeterangan.dispose();
     super.dispose();
   }
-
-  // Future _getKodeKategori(kodeGereja) async {
-  //   var response = await servicesUser.getKodeTransaksi(kodeGereja);
-  //   if (response[0] != 404) {
-  //     for (var element in response[1]) {
-  //       _tempKategori.add(element['kode_transaksi_gabungan']);
-  //       _tempKategori.add(element['nama_transaksi']);
-
-  //       _kategori.add(_tempKategori.toString());
-  //       _tempKategori.clear();
-  //     }
-  //   } else {
-  //     throw "Gagal Mengambil Data";
-  //   }
-  // }
 
   Future _getKodeKategori(kodeGereja) async {
     var response = await servicesUser.getKodeTransaksi(kodeGereja);
@@ -191,23 +170,79 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     }
   }
 
-  // Future _getKodeKategori(kodeGereja) async {
-  //   var response = await servicesUser.getKodeTransaksi(kodeGereja);
-  //   if (response[0] != 404) {
-  //     for (var element in response[1]) {
-  //       _tempKategori.add(element['kode_transaksi_gabungan'].toString());
-  //       _tempKategori.add(element['kode_transaksi'].toString());
-  //       _tempKategori.add(element['kode_gereja'].toString());
-  //       _tempKategori.add(element['nama_transaksi'].toString());
-  //       _tempKategori.add(element['status'].toString());
+  Future _getKodeSubKategori(kodeGabunganTransaksi) async {
+    var response =
+        await servicesUser.getKodeSubTransaksi(kodeGabunganTransaksi);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _subKategori
+            .add("${element['kode_sub_transaksi']} - ${element['nama_sub_transaksi']}");
+      }
+    } else {
+      return "Data Tidak Ada";
+    }
+  }
 
-  //       _kategori.add(_tempKategori.toString());
-  //       _tempKategori.clear();
-  //     }
-  //   } else {
-  //     throw "Gagal Mengambil Data";
-  //   }
-  // }
+  Future _getKodeRefKegiatan() async {}
+
+  Future _getTransaksi(kodeGereja) async {
+    var response = await servicesUser.getTransaksi(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowTransaksi(
+            element['kode_sub_transaksi'],
+            element['tanggal_transaksi'],
+            element['uraian_transaksi'],
+            element['jenis_transaksi'],
+            element['nominal']);
+      }
+    }
+  }
+
+  Future _postTransaksi() async {}
+
+  void _addRowTransaksi(kode, tanggal, deskripsi, jenis, nominal) {
+    setState(
+      () {
+        _rowList.add(
+          DataRow(
+            cells: [
+              DataCell(
+                Text(
+                  kode.toString(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              DataCell(
+                Text(
+                  tanggal.toString(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              DataCell(
+                Text(
+                  deskripsi.toString(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              DataCell(
+                Text(
+                  jenis == "pemasukan" ? nominal.toString() : "-",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              DataCell(
+                Text(
+                  jenis == "pengeluaran" ? nominal.toString() : "-",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
     return Card(
@@ -398,55 +433,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     }
   }
 
-  Future<void> _generateRow() async {
-    for (int i = 0; i < 15; i++) {
-      _addRow("DN001-01", "11-07-2022", "aaaaaaaaaaaaaaaaaaa", 10000, "-");
-    }
-  }
-
-  void _addRow(kode, tanggal, deskripsi, debit, kredit) {
-    setState(
-      () {
-        _rowList.add(
-          DataRow(
-            cells: [
-              DataCell(
-                Text(
-                  kode.toString(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                Text(
-                  tanggal.toString(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                Text(
-                  deskripsi.toString(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                Text(
-                  "Rp. $debit, -",
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              DataCell(
-                Text(
-                  "Rp. $kredit",
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   _showTambahDialog(dw, dh) {
     showDialog(
       barrierDismissible: false,
@@ -505,6 +491,49 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  responsiveText("Kode Referensi Kegiatan", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Card(
+                                    color: surfaceColor,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: DropdownSearch<dynamic>(
+                                      popupProps: PopupProps.menu(
+                                        showSearchBox: true,
+                                        searchFieldProps: TextFieldProps(
+                                          decoration: InputDecoration(
+                                            border: const OutlineInputBorder(),
+                                            hintText: "Cari Disini",
+                                            suffixIcon: IconButton(
+                                              onPressed: () {
+                                                _controllerDropdownFilter
+                                                    .clear();
+                                              },
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.black
+                                                    .withOpacity(0.5),
+                                              ),
+                                            ),
+                                          ),
+                                          controller: _controllerDropdownFilter,
+                                        ),
+                                      ),
+                                      items: _kodeRefKegiatan,
+                                      onChanged: (val) {
+                                        debugPrint(val);
+                                        debugPrint(_splitString(val));
+                                        debugPrint(_buatKodeGabungan(val));
+                                      },
+                                      selectedItem: "Kode Referensi Kegiatan",
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                   responsiveText(
                                       "Tanggal", 16, FontWeight.w700, darkText),
                                   const SizedBox(
@@ -550,35 +579,110 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  DropdownSearch<dynamic>(
-                                    dropdownDecoratorProps:
-                                        DropDownDecoratorProps(
-                                      dropdownSearchDecoration: InputDecoration(
-                                        suffixIcon: const Icon(Icons
-                                            .arrow_drop_down_circle_rounded),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 0, horizontal: 25),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: BorderSide(
-                                            color: navButtonPrimary
-                                                .withOpacity(0.5),
+                                  Card(
+                                    color: surfaceColor,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: DropdownSearch<dynamic>(
+                                      popupProps: PopupProps.menu(
+                                        showSearchBox: true,
+                                        searchFieldProps: TextFieldProps(
+                                          decoration: InputDecoration(
+                                            border: const OutlineInputBorder(),
+                                            hintText: "Cari Disini",
+                                            suffixIcon: IconButton(
+                                              onPressed: () {
+                                                _controllerDropdownFilter
+                                                    .clear();
+                                              },
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.black
+                                                    .withOpacity(0.5),
+                                              ),
+                                            ),
                                           ),
+                                          controller: _controllerDropdownFilter,
                                         ),
-                                        filled: true,
-                                        fillColor: surfaceColor,
                                       ),
+                                      items: _kategori,
+                                      onChanged: (val) {
+                                        _subKategori.clear();
+                                        debugPrint(val);
+                                        debugPrint(_splitString(val));
+                                        debugPrint(_buatKodeGabungan(val));
+                                        _getKodeSubKategori(
+                                                _buatKodeGabungan(val))
+                                            .whenComplete(
+                                          () => setState(() {}),
+                                        );
+                                        if (_kategoriNotEmpty == false) {
+                                          _kategoriNotEmpty = true;
+                                          if (mounted) {
+                                            setState(() {});
+                                          }
+                                        }
+                                      },
+                                      selectedItem: "Pilih Kategori",
                                     ),
-                                    items: _kategori,
-                                    onChanged: (val) {
-                                      kategori = val.toString();
-                                    },
-                                    selectedItem: "pilih kategori",
                                   ),
                                   const SizedBox(
                                     height: 10,
+                                  ),
+                                  Visibility(
+                                    visible: _kategoriNotEmpty,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        responsiveText("Pilih Sub Kategori", 16,
+                                            FontWeight.w700, darkText),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Card(
+                                          color: surfaceColor,
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          child: DropdownSearch<dynamic>(
+                                            popupProps: PopupProps.menu(
+                                              showSearchBox: true,
+                                              searchFieldProps: TextFieldProps(
+                                                decoration: InputDecoration(
+                                                  border:
+                                                      const OutlineInputBorder(),
+                                                  hintText: "Cari Disini",
+                                                  suffixIcon: IconButton(
+                                                    onPressed: () {
+                                                      _controllerDropdownFilter
+                                                          .clear();
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.clear,
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
+                                                    ),
+                                                  ),
+                                                ),
+                                                controller:
+                                                    _controllerDropdownFilter,
+                                              ),
+                                            ),
+                                            items: _subKategori,
+                                            onChanged: (val) {
+                                              debugPrint(val);
+                                              debugPrint(_splitString(val));
+                                              debugPrint(
+                                                  _buatKodeGabungan(val));
+                                            },
+                                            selectedItem: "Pilih Sub Kategori",
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   responsiveText(
                                       "Nominal", 16, FontWeight.w700, darkText),
@@ -653,7 +757,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     _controllerNominal.clear();
                                     kategori = "";
                                     date = formattedDate;
-                                    jenisInput = "";
+                                    _kategoriNotEmpty = false;
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -666,17 +770,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
-                                    _addRow(
-                                        kategori,
-                                        _controllerKeterangan.text,
-                                        date,
-                                        _controllerNominal.text,
-                                        jenisInput);
-                                    kategori = "";
-                                    _controllerKeterangan.clear();
-                                    _controllerNominal.clear();
-                                    date = formattedDate;
-                                    jenisInput = "";
                                     setState(() {});
                                   }
 
@@ -740,7 +833,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 shape: const CircleBorder(),
                 primary: primaryColor),
             onPressed: () {
-              jenisInput = "Pengeluaran";
               _showTambahDialog(deviceWidth, deviceHeight);
             },
             child: SizedBox(
@@ -755,7 +847,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 shape: const CircleBorder(),
                 primary: primaryColor),
             onPressed: () {
-              jenisInput = "Pemasukan";
               _showTambahDialog(deviceWidth, deviceHeight);
             },
             child: SizedBox(
@@ -1083,79 +1174,74 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: InteractiveViewer(
-                              transformationController:
-                                  TransformationController(),
-                              scaleEnabled: false,
-                              child: DataTable(
-                                border: TableBorder.all(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.black.withOpacity(0.5),
-                                  style: BorderStyle.solid,
+                            child: DataTable(
+                              border: TableBorder.all(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.black.withOpacity(0.5),
+                                style: BorderStyle.solid,
+                              ),
+                              headingRowHeight: 70,
+                              dataRowHeight: 56,
+                              columns: [
+                                DataColumn(
+                                  label: Text(
+                                    "Kode",
+                                    style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                                 ),
-                                headingRowHeight: 70,
-                                dataRowHeight: 56,
-                                columns: [
-                                  DataColumn(
-                                    label: Text(
-                                      "Kode",
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ),
+                                DataColumn(
+                                  label: Text(
+                                    "Tanggal",
+                                    style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
                                     ),
                                   ),
-                                  DataColumn(
-                                    label: Text(
-                                      "Tanggal",
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      "Deskripsi",
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      "Debit",
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      "Kredit",
-                                      style: GoogleFonts.nunito(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                rows: List.generate(
-                                  _rowList.length,
-                                  (index) {
-                                    return DataRow(
-                                        color: MaterialStateColor.resolveWith(
-                                          (states) {
-                                            return index % 2 == 1
-                                                ? Colors.white
-                                                : primaryColor.withOpacity(0.2);
-                                          },
-                                        ),
-                                        cells: _rowList[index].cells);
-                                  },
                                 ),
+                                DataColumn(
+                                  label: Text(
+                                    "Deskripsi",
+                                    style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Debit",
+                                    style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Kredit",
+                                    style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              rows: List.generate(
+                                _rowList.length,
+                                (index) {
+                                  return DataRow(
+                                      color: MaterialStateColor.resolveWith(
+                                        (states) {
+                                          return index % 2 == 1
+                                              ? Colors.white
+                                              : primaryColor.withOpacity(0.2);
+                                        },
+                                      ),
+                                      cells: _rowList[index].cells);
+                                },
                               ),
                             ),
                           ),
@@ -1641,7 +1727,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
-                                    _idKodeTransaksi = "";
+                                    _kodeGabunganTransaksi = "";
                                     _kodeTransaksi = "";
                                     _controllerKode.clear();
                                     _controllerKategori.clear();
@@ -1662,10 +1748,10 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                     postKodeSubTransaksi(
                                         _controllerKategori.text,
                                         temp,
-                                        _idKodeTransaksi,
+                                        _kodeGabunganTransaksi,
                                         context);
 
-                                    _idKodeTransaksi = "";
+                                    _kodeGabunganTransaksi = "";
                                     _kodeTransaksi = "";
                                     _controllerKode.clear();
                                     _controllerKategori.clear();
@@ -1847,9 +1933,10 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                                       const Spacer(),
                                                       IconButton(
                                                         onPressed: () {
-                                                          _idKodeTransaksi =
+                                                          _kodeGabunganTransaksi =
                                                               snapData[1][index]
-                                                                      ['id']
+                                                                      [
+                                                                      'kode_transaksi_gabungan']
                                                                   .toString();
                                                           _kodeTransaksi =
                                                               snapData[1][index]
@@ -1858,7 +1945,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                                                   .toString();
                                                           setState(() {});
                                                           debugPrint(
-                                                            _idKodeTransaksi
+                                                            _kodeGabunganTransaksi
                                                                 .toString(),
                                                           );
                                                           _showBuatSubKategoriDialog(
@@ -1871,13 +1958,14 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                                       ),
                                                       IconButton(
                                                         onPressed: () {
-                                                          _idKodeTransaksi =
+                                                          _kodeGabunganTransaksi =
                                                               snapData[1][index]
-                                                                      ['id']
+                                                                      [
+                                                                      'kode_transaksi_gabungan']
                                                                   .toString();
                                                           setState(() {});
                                                           debugPrint(
-                                                            _idKodeTransaksi
+                                                            _kodeGabunganTransaksi
                                                                 .toString(),
                                                           );
                                                         },
@@ -1894,13 +1982,14 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                                                               const CircleBorder(),
                                                         ),
                                                         onPressed: () {
-                                                          _idKodeTransaksi =
+                                                          _kodeGabunganTransaksi =
                                                               snapData[1][index]
-                                                                      ['id']
+                                                                      [
+                                                                      'kode_transaksi_gabungan']
                                                                   .toString();
                                                           setState(() {});
                                                           debugPrint(
-                                                            _idKodeTransaksi,
+                                                            _kodeGabunganTransaksi,
                                                           );
                                                           widget
                                                               .controllerPageSubKategori
@@ -1962,7 +2051,8 @@ class _LihatSubKategoriState extends State<LihatSubKategori> {
   @override
   void initState() {
     // TODO: implement initState
-    subKategoriTransaksi = servicesUser.getKodeSubTransaksi(_idKodeTransaksi);
+    subKategoriTransaksi =
+        servicesUser.getKodeSubTransaksi(_kodeGabunganTransaksi);
     super.initState();
   }
 
