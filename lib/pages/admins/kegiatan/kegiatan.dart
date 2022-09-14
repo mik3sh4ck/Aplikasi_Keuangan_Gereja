@@ -45,7 +45,9 @@ class _AdminControllerKegiatanPageState
   final _controllerDetailPengeluaranKebutuhan = PageController();
   final _controllerPageListKode = PageController();
 
+
   @override
+
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -400,9 +402,11 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   final _controllerKeteranganKegiatan = TextEditingController();
   final _controllerJabatanAnggota = TextEditingController();
 
+
   final _controllerDropdownFilteruser = TextEditingController();
   final _controllerDropdownFilterKegiatan = TextEditingController();
   final _controllerDropdownFilterNamaAnggota = TextEditingController();
+
 
   final List _jabatanList = [];
   final List _namaAnggotaList = [];
@@ -1202,7 +1206,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         Row(
                           children: [
                             Container(
+
                               padding: EdgeInsets.all(0),
+
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1327,7 +1333,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ),
                             ),
                             Container(
+
                               padding: EdgeInsets.all(0),
+
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1499,6 +1507,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                       }
 
                                       return loadingIndicator();
+
                                     },
                                   ),
                                   SizedBox(
@@ -1669,6 +1678,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                       }
 
                                       return loadingIndicator();
+
                                     },
                                   ),
                                   SizedBox(
@@ -2158,11 +2168,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                         ),
                         Expanded(
                           child: Padding(
+
                             padding: EdgeInsets.all(5),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+
                                 responsiveText("Tabel Real", 20,
+
                                     FontWeight.w700, darkText),
                                 SizedBox(
                                   height: 10,
@@ -2177,7 +2190,9 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                       color: Colors.black.withOpacity(0.5),
                                     ),
                                   ),
+
                                   //width: deviceWidth / 2,
+
                                   padding: EdgeInsets.all(10),
                                   child: FutureBuilder(
                                     future: kategoriDetailItemProposalKegiatan,
@@ -2202,6 +2217,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                   const ClampingScrollPhysics(),
                                               itemCount: snapData[1].length,
                                               itemBuilder: (context, index) {
+
                                                 return Row(
                                                   children: [
                                                     Expanded(
@@ -2272,6 +2288,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                           ),
                                                         ),
                                                       ),
+
                                                     ),
                                                     SizedBox(width: 5,),
                                                     Text("0%"),
@@ -2283,11 +2300,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                           );
                                         }
                                       }
+
                                       return loadingIndicator();
+
                                     },
                                   ),
                                 ),
                               ],
+
                             ),
                           ),
                         )
@@ -2299,6 +2319,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                   ],
                 )
               ],
+
             ),
           ),
         ),
@@ -2483,7 +2504,9 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
     super.dispose();
   }
 
+
   @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2609,6 +2632,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                             }
 
                             return loadingIndicator();
+
                           },
                         ),
                       ),
@@ -2694,7 +2718,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
     );
   }
 
+
   @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2844,6 +2870,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                             }
 
                             return loadingIndicator();
+
                           },
                         ),
                       ),
@@ -2941,6 +2968,7 @@ class _DetailPengeluaranKebutuhanState
   }
 
   @override
+
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -2970,7 +2998,9 @@ class _DetailPengeluaranKebutuhanState
                     width: 25,
                   ),
                   Text(
+
                     "Detail Pengeluaran Kebutuhan $_namaItemKebutuhan",
+
                     style: Theme.of(context).textTheme.headline5,
                   ),
                 ],
@@ -3030,8 +3060,9 @@ class _DetailPengeluaranKebutuhanState
                                     child: ListTile(
                                       title: Text(
                                         snapData[1][index]
-                                                ['pengeluaran_kebutuhan']
-                                            .toString(),
+
+                                                ['pengeluaran_kebutuhan'].toString(),
+
                                       ),
                                       subtitle: Text(
                                         snapData[1][index][
@@ -3418,6 +3449,7 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                         }
 
                         return loadingIndicator();
+
                       },
                     ),
                   ),
