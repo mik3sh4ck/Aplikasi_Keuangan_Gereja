@@ -1,7 +1,6 @@
 // ignore_for_file: todo
 
 import 'dart:io';
-
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -16,11 +15,8 @@ import '../../../widgets/expandablefab.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
-final List _kategori = List.empty(growable: true);
-final List _subKategori = List.empty(growable: true);
+final List _kodePerkiraan = List.empty(growable: true);
 final List _kodeRefKegiatan = List.empty(growable: true);
-String _kodeGabunganTransaksi = "";
-String _kodeTransaksi = "";
 
 class AdminControllerTransaksiPage extends StatefulWidget {
   const AdminControllerTransaksiPage({Key? key}) : super(key: key);
@@ -57,18 +53,8 @@ class _AdminControllerTransaksiPageState
         AdminTransaksiPage(
           controllerPageKategori: _controllerPageKategori,
         ),
-        PageView(
-          controller: _controllerPageSubKategori,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            BuatKategoriPage(
-              controllerPageSubKategori: _controllerPageSubKategori,
-              controllerPageKategori: _controllerPageKategori,
-            ),
-            LihatSubKategori(
-              controllerPageSubKategori: _controllerPageSubKategori,
-            ),
-          ],
+        BuatKategoriPage(
+          controllerPageKategori: _controllerPageKategori,
         ),
       ],
     );
@@ -122,7 +108,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   @override
   void initState() {
     // TODO: implement initState
-    _getKodeKategori(kodeGereja);
+    _getKodePerkiraan(kodeGereja);
     _getTransaksi(kodeGereja);
 
     formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
@@ -158,28 +144,16 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     super.dispose();
   }
 
-  Future _getKodeKategori(kodeGereja) async {
-    var response = await servicesUser.getKodeTransaksi(kodeGereja);
+  Future _getKodePerkiraan(kodeGereja) async {
+    var response = await servicesUser.getKodePerkiraan(kodeGereja);
     if (response[0] != 404) {
       for (var element in response[1]) {
-        _kategori
-            .add("${element['kode_transaksi']} - ${element['nama_transaksi']}");
+        debugPrint(element.toString());
+        _kodePerkiraan.add(
+            "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
       }
     } else {
       throw "Gagal Mengambil Data";
-    }
-  }
-
-  Future _getKodeSubKategori(kodeGabunganTransaksi) async {
-    var response =
-        await servicesUser.getKodeSubTransaksi(kodeGabunganTransaksi);
-    if (response[0] != 404) {
-      for (var element in response[1]) {
-        _subKategori
-            .add("${element['kode_sub_transaksi']} - ${element['nama_sub_transaksi']}");
-      }
-    } else {
-      return "Data Tidak Ada";
     }
   }
 
@@ -605,24 +579,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                           controller: _controllerDropdownFilter,
                                         ),
                                       ),
-                                      items: _kategori,
-                                      onChanged: (val) {
-                                        _subKategori.clear();
-                                        debugPrint(val);
-                                        debugPrint(_splitString(val));
-                                        debugPrint(_buatKodeGabungan(val));
-                                        _getKodeSubKategori(
-                                                _buatKodeGabungan(val))
-                                            .whenComplete(
-                                          () => setState(() {}),
-                                        );
-                                        if (_kategoriNotEmpty == false) {
-                                          _kategoriNotEmpty = true;
-                                          if (mounted) {
-                                            setState(() {});
-                                          }
-                                        }
-                                      },
+                                      items: _kodePerkiraan,
+                                      onChanged: (val) {},
                                       selectedItem: "Pilih Kategori",
                                     ),
                                   ),
@@ -668,7 +626,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                                     _controllerDropdownFilter,
                                               ),
                                             ),
-                                            items: _subKategori,
+                                            items: _kodePerkiraan,
                                             onChanged: (val) {
                                               debugPrint(val);
                                               debugPrint(_splitString(val));
@@ -1136,7 +1094,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                             curve: Curves.ease);
                       },
                       child: Text(
-                        "Lihat Kategori",
+                        "Kode Keuangan",
                         style: GoogleFonts.nunito(
                             fontWeight: FontWeight.w700, fontSize: 14),
                       ),
@@ -1307,7 +1265,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                         controller: _controllerDropdownFilter,
                                       ),
                                     ),
-                                    items: _kategori,
+                                    items: _kodePerkiraan,
                                     onChanged: (val) {
                                       debugPrint(val);
                                       debugPrint(_splitString(val));
@@ -1359,11 +1317,7 @@ enum RadioJenisTransaksi { pemasukan, pengeluaran }
 //TODO: buat Kategori
 class BuatKategoriPage extends StatefulWidget {
   final PageController controllerPageKategori;
-  final PageController controllerPageSubKategori;
-  const BuatKategoriPage(
-      {Key? key,
-      required this.controllerPageKategori,
-      required this.controllerPageSubKategori})
+  const BuatKategoriPage({Key? key, required this.controllerPageKategori})
       : super(key: key);
 
   @override
@@ -1372,7 +1326,7 @@ class BuatKategoriPage extends StatefulWidget {
 
 class _BuatKategoriPageState extends State<BuatKategoriPage> {
   ServicesUser servicesUser = ServicesUser();
-  late Future kategoriTransaksi;
+  late Future kodePerkiraan;
 
   final _controllerKode = TextEditingController();
   final _controllerKategori = TextEditingController();
@@ -1380,7 +1334,7 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
   @override
   void initState() {
     // TODO: implement initState
-    kategoriTransaksi = servicesUser.getKodeTransaksi(kodeGereja);
+    kodePerkiraan = servicesUser.getKodePerkiraan(kodeGereja);
     super.initState();
   }
 
@@ -1626,164 +1580,164 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
       },
     ).then((value) {
       if (mounted) {
-        kategoriTransaksi = servicesUser
-            .getKodeTransaksi(kodeGereja)
+        kodePerkiraan = servicesUser
+            .getKodePerkiraan(kodeGereja)
             .whenComplete(() => setState(() {}));
       }
     });
   }
 
-  _showBuatSubKategoriDialog(dw, dh, index) {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                  },
-                ),
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  controller: ScrollController(),
-                  child: SizedBox(
-                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
-                    child: Column(
-                      children: [
-                        Container(
-                          width: dw < 800 ? dw * 0.8 : dw * 0.4,
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              responsiveText("Tambah Sub Kategori", 26,
-                                  FontWeight.w700, darkText),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Id : $_kodeTransaksi", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText(
-                                      "Kode", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKode, null),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText("Nama Kategori", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKategori, null),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 25,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (mounted) {
-                                    _kodeGabunganTransaksi = "";
-                                    _kodeTransaksi = "";
-                                    _controllerKode.clear();
-                                    _controllerKategori.clear();
-                                    setState(() {});
-                                  }
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Batal"),
-                              ),
-                              const SizedBox(
-                                width: 25,
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (mounted) {
-                                    String temp =
-                                        "$_kodeTransaksi-${_controllerKode.text}";
-                                    postKodeSubTransaksi(
-                                        _controllerKategori.text,
-                                        temp,
-                                        _kodeGabunganTransaksi,
-                                        context);
+  // _showBuatSubKategoriDialog(dw, dh, index) {
+  //   showDialog(
+  //     barrierDismissible: false,
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return Dialog(
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //             child: ScrollConfiguration(
+  //               behavior: ScrollConfiguration.of(context).copyWith(
+  //                 dragDevices: {
+  //                   PointerDeviceKind.touch,
+  //                   PointerDeviceKind.mouse,
+  //                 },
+  //               ),
+  //               child: SingleChildScrollView(
+  //                 physics: const ClampingScrollPhysics(),
+  //                 controller: ScrollController(),
+  //                 child: SizedBox(
+  //                   width: dw < 800 ? dw * 0.8 : dw * 0.4,
+  //                   child: Column(
+  //                     children: [
+  //                       Container(
+  //                         width: dw < 800 ? dw * 0.8 : dw * 0.4,
+  //                         decoration: BoxDecoration(
+  //                           color: primaryColor,
+  //                           borderRadius: const BorderRadius.only(
+  //                             topLeft: Radius.circular(10),
+  //                             topRight: Radius.circular(10),
+  //                           ),
+  //                         ),
+  //                         child: Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.center,
+  //                           children: [
+  //                             const SizedBox(
+  //                               height: 16,
+  //                             ),
+  //                             responsiveText("Tambah Sub Kategori", 26,
+  //                                 FontWeight.w700, darkText),
+  //                             const SizedBox(
+  //                               height: 16,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       Container(
+  //                         padding: const EdgeInsets.all(16),
+  //                         child: Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.center,
+  //                           children: [
+  //                             Column(
+  //                               crossAxisAlignment: CrossAxisAlignment.start,
+  //                               children: [
+  //                                 responsiveText("Id : $_kodeTransaksi", 16,
+  //                                     FontWeight.w700, darkText),
+  //                                 const SizedBox(
+  //                                   height: 10,
+  //                                 ),
+  //                                 responsiveText(
+  //                                     "Kode", 16, FontWeight.w700, darkText),
+  //                                 const SizedBox(
+  //                                   height: 10,
+  //                                 ),
+  //                                 responsiveTextField(
+  //                                     dw, dh, _controllerKode, null),
+  //                                 const SizedBox(
+  //                                   height: 10,
+  //                                 ),
+  //                                 responsiveText("Nama Kategori", 16,
+  //                                     FontWeight.w700, darkText),
+  //                                 const SizedBox(
+  //                                   height: 10,
+  //                                 ),
+  //                                 responsiveTextField(
+  //                                     dw, dh, _controllerKategori, null),
+  //                               ],
+  //                             ),
+  //                             const SizedBox(
+  //                               height: 25,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       Padding(
+  //                         padding: const EdgeInsets.all(16),
+  //                         child: Row(
+  //                           mainAxisAlignment: MainAxisAlignment.center,
+  //                           children: [
+  //                             ElevatedButton(
+  //                               onPressed: () {
+  //                                 if (mounted) {
+  //                                   _kodeGabunganTransaksi = "";
+  //                                   _kodeTransaksi = "";
+  //                                   _controllerKode.clear();
+  //                                   _controllerKategori.clear();
+  //                                   setState(() {});
+  //                                 }
+  //                                 Navigator.pop(context);
+  //                               },
+  //                               child: const Text("Batal"),
+  //                             ),
+  //                             const SizedBox(
+  //                               width: 25,
+  //                             ),
+  //                             ElevatedButton(
+  //                               onPressed: () {
+  //                                 if (mounted) {
+  //                                   String temp =
+  //                                       "$_kodeTransaksi-${_controllerKode.text}";
+  //                                   postKodeSubTransaksi(
+  //                                       _controllerKategori.text,
+  //                                       temp,
+  //                                       _kodeGabunganTransaksi,
+  //                                       context);
 
-                                    _kodeGabunganTransaksi = "";
-                                    _kodeTransaksi = "";
-                                    _controllerKode.clear();
-                                    _controllerKategori.clear();
-                                    setState(() {});
-                                  }
+  //                                   _kodeGabunganTransaksi = "";
+  //                                   _kodeTransaksi = "";
+  //                                   _controllerKode.clear();
+  //                                   _controllerKategori.clear();
+  //                                   setState(() {});
+  //                                 }
 
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Tambah"),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  //                                 Navigator.pop(context);
+  //                               },
+  //                               child: const Text("Tambah"),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       const SizedBox(
+  //                         height: 25,
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   Future postKodeTransaksi(
       kodeGereja, namaKategori, kodeKategori, statusKategori, context) async {
-    var response = await servicesUser.inputKodeTransaksi(
-        kodeGereja, namaKategori, kodeKategori, statusKategori);
+    var response = await servicesUser.inputKodePerkiraan(
+        kodeGereja, namaKategori, kodeKategori);
 
     if (response[0] != 404) {
       return true;
@@ -1796,21 +1750,21 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
     }
   }
 
-  Future postKodeSubTransaksi(
-      namaSubKategori, kodeSubKategori, idTransaksi, context) async {
-    var response = await servicesUser.inputKodeSubTransaksi(
-        idTransaksi, namaSubKategori, kodeSubKategori);
+  // Future postKodeSubTransaksi(
+  //     namaSubKategori, kodeSubKategori, idTransaksi, context) async {
+  //   var response = await servicesUser.inputKodeSubTransaksi(
+  //       idTransaksi, namaSubKategori, kodeSubKategori);
 
-    if (response[0] != 404) {
-      return true;
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response[1]),
-        ),
-      );
-    }
-  }
+  //   if (response[0] != 404) {
+  //     return true;
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(response[1]),
+  //       ),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1857,171 +1811,192 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
                     child: SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
                       controller: ScrollController(),
-                      child: SizedBox(
-                        width: deviceWidth,
-                        child: Column(
-                          children: [
-                            Row(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SizedBox(
+                            width: deviceWidth * 0.4,
+                            child: Column(
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _showBuatKategoriDialog(
-                                        deviceWidth, deviceHeight);
-                                  },
-                                  child: Row(
-                                    children: const [
-                                      Icon(Icons.add),
-                                      SizedBox(
-                                        width: 16,
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _showBuatKategoriDialog(
+                                            deviceWidth, deviceHeight);
+                                      },
+                                      child: Row(
+                                        children: const [
+                                          Text("Buat Kode Transaksi"),
+                                        ],
                                       ),
-                                      Text("Buat Kategori"),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(
+                                      color: navButtonPrimary.withOpacity(0.4),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: FutureBuilder(
+                                      future: kodePerkiraan,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          List snapData =
+                                              snapshot.data! as List;
+                                          debugPrint(snapData.toString());
+                                          if (snapData[0] != 404) {
+                                            return ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.vertical,
+                                              controller: ScrollController(),
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              itemCount: snapData[1].length,
+                                              itemBuilder: (context, index) {
+                                                return Card(
+                                                  color:
+                                                      scaffoldBackgroundColor,
+                                                  child: ListTile(
+                                                    dense: true,
+                                                    minLeadingWidth: 85,
+                                                    leading: Text(snapData[1]
+                                                            [index]
+                                                        ['kode_perkiraan']),
+                                                    title: Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          height: 25,
+                                                          child:
+                                                              VerticalDivider(
+                                                            color: dividerColor,
+                                                          ),
+                                                        ),
+                                                        Text(snapData[1][index][
+                                                            'nama_kode_perkiraan']),
+                                                        const Spacer(),
+                                                        IconButton(
+                                                          onPressed: () {},
+                                                          icon: const Icon(Icons
+                                                              .delete_rounded),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          } else if (snapData[0] == 404) {
+                                            return noData();
+                                          }
+                                        }
+                                        return loadingIndicator();
+                                      },
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: navButtonPrimary.withOpacity(0.4),
+                          ),
+                          SizedBox(
+                            width: deviceWidth * 0.4,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _showBuatKategoriDialog(
+                                            deviceWidth, deviceHeight);
+                                      },
+                                      child: Row(
+                                        children: const [
+                                          Text("Buat Kode Perkiraan"),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: FutureBuilder(
-                                  future: kategoriTransaksi,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      List snapData = snapshot.data! as List;
-                                      if (snapData[0] != 404) {
-                                        return ScrollConfiguration(
-                                          behavior:
-                                              ScrollConfiguration.of(context)
-                                                  .copyWith(
-                                            dragDevices: {
-                                              PointerDeviceKind.touch,
-                                              PointerDeviceKind.mouse,
-                                            },
-                                          ),
-                                          child: ListView.builder(
-                                            shrinkWrap: true,
-                                            scrollDirection: Axis.vertical,
-                                            controller: ScrollController(),
-                                            physics:
-                                                const ClampingScrollPhysics(),
-                                            itemCount: snapData[1].length,
-                                            itemBuilder: (context, index) {
-                                              return Card(
-                                                color: scaffoldBackgroundColor,
-                                                child: ListTile(
-                                                  leading: Text(snapData[1]
-                                                          [index]
-                                                      ['kode_transaksi']),
-                                                  title: Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        height: 25,
-                                                        child:
-                                                            VerticalDivider(),
-                                                      ),
-                                                      Text(snapData[1][index]
-                                                          ['nama_transaksi']),
-                                                      const Spacer(),
-                                                      IconButton(
-                                                        onPressed: () {
-                                                          _kodeGabunganTransaksi =
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'kode_transaksi_gabungan']
-                                                                  .toString();
-                                                          _kodeTransaksi =
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'kode_transaksi']
-                                                                  .toString();
-                                                          setState(() {});
-                                                          debugPrint(
-                                                            _kodeGabunganTransaksi
-                                                                .toString(),
-                                                          );
-                                                          _showBuatSubKategoriDialog(
-                                                              deviceWidth,
-                                                              deviceHeight,
-                                                              index);
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.add),
-                                                      ),
-                                                      IconButton(
-                                                        onPressed: () {
-                                                          _kodeGabunganTransaksi =
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'kode_transaksi_gabungan']
-                                                                  .toString();
-                                                          setState(() {});
-                                                          debugPrint(
-                                                            _kodeGabunganTransaksi
-                                                                .toString(),
-                                                          );
-                                                        },
-                                                        icon: const Icon(Icons
-                                                            .delete_rounded),
-                                                      ),
-                                                      ElevatedButton(
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(12),
-                                                          shape:
-                                                              const CircleBorder(),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(
+                                      color: navButtonPrimary.withOpacity(0.4),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: FutureBuilder(
+                                      future: kodePerkiraan,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          List snapData =
+                                              snapshot.data! as List;
+                                          debugPrint(snapData.toString());
+                                          if (snapData[0] != 404) {
+                                            return ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.vertical,
+                                              controller: ScrollController(),
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              itemCount: snapData[1].length,
+                                              itemBuilder: (context, index) {
+                                                return Card(
+                                                  color:
+                                                      scaffoldBackgroundColor,
+                                                  child: ListTile(
+                                                    dense: true,
+                                                    minLeadingWidth: 85,
+                                                    leading: Text(snapData[1]
+                                                            [index]
+                                                        ['kode_perkiraan']),
+                                                    title: Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          height: 25,
+                                                          child:
+                                                              VerticalDivider(
+                                                            color: dividerColor,
+                                                          ),
                                                         ),
-                                                        onPressed: () {
-                                                          _kodeGabunganTransaksi =
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'kode_transaksi_gabungan']
-                                                                  .toString();
-                                                          setState(() {});
-                                                          debugPrint(
-                                                            _kodeGabunganTransaksi,
-                                                          );
-                                                          widget
-                                                              .controllerPageSubKategori
-                                                              .animateToPage(1,
-                                                                  duration:
-                                                                      const Duration(
-                                                                          milliseconds:
-                                                                              250),
-                                                                  curve: Curves
-                                                                      .ease);
-                                                        },
-                                                        child: const Icon(Icons
-                                                            .arrow_forward_rounded),
-                                                      ),
-                                                    ],
+                                                        Text(snapData[1][index][
+                                                            'nama_kode_perkiraan']),
+                                                        const Spacer(),
+                                                        IconButton(
+                                                          onPressed: () {},
+                                                          icon: const Icon(Icons
+                                                              .delete_rounded),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      } else if (snapData[0] == 404) {
-                                        return noData();
-                                      }
-                                    }
-                                    return loadingIndicator();
-                                  },
+                                                );
+                                              },
+                                            );
+                                          } else if (snapData[0] == 404) {
+                                            return noData();
+                                          }
+                                        }
+                                        return loadingIndicator();
+                                      },
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -2035,160 +2010,161 @@ class _BuatKategoriPageState extends State<BuatKategoriPage> {
   }
 }
 
-class LihatSubKategori extends StatefulWidget {
-  final PageController controllerPageSubKategori;
-  const LihatSubKategori({Key? key, required this.controllerPageSubKategori})
-      : super(key: key);
+//TODO: Lihat Sub Kategori
+// class LihatSubKategori extends StatefulWidget {
+//   final PageController controllerPageSubKategori;
+//   const LihatSubKategori({Key? key, required this.controllerPageSubKategori})
+//       : super(key: key);
 
-  @override
-  State<LihatSubKategori> createState() => _LihatSubKategoriState();
-}
+//   @override
+//   State<LihatSubKategori> createState() => _LihatSubKategoriState();
+// }
 
-class _LihatSubKategoriState extends State<LihatSubKategori> {
-  ServicesUser servicesUser = ServicesUser();
-  late Future subKategoriTransaksi;
+// class _LihatSubKategoriState extends State<LihatSubKategori> {
+//   ServicesUser servicesUser = ServicesUser();
+//   late Future subKategoriTransaksi;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    subKategoriTransaksi =
-        servicesUser.getKodeSubTransaksi(_kodeGabunganTransaksi);
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//     // TODO: implement initState
+//     subKategoriTransaksi =
+//         servicesUser.getKodeSubTransaksi(_kodeGabunganTransaksi);
+//     super.initState();
+//   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     // TODO: implement dispose
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final deviceWidth = MediaQuery.of(context).size.width;
-    final deviceHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Stack(
-        children: [
-          ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
-            ),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              controller: ScrollController(),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                width: deviceWidth,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                          onPressed: () {
-                            widget.controllerPageSubKategori.animateToPage(0,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.ease);
-                          },
-                        ),
-                        const SizedBox(
-                          width: 25,
-                        ),
-                        Text(
-                          "Sub Kategori",
-                          style: Theme.of(context).textTheme.headline5,
-                        ),
-                      ],
-                    ),
-                    const Divider(
-                      thickness: 1,
-                      height: 56,
-                    ),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: navButtonPrimary.withOpacity(0.4),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: FutureBuilder(
-                          future: subKategoriTransaksi,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              List snapData = snapshot.data! as List;
-                              if (snapData[0] != 404) {
-                                return ScrollConfiguration(
-                                  behavior:
-                                      ScrollConfiguration.of(context).copyWith(
-                                    dragDevices: {
-                                      PointerDeviceKind.touch,
-                                      PointerDeviceKind.mouse,
-                                    },
-                                  ),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.vertical,
-                                    controller: ScrollController(),
-                                    physics: const ClampingScrollPhysics(),
-                                    itemCount: snapData[1].length,
-                                    itemBuilder: (context, index) {
-                                      return Card(
-                                        color: scaffoldBackgroundColor,
-                                        child: ListTile(
-                                          leading: Text(
-                                            snapData[1][index]
-                                                    ['kode_sub_transaksi']
-                                                .toString(),
-                                          ),
-                                          title: Row(
-                                            children: [
-                                              const SizedBox(
-                                                height: 25,
-                                                child: VerticalDivider(),
-                                              ),
-                                              Text(
-                                                snapData[1][index]
-                                                        ['nama_sub_transaksi']
-                                                    .toString(),
-                                              ),
-                                              const Spacer(),
-                                              IconButton(
-                                                onPressed: () {
-                                                  debugPrint(
-                                                    index.toString(),
-                                                  );
-                                                },
-                                                icon: const Icon(
-                                                    Icons.delete_rounded),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                );
-                              } else if (snapData[0] == 404) {
-                                return noData();
-                              }
-                            }
-                            return loadingIndicator();
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final deviceWidth = MediaQuery.of(context).size.width;
+//     final deviceHeight = MediaQuery.of(context).size.height;
+//     return Scaffold(
+//       body: Stack(
+//         children: [
+//           ScrollConfiguration(
+//             behavior: ScrollConfiguration.of(context).copyWith(
+//               dragDevices: {
+//                 PointerDeviceKind.touch,
+//                 PointerDeviceKind.mouse,
+//               },
+//             ),
+//             child: SingleChildScrollView(
+//               physics: const ClampingScrollPhysics(),
+//               controller: ScrollController(),
+//               child: Container(
+//                 padding: const EdgeInsets.all(16),
+//                 width: deviceWidth,
+//                 child: Column(
+//                   children: [
+//                     Row(
+//                       children: [
+//                         IconButton(
+//                           icon: const Icon(Icons.arrow_back_ios_new_rounded),
+//                           onPressed: () {
+//                             widget.controllerPageSubKategori.animateToPage(0,
+//                                 duration: const Duration(milliseconds: 250),
+//                                 curve: Curves.ease);
+//                           },
+//                         ),
+//                         const SizedBox(
+//                           width: 25,
+//                         ),
+//                         Text(
+//                           "Sub Kategori",
+//                           style: Theme.of(context).textTheme.headline5,
+//                         ),
+//                       ],
+//                     ),
+//                     const Divider(
+//                       thickness: 1,
+//                       height: 56,
+//                     ),
+//                     Card(
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(10),
+//                         side: BorderSide(
+//                           color: navButtonPrimary.withOpacity(0.4),
+//                         ),
+//                       ),
+//                       child: Padding(
+//                         padding: const EdgeInsets.all(16),
+//                         child: FutureBuilder(
+//                           future: subKategoriTransaksi,
+//                           builder: (context, snapshot) {
+//                             if (snapshot.hasData) {
+//                               List snapData = snapshot.data! as List;
+//                               if (snapData[0] != 404) {
+//                                 return ScrollConfiguration(
+//                                   behavior:
+//                                       ScrollConfiguration.of(context).copyWith(
+//                                     dragDevices: {
+//                                       PointerDeviceKind.touch,
+//                                       PointerDeviceKind.mouse,
+//                                     },
+//                                   ),
+//                                   child: ListView.builder(
+//                                     shrinkWrap: true,
+//                                     scrollDirection: Axis.vertical,
+//                                     controller: ScrollController(),
+//                                     physics: const ClampingScrollPhysics(),
+//                                     itemCount: snapData[1].length,
+//                                     itemBuilder: (context, index) {
+//                                       return Card(
+//                                         color: scaffoldBackgroundColor,
+//                                         child: ListTile(
+//                                           leading: Text(
+//                                             snapData[1][index]
+//                                                     ['kode_sub_transaksi']
+//                                                 .toString(),
+//                                           ),
+//                                           title: Row(
+//                                             children: [
+//                                               const SizedBox(
+//                                                 height: 25,
+//                                                 child: VerticalDivider(),
+//                                               ),
+//                                               Text(
+//                                                 snapData[1][index]
+//                                                         ['nama_sub_transaksi']
+//                                                     .toString(),
+//                                               ),
+//                                               const Spacer(),
+//                                               IconButton(
+//                                                 onPressed: () {
+//                                                   debugPrint(
+//                                                     index.toString(),
+//                                                   );
+//                                                 },
+//                                                 icon: const Icon(
+//                                                     Icons.delete_rounded),
+//                                               ),
+//                                             ],
+//                                           ),
+//                                         ),
+//                                       );
+//                                     },
+//                                   ),
+//                                 );
+//                               } else if (snapData[0] == 404) {
+//                                 return noData();
+//                               }
+//                             }
+//                             return loadingIndicator();
+//                           },
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

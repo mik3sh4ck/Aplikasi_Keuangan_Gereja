@@ -916,27 +916,27 @@ class _HistoryDonasiPageState extends State<HistoryDonasiPage> {
                                       ),
                                       color: scaffoldBackgroundColor,
                                       child: ListTile(
-                                          title: responsiveText(
-                                              snapData[1][index]
-                                                  ['jenis_kebutuhan'],
-                                              18,
+                                        title: responsiveText(
+                                            snapData[1][index]
+                                                ['jenis_kebutuhan'],
+                                            18,
+                                            FontWeight.w700,
+                                            darkText),
+                                        subtitle: responsiveText(
+                                            snapData[1][index]
+                                                ['kode_proposal_kegiatan'],
+                                            12,
+                                            FontWeight.w400,
+                                            darkText),
+                                        trailing: Container(
+                                          width: deviceWidth / 2 * 0.2,
+                                          child: responsiveText(
+                                              "Rp. ${snapData[1][index]['budget_kebutuhan']}",
+                                              16,
                                               FontWeight.w700,
                                               darkText),
-                                          subtitle: responsiveText(
-                                              snapData[1][index]
-                                                  ['kode_proposal_kegiatan'],
-                                              12,
-                                              FontWeight.w400,
-                                              darkText),
-                                          trailing: Container(
-                                            width: deviceWidth / 2 * 0.2,
-                                            child: responsiveText(
-                                                "Rp. ${snapData[1][index]
-                                                            ['budget_kebutuhan']}",
-                                                16,
-                                                FontWeight.w700,
-                                                darkText),
-                                          )),
+                                        ),
+                                      ),
                                     );
                                   },
                                 ),

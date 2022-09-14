@@ -1,11 +1,14 @@
 //ignore_for_file: todo, prefer_const_constructors
+import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
+
+import 'package:dropdown_search/dropdown_search.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:textfield_search/textfield_search.dart';
 
 import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
@@ -16,8 +19,10 @@ String _kodeKegiatan = "";
 String _kodeItemKebutuhan = "";
 String _namaItemKebutuhan = "";
 
-final List _dummyList = [];
-final List _kategori = [];
+String _tempNamaPIC = "";
+
+final List _user = [];
+final List _kodeKegiatanbuatList = [];
 
 // final List _kategoriAnggota = List.empty(growable: true);
 // final List _tempKategoriAnggota = List.empty(growable: true);
@@ -38,6 +43,7 @@ class _AdminControllerKegiatanPageState
   final _controllerPageAbsensiKegiatan = PageController();
   final _controllerPageDetailAbsensiKegiatan = PageController();
   final _controllerDetailPengeluaranKebutuhan = PageController();
+  final _controllerPageListKode = PageController();
 
   @override
   void initState() {
@@ -54,6 +60,7 @@ class _AdminControllerKegiatanPageState
     _controllerPageAbsensiKegiatan.dispose();
     _controllerPageDetailAbsensiKegiatan.dispose();
     _controllerDetailPengeluaranKebutuhan.dispose();
+    _controllerPageListKode.dispose();
     super.dispose();
   }
 
@@ -71,10 +78,21 @@ class _AdminControllerKegiatanPageState
               controller: _controllerHistoryPageKegiatan,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                AdminKegiatanPage(
-                  controllerPageKegiatan: _controllerPageKegiatan,
-                  controllerDetailPageKegiatan: _controllerDetailPageKegiatan,
-                  controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
+                PageView(
+                  controller: _controllerPageListKode,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    AdminKegiatanPage(
+                      controllerPageKegiatan: _controllerPageKegiatan,
+                      controllerDetailPageKegiatan:
+                          _controllerDetailPageKegiatan,
+                      controllerHistoryPageKegiatan:
+                          _controllerHistoryPageKegiatan,
+                      controllerPageListKode: _controllerPageListKode,
+                    ),
+                    ListKodeKegiatan(
+                        controllerPageListKode: _controllerPageListKode)
+                  ],
                 ),
                 HistoryKegiatan(
                   controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
@@ -130,11 +148,13 @@ class AdminKegiatanPage extends StatefulWidget {
   final PageController controllerPageKegiatan;
   final PageController controllerDetailPageKegiatan;
   final PageController controllerHistoryPageKegiatan;
+  final PageController controllerPageListKode;
   const AdminKegiatanPage(
       {Key? key,
       required this.controllerPageKegiatan,
       required this.controllerDetailPageKegiatan,
-      required this.controllerHistoryPageKegiatan})
+      required this.controllerHistoryPageKegiatan,
+      required this.controllerPageListKode})
       : super(key: key);
 
   @override
@@ -204,7 +224,38 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                           ElevatedButton(
                             style: TextButton.styleFrom(
                               primary: Colors.white,
-                              backgroundColor: Color(0xFFf9ab27),
+                              backgroundColor: primaryColorVariant,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                            ),
+                            onPressed: () {
+                              widget.controllerPageListKode.animateToPage(1,
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.ease);
+                            },
+                            child: Row(
+                              children: [
+                                Icon(Icons.add_circle_outline_rounded),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  'Kode Kegiatan',
+                                  style: GoogleFonts.nunito(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          ElevatedButton(
+                            style: TextButton.styleFrom(
+                              primary: Colors.white,
+                              backgroundColor: primaryColorVariant,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(40),
                               ),
@@ -345,13 +396,13 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   final _controllerKodeJenisKebutuhan = TextEditingController();
   final _controllerJenisKebutuhan = TextEditingController();
   final _controllerSaldo = TextEditingController();
-  final _controllerKeterangan = TextEditingController();
   final _controllerLokasi = TextEditingController();
   final _controllerKeteranganKegiatan = TextEditingController();
   final _controllerJabatanAnggota = TextEditingController();
-  final _controllerNamaAnggota = TextEditingController();
 
-  final myController = TextEditingController();
+  final _controllerDropdownFilteruser = TextEditingController();
+  final _controllerDropdownFilterKegiatan = TextEditingController();
+  final _controllerDropdownFilterNamaAnggota = TextEditingController();
 
   final List _jabatanList = [];
   final List _namaAnggotaList = [];
@@ -359,6 +410,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   final List _kodeKegiatanList = [];
   final List _jenisKebutuhanList = [];
   final List _saldoList = [];
+
+  bool _kategoriNotEmpty = false;
 
   ServicesUser servicesUserItem = ServicesUser();
   late Future kategoriItemProposalKegiatan;
@@ -372,33 +425,65 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   String formattedDateSampaiKegiatan = "";
   String dateSampaiKegiatan = "Date";
 
+  DateTime selectedDateDariAcara = DateTime.now();
+  String formattedDateDariAcara = "";
+  String dateDariAcara = "Date";
+
+  DateTime selectedDateSampaiAcara = DateTime.now();
+  String formattedDateSampaiAcara = "";
+  String dateSampaiAcara = "Date";
+
   Future _getAllUser(kodeGereja) async {
     var response = await servicesUserItem.getAllUser(kodeGereja);
     if (response[0] != 404) {
+      _user.clear();
       for (var element in response[1]) {
-        _dummyList.add(element['nama_lengkap_user'].toString());
-        _dummyList.add(element['kode_user'].toString());
-
-        _kategori.add(_dummyList.toString());
-        _dummyList.clear();
+        _user.add("${element['kode_user']} - ${element['nama_lengkap_user']}");
       }
     } else {
       throw "Gagal Mengambil Data";
     }
   }
 
+  Future _getAllKodeKegiatanList(kodeGereja) async {
+    var response = await servicesUserItem.getKodeKegiatan(kodeGereja);
+    if (response[0] != 404) {
+      _kodeKegiatanbuatList.clear();
+      for (var element in response[1]) {
+        _kodeKegiatanbuatList.add(
+            "${element['kode_kategori_kegiatan']} - ${element['nama_kategori_kegiatan']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  _splitString(val) {
+    var value = val.toString();
+    var split = value.indexOf(" ");
+    var temp = value.substring(0, split);
+    return temp;
+  }
+
+  _splitStringAkhir(val) {
+    var value = val.toString();
+    var split = value.indexOf(" ");
+    var temp = value.substring(split + 3, val.length);
+    return temp;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     kategoriItemProposalKegiatan =
-        servicesUserItem.getAllItemProposalKegiatan("dns007gms001");
-    _getAllUser("gms001");
+        servicesUserItem.getAllItemProposalKegiatan("gms001dns013");
+    _getAllUser(kodeGereja);
+    _getAllKodeKegiatanList("gms001");
     super.initState();
   }
 
   @override
   void dispose() {
-    myController.dispose();
     super.dispose();
   }
 
@@ -470,6 +555,80 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
         dateSampaiKegiatan = formattedDateSampaiKegiatan;
         stateOfDisable = false;
         debugPrint("Selected Date From $selectedDateSampaiKegiatan");
+
+        setState(() {});
+      }
+    }
+  }
+
+  Future<void> selectDateDariAcara(context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDateDariAcara,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Colors.amber, // header background color
+                onPrimary: Colors.black, // header text color
+                onSurface: Colors.black, // body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  primary: primaryColorVariant, // button text color
+                ),
+              ),
+            ),
+            child: child!);
+      },
+    );
+    if (picked != null && picked != selectedDateDariAcara) {
+      if (mounted) {
+        selectedDateDariAcara = picked;
+        formattedDateDariAcara =
+            DateFormat('dd-MM-yyyy').format(selectedDateDariAcara);
+        dateDariAcara = formattedDateDariAcara;
+        stateOfDisable = false;
+        debugPrint("Selected Date From $selectedDateDariAcara");
+
+        setState(() {});
+      }
+    }
+  }
+
+  Future<void> selectDateSampaiAcara(context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDateSampaiAcara,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Colors.amber, // header background color
+                onPrimary: Colors.black, // header text color
+                onSurface: Colors.black, // body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  primary: primaryColorVariant, // button text color
+                ),
+              ),
+            ),
+            child: child!);
+      },
+    );
+    if (picked != null && picked != selectedDateSampaiAcara) {
+      if (mounted) {
+        selectedDateSampaiAcara = picked;
+        formattedDateSampaiAcara =
+            DateFormat('dd-MM-yyyy').format(selectedDateSampaiAcara);
+        dateSampaiAcara = formattedDateSampaiAcara;
+        stateOfDisable = false;
+        debugPrint("Selected Date From $selectedDateSampaiAcara");
 
         setState(() {});
       }
@@ -637,18 +796,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   const SizedBox(
                                     height: 15,
                                   ),
-                                  responsiveText("Jenis Kebutuhan", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerJenisKebutuhan),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
                                   responsiveText(
-                                      "Saldo", 16, FontWeight.w700, darkText),
+                                      "Budget", 16, FontWeight.w700, darkText),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -790,8 +939,51 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerNamaAnggota),
+                                  SizedBox(
+                                    child: Card(
+                                      color: surfaceColor,
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      child: DropdownSearch<dynamic>(
+                                        popupProps: PopupProps.menu(
+                                          showSearchBox: true,
+                                          searchFieldProps: TextFieldProps(
+                                            decoration: InputDecoration(
+                                              border:
+                                                  const OutlineInputBorder(),
+                                              hintText: "Cari Disini",
+                                              suffixIcon: IconButton(
+                                                onPressed: () {
+                                                  _controllerDropdownFilterNamaAnggota
+                                                      .clear();
+                                                },
+                                                icon: Icon(
+                                                  Icons.clear,
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                ),
+                                              ),
+                                            ),
+                                            controller:
+                                                _controllerDropdownFilterNamaAnggota,
+                                          ),
+                                        ),
+                                        items: _user,
+                                        onChanged: (val) {
+                                          debugPrint(val);
+                                          debugPrint(_splitString(val));
+                                          _tempNamaPIC = _splitStringAkhir(val);
+                                          if (_kategoriNotEmpty == false) {
+                                            _kategoriNotEmpty = true;
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+                                          }
+                                        },
+                                        selectedItem: "Pilih User",
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                               const SizedBox(
@@ -826,12 +1018,10 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                     setState(() {
                                       _jabatanList
                                           .add(_controllerJabatanAnggota.text);
-                                      _namaAnggotaList
-                                          .add(_controllerNamaAnggota.text);
+                                      _namaAnggotaList.add(_tempNamaPIC);
                                     });
                                   }
                                   _controllerJabatanAnggota.clear();
-                                  _controllerNamaAnggota.clear();
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Tambah"),
@@ -920,8 +1110,62 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         SizedBox(
                           height: 10,
                         ),
-                        responsiveTextField(
-                            deviceWidth, deviceHeight, _controllerKodeKegiatan),
+                        Container(
+                          width: deviceWidth / 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Card(
+                                  color: surfaceColor,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: DropdownSearch<dynamic>(
+                                    popupProps: PopupProps.menu(
+                                      showSearchBox: true,
+                                      searchFieldProps: TextFieldProps(
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: "Cari Disini",
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              _controllerDropdownFilterKegiatan
+                                                  .clear();
+                                            },
+                                            icon: Icon(
+                                              Icons.clear,
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                            ),
+                                          ),
+                                        ),
+                                        controller:
+                                            _controllerDropdownFilterKegiatan,
+                                      ),
+                                    ),
+                                    items: _kodeKegiatanbuatList,
+                                    onChanged: (val) {
+                                      debugPrint(val);
+                                      debugPrint(_splitString(val));
+                                      if (_kategoriNotEmpty == false) {
+                                        _kategoriNotEmpty = true;
+                                        if (mounted) {
+                                          setState(() {});
+                                        }
+                                      }
+                                    },
+                                    selectedItem: "Pilih Kegiatan",
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              responsiveText(
+                                  "0000001", 18, FontWeight.w500, darkText),
+                            ],
+                          ),
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -952,6 +1196,92 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         ),
                         responsiveTextField(deviceWidth, deviceHeight,
                             _controllerKeteranganKegiatan),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(0),
+                              width: deviceWidth / 2 * 0.5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Tanggal Acara Mulai", 14,
+                                      FontWeight.w700, darkText),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 25),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(dateDariAcara),
+                                          IconButton(
+                                            onPressed: () {
+                                              selectDateDariAcara(context).then(
+                                                (value) => setState(() {}),
+                                              );
+                                            },
+                                            icon: const Icon(
+                                                Icons.calendar_month),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.all(0),
+                              width: deviceWidth / 2 * 0.5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Tanggal Acara Selesai", 14,
+                                      FontWeight.w700, darkText),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 25),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(dateSampaiAcara),
+                                          IconButton(
+                                            onPressed: () {
+                                              selectDateSampaiAcara(context)
+                                                  .then(
+                                                (value) => setState(() {}),
+                                              );
+                                            },
+                                            icon: const Icon(
+                                                Icons.calendar_month),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -1045,42 +1375,43 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         SizedBox(
                           height: 10,
                         ),
-                        // responsiveTextField(
-                        //     deviceWidth, deviceHeight, _controllerjawab1),
                         SizedBox(
                           width: deviceWidth / 2,
                           child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: TextFieldSearch(
-                              controller: myController,
-                              initialList: _kategori,
-                              label: "",
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: surfaceColor,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 25),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
+                            color: surfaceColor,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: DropdownSearch<dynamic>(
+                              popupProps: PopupProps.menu(
+                                showSearchBox: true,
+                                searchFieldProps: TextFieldProps(
+                                  decoration: InputDecoration(
+                                    border: const OutlineInputBorder(),
+                                    hintText: "Cari Disini",
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        _controllerDropdownFilteruser.clear();
+                                      },
+                                      icon: Icon(
+                                        Icons.clear,
+                                        color: Colors.black.withOpacity(0.5),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                  ),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                  ),
+                                  controller: _controllerDropdownFilteruser,
                                 ),
                               ),
+                              items: _user,
+                              onChanged: (val) {
+                                debugPrint(val);
+                                debugPrint(_splitString(val));
+                                if (_kategoriNotEmpty == false) {
+                                  _kategoriNotEmpty = true;
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                }
+                              },
+                              selectedItem: "Pilih User",
                             ),
                           ),
                         ),
@@ -1166,6 +1497,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           );
                                         }
                                       }
+
                                       return loadingIndicator();
                                     },
                                   ),
@@ -1335,6 +1667,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           );
                                         }
                                       }
+
                                       return loadingIndicator();
                                     },
                                   ),
@@ -1555,186 +1888,11 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
     }
   }
 
-  _showTambahDialogPengeluaranKebutuhan(dw, dh) {
-    showDialog(
-      useRootNavigator: true,
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                  },
-                ),
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  controller: ScrollController(),
-                  child: SizedBox(
-                    width: dw * 0.5,
-                    child: Column(
-                      children: [
-                        Container(
-                          width: dw * 0.5,
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              responsiveText("Nominal Pengeluaran", 26,
-                                  FontWeight.w700, darkText),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Keterangan Pengeluaran", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKeluarKeterangan),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
-                                  responsiveText(
-                                      "Saldo", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKeluarNominal),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                  responsiveText(
-                                      "Tanggal", 16, FontWeight.w700, darkText),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    width: dw,
-                                    child: Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 25),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(datePengeluaran),
-                                            IconButton(
-                                              onPressed: () {
-                                                selectDatePengeluaran(context)
-                                                    .then(
-                                                  (value) => setState(() {}),
-                                                );
-                                              },
-                                              icon: const Icon(
-                                                  Icons.calendar_month),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 25,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (mounted) {
-                                    setState(() {
-                                      datePengeluaran = "Date";
-                                      _controllerKeluarNominal.clear();
-                                      _controllerKeluarKeterangan.clear();
-                                    });
-                                  }
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Batal"),
-                              ),
-                              const SizedBox(
-                                width: 25,
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  postKebutuhanKegiatan(
-                                      datePengeluaran,
-                                      _controllerKeluarKeterangan.text,
-                                      _controllerKeluarNominal.text,
-                                      _kodeItemKebutuhan,
-                                      context);
-                                  if (mounted) {
-                                    setState(() {
-                                      datePengeluaran = "Date";
-                                      _controllerKeluarNominal.clear();
-                                      _controllerKeluarKeterangan.clear();
-                                    });
-                                  }
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Tambah"),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
+
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
         dragDevices: {
@@ -1879,7 +2037,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      width: deviceWidth / 2 * 0.4,
+                      //width: deviceWidth / 2 * 0.4,
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: Color(0xFFfef5e5),
@@ -2004,7 +2162,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                responsiveText("Tabel Persenan", 20,
+                                responsiveText("Tabel Real", 20,
                                     FontWeight.w700, darkText),
                                 SizedBox(
                                   height: 10,
@@ -2044,36 +2202,81 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                   const ClampingScrollPhysics(),
                                               itemCount: snapData[1].length,
                                               itemBuilder: (context, index) {
-                                                return Card(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    side: BorderSide(
-                                                      color: navButtonPrimary
-                                                          .withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  color:
-                                                      scaffoldBackgroundColor,
-                                                  child: ListTile(
-                                                    title: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          snapData[1][index][
-                                                              'jenis_kebutuhan'],
+                                                return Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Card(
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          side: BorderSide(
+                                                            color:
+                                                                navButtonPrimary
+                                                                    .withOpacity(
+                                                                        0.4),
+                                                          ),
                                                         ),
-                                                        Text(
-                                                          "0%",
-                                                          style: TextStyle(
-                                                              fontSize: 15),
-                                                        )
-                                                      ],
+                                                        color:
+                                                            scaffoldBackgroundColor,
+                                                        child: ListTile(
+                                                          title: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                    snapData[1][
+                                                                            index]
+                                                                        [
+                                                                        'jenis_kebutuhan'],
+                                                                  ),
+                                                                  Text(
+                                                                    "0",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  SizedBox(
+                                                                    width: 5,
+                                                                  ),
+                                                                  IconButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        _kodeItemKebutuhan =
+                                                                            snapData[1][index]['kode_item_proposal_gabungan'].toString();
+                                                                        _namaItemKebutuhan =
+                                                                            snapData[1][index]['jenis_kebutuhan'].toString();
+                                                                        widget.controllerDetailPengeluaranKebutuhan.animateToPage(
+                                                                            1,
+                                                                            duration:
+                                                                                const Duration(milliseconds: 250),
+                                                                            curve: Curves.ease);
+                                                                      },
+                                                                      icon: Icon(
+                                                                          Icons
+                                                                              .arrow_forward_rounded)),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
+                                                    SizedBox(width: 5,),
+                                                    Text("0%"),
+                                                    SizedBox(width: 5,),
+                                                  ],
                                                 );
                                               },
                                             ),
@@ -2089,143 +2292,6 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                           ),
                         )
                       ],
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          responsiveText(
-                              "Tabel Real", 20, FontWeight.w700, darkText),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFfef5e5),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                              border: Border.all(
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                            ),
-                            //width: deviceWidth / 2,
-                            padding: EdgeInsets.all(10),
-                            child: FutureBuilder(
-                              future: kategoriDetailItemProposalKegiatan,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  List snapData = snapshot.data! as List;
-                                  if (snapData[0] != 404) {
-                                    return ScrollConfiguration(
-                                      behavior: ScrollConfiguration.of(context)
-                                          .copyWith(
-                                        dragDevices: {
-                                          PointerDeviceKind.touch,
-                                          PointerDeviceKind.mouse,
-                                        },
-                                      ),
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.vertical,
-                                        controller: ScrollController(),
-                                        physics: const ClampingScrollPhysics(),
-                                        itemCount: snapData[1].length,
-                                        itemBuilder: (context, index) {
-                                          return Card(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              side: BorderSide(
-                                                color: navButtonPrimary
-                                                    .withOpacity(0.4),
-                                              ),
-                                            ),
-                                            color: scaffoldBackgroundColor,
-                                            child: ListTile(
-                                              title: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        snapData[1][index]
-                                                            ['jenis_kebutuhan'],
-                                                      ),
-                                                      Text(
-                                                        "0",
-                                                        style: TextStyle(
-                                                            fontSize: 15),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      IconButton(
-                                                          onPressed: () {
-                                                            _kodeItemKebutuhan =
-                                                                snapData[1][index]
-                                                                        [
-                                                                        'kode_item_proposal_gabungan']
-                                                                    .toString();
-                                                            _showTambahDialogPengeluaranKebutuhan(
-                                                                deviceWidth,
-                                                                deviceHeight);
-                                                          },
-                                                          icon:
-                                                              Icon(Icons.add)),
-                                                      SizedBox(
-                                                        width: 5,
-                                                      ),
-                                                      IconButton(
-                                                          onPressed: () {
-                                                            _kodeItemKebutuhan =
-                                                                snapData[1][index]
-                                                                        [
-                                                                        'kode_item_proposal_gabungan']
-                                                                    .toString();
-                                                            _namaItemKebutuhan =
-                                                                snapData[1][index]
-                                                                        [
-                                                                        'jenis_kebutuhan']
-                                                                    .toString();
-                                                            widget.controllerDetailPengeluaranKebutuhan
-                                                                .animateToPage(
-                                                                    1,
-                                                                    duration: const Duration(
-                                                                        milliseconds:
-                                                                            250),
-                                                                    curve: Curves
-                                                                        .ease);
-                                                          },
-                                                          icon: Icon(Icons
-                                                              .arrow_forward_rounded)),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  }
-                                }
-                                return loadingIndicator();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                     SizedBox(
                       height: 10,
@@ -2541,6 +2607,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                 );
                               }
                             }
+
                             return loadingIndicator();
                           },
                         ),
@@ -2775,6 +2842,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                 );
                               }
                             }
+
                             return loadingIndicator();
                           },
                         ),
@@ -2979,6 +3047,376 @@ class _DetailPengeluaranKebutuhanState
                             );
                           }
                         }
+
+                        return loadingIndicator();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//TODO: List Kode Kegiatan
+class ListKodeKegiatan extends StatefulWidget {
+  final PageController controllerPageListKode;
+  const ListKodeKegiatan({super.key, required this.controllerPageListKode});
+
+  @override
+  State<ListKodeKegiatan> createState() => _ListKodeKegiatanState();
+}
+
+class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
+  ServicesUser servicesUser = ServicesUser();
+  late Future kategoriDetailPengeluaran;
+
+  final _controllerBuatKodeKegiatan = TextEditingController();
+  final _controllerBuatNamaKegiatan = TextEditingController();
+
+  Future postKategoriKegiatan(kodeKategoriKegiatan, namaKategoriKegiatan,
+      kodeGerejaKegiatan, context) async {
+    var response = await servicesUser.inputKodeKegiatan(
+        kodeKategoriKegiatan, namaKategoriKegiatan, kodeGerejaKegiatan);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    kategoriDetailPengeluaran = servicesUser.getKodeKegiatan("gms001");
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  responsiveTextField(deviceWidth, deviceHeight, controllerText) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: SizedBox(
+        width: deviceWidth * 0.5,
+        child: TextField(
+          controller: controllerText,
+          autofocus: false,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _showTambahDialogKodeKegiatan(dw, dh) {
+    showDialog(
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw * 0.5,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw * 0.5,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              responsiveText("Tambah Kode Kegiatan", 26,
+                                  FontWeight.w700, darkText),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Kode Kegiatan", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerBuatKodeKegiatan),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  responsiveText("Nama Kegiatan", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerBuatNamaKegiatan),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    setState(() {
+                                      postKategoriKegiatan(
+                                          _controllerBuatKodeKegiatan.text,
+                                          _controllerBuatNamaKegiatan.text,
+                                          "gms001",
+                                          context);
+                                      _controllerBuatKodeKegiatan.clear();
+                                      _controllerBuatNamaKegiatan.clear();
+                                    });
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Tambah"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      kategoriDetailPengeluaran = servicesUser.getKodeKegiatan("gms001");
+      return setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          width: deviceWidth,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () {
+                      widget.controllerPageListKode.animateToPage(0,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    },
+                  ),
+                  const SizedBox(
+                    width: 25,
+                  ),
+                  Text(
+                    "List Kode Kegiatan",
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                ],
+              ),
+              const Divider(
+                thickness: 1,
+                height: 56,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: primaryColorVariant,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                  ),
+                  onPressed: () {
+                    _showTambahDialogKodeKegiatan(deviceWidth, deviceHeight);
+                  },
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Icon(Icons.add_circle_outline_rounded),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'Buat Kode Kegiatan',
+                        style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: deviceWidth / 2,
+                    decoration: BoxDecoration(
+                      color: Color(0xFFfef5e5),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                      border: Border.all(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                    ),
+                    padding: EdgeInsets.all(10),
+                    child: FutureBuilder(
+                      future: kategoriDetailPengeluaran,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          List snapData = snapshot.data! as List;
+                          if (snapData[0] != 404) {
+                            return ScrollConfiguration(
+                              behavior:
+                                  ScrollConfiguration.of(context).copyWith(
+                                dragDevices: {
+                                  PointerDeviceKind.touch,
+                                  PointerDeviceKind.mouse,
+                                },
+                              ),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                controller: ScrollController(),
+                                physics: const ClampingScrollPhysics(),
+                                itemCount: snapData[1].length,
+                                itemBuilder: (context, index) {
+                                  return Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: BorderSide(
+                                        color:
+                                            navButtonPrimary.withOpacity(0.4),
+                                      ),
+                                    ),
+                                    color: scaffoldBackgroundColor,
+                                    child: ListTile(
+                                      title: Text(
+                                        snapData[1][index]
+                                            ['nama_kategori_kegiatan'],
+                                      ),
+                                      subtitle: Text(
+                                        snapData[1][index]
+                                            ['kode_kategori_kegiatan'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        }
+
                         return loadingIndicator();
                       },
                     ),

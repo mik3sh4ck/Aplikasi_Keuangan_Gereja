@@ -20,3 +20,5 @@ Color scaffoldBackgroundColor = const Color(0xffffffff);
 
 Color lightText = const Color(0xffffffff);
 Color darkText = const Color(0xff000000);
+
+Color dividerColor = const Color(0xff000000).withOpacity(0.2);

@@ -64,24 +64,9 @@ class ServicesUser {
   }
 
   //TODO: get kode Transaksi
-  Future getKodeTransaksi(kodeGereja) async {
+  Future getKodePerkiraan(kodeGereja) async {
     final response = await http.get(
-      Uri.parse("${_linkPath}kode-transaksi?kode_gereja=$kodeGereja"),
-    );
-    if (response.statusCode == 200) {
-      var jsonRespStatus = json.decode(response.body)['status'];
-      var jsonRespData = json.decode(response.body)['data'];
-      return [jsonRespStatus, jsonRespData];
-    } else {
-      throw Exception("Gagal mengambil data");
-    }
-  }
-
-  //TODO: get kode Sub Transaksi
-  Future getKodeSubTransaksi(kodeGabunganTransaksi) async {
-    final response = await http.get(
-      Uri.parse(
-          "${_linkPath}kode-sub-transaksi?kode_transaksi_gabungan=$kodeGabunganTransaksi"),
+      Uri.parse("${_linkPath}kode-perkiraan?kode_gereja=$kodeGereja"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -93,34 +78,17 @@ class ServicesUser {
   }
 
   //TODO: Input Kode Transaksi
-  Future inputKodeTransaksi(
-      kodeGereja, namaTransaksi, kodeTransaksi, statusTransaksi) async {
+  Future inputKodePerkiraan(kodeGereja, namaPerkiraan, kodePerkiraan) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaTransaksi&kode_transaksi=$kodeTransaksi&status=$statusTransaksi"),
+          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaPerkiraan&kode_transaksi=$kodePerkiraan"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
       var jsonRespMessage = json.decode(response.body)['message'];
       return [jsonRespStatus, jsonRespMessage];
     } else {
-      throw Exception("Gagal mengambil data");
-    }
-  }
-
-  //TODO: Input Kode Sub Transaksi
-  Future inputKodeSubTransaksi(
-      kodeGabunganTransaksi, namaSubTransaksi, kodeSubTransaksi) async {
-    final response = await http.post(
-      Uri.parse(
-          "${_linkPath}input-kode-sub-transaksi?kode_transaksi_gabungan=$kodeGabunganTransaksi&nama_sub_transaksi=$namaSubTransaksi&kode_sub_transaksi=$kodeSubTransaksi"),
-    );
-    if (response.statusCode == 200) {
-      var jsonRespStatus = json.decode(response.body)['status'];
-      var jsonRespMessage = json.decode(response.body)['message'];
-      return [jsonRespStatus, jsonRespMessage];
-    } else {
-      throw Exception("Gagal mengambil data");
+      throw Exception("Gagal memasukan data");
     }
   }
 
@@ -296,6 +264,38 @@ class ServicesUser {
     final response = await http.get(
       Uri.parse(
           "${_linkPath}kebutuhan-kegiatan?kode_item_proposal_gabungan=$kodeGabunganPengeluaran"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Input kode kegiatan
+  Future inputKodeKegiatan(
+      kodeKategoriKegiatan, namaKategoriKegiatan, kodeGerejaKegiatan) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-kategori-kegiatan?kode_kategori_kegiatan=$kodeKategoriKegiatan&nama_kategori_kegiatan=$namaKategoriKegiatan&kode_gereja=$kodeGerejaKegiatan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get kode kegiatan
+  Future getKodeKegiatan(kodeGerejaAmbilKategori) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}kategori-kegiatan?kode_gereja=$kodeGerejaAmbilKategori"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

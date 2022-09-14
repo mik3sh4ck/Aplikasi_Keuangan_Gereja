@@ -288,63 +288,73 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             const SizedBox(
                               width: 20,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                  children: [
-                                    cardSaldo('Saldo', '20000'),
-                                    const SizedBox(
-                                      width: 20,
-                                    ),
-                                    cardSaldo('Pemasukan', '20000'),
-                                    const SizedBox(
-                                      width: 20,
-                                    ),
-                                    cardSaldo('Pengeluaran', '20000'),
-                                  ],
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(0),
-                                  width: 800,
-                                  height: 600,
-                                  child: DChartLine(
-                                    data: const [
-                                      {
-                                        'id': 'Line',
-                                        'data': [
-                                          {'domain': 0, 'measure': 4.1},
-                                          {'domain': 2, 'measure': 4},
-                                          {'domain': 3, 'measure': 6},
-                                          {'domain': 4, 'measure': 1},
-                                        ],
-                                      },
-                                      {
-                                        'id': 'Line1',
-                                        'data': [
-                                          {'domain': 0, 'measure': 10},
-                                          {'domain': 2, 'measure': 22},
-                                          {'domain': 3, 'measure': 3},
-                                          {'domain': 4, 'measure': 12},
-                                        ],
-                                      },
-                                      {
-                                        'id': 'Line3',
-                                        'data': [
-                                          {'domain': 0, 'measure': 11},
-                                          {'domain': 2, 'measure': 2},
-                                          {'domain': 3, 'measure': 1},
-                                          {'domain': 4, 'measure': 15},
-                                        ],
-                                      },
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      cardSaldo('Saldo', '20000'),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      cardSaldo('Pemasukan', '20000'),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      cardSaldo('Pengeluaran', '20000'),
                                     ],
-                                    lineColor: (lineData, index, id) =>
-                                        Colors.amber,
                                   ),
-                                )
-                              ],
+                                  Container(
+                                    padding: const EdgeInsets.all(0),
+                                    width: 800,
+                                    height: 600,
+                                    child: DChartLine(
+                                      data: const [
+                                        {
+                                          'id': 'Line',
+                                          'data': [
+                                            {'domain': 0, 'measure': 4.1},
+                                            {'domain': 2, 'measure': 4},
+                                            {'domain': 3, 'measure': 6},
+                                            {'domain': 4, 'measure': 1},
+                                          ],
+                                        },
+                                        {
+                                          'id': 'Line1',
+                                          'data': [
+                                            {'domain': 0, 'measure': 10},
+                                            {'domain': 2, 'measure': 22},
+                                            {'domain': 3, 'measure': 3},
+                                            {'domain': 4, 'measure': 12},
+                                          ],
+                                        },
+                                        {
+                                          'id': 'Line3',
+                                          'data': [
+                                            {'domain': 0, 'measure': 11},
+                                            {'domain': 2, 'measure': 2},
+                                            {'domain': 3, 'measure': 1},
+                                            {'domain': 4, 'measure': 15},
+                                          ],
+                                        },
+                                      ],
+                                      lineColor: (lineData, index, id) {
+                                        if (id == 'Line') {
+                                          return Colors.yellow;
+                                        } else if (id == 'Line1') {
+                                          return Colors.blue;
+                                        } else if (id == 'Line3') {
+                                          return Colors.green;
+                                        } else {
+                                          return Colors.black;
+                                        }
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ],
                         ),
