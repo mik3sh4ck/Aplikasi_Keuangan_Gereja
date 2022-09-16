@@ -242,8 +242,8 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  responsiveText(
-                                      "Nama Member", 16, FontWeight.w700, darkText),
+                                  responsiveText("Nama Member", 16,
+                                      FontWeight.w700, darkText),
                                   const SizedBox(
                                     height: 10,
                                   ),
@@ -259,7 +259,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                                   ),
                                   responsiveTextField(
                                       dw, dh, _controllerEmailTambahMember),
-                                      const SizedBox(
+                                  const SizedBox(
                                     height: 15,
                                   ),
                                   responsiveText("Nomor Telepon Member", 16,
@@ -413,7 +413,9 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      const SizedBox(
+                        width: 10,
+                      ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -431,27 +433,6 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                               width: 10,
                             ),
                             Text("Role"),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 16),
-                        ),
-                        onPressed: () {
-                          _showTambahDialogMember(deviceWidth, deviceHeight);
-                        },
-                        child: Row(
-                          children: const [
-                            Icon(Icons.add),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text("Jemaat"),
                           ],
                         ),
                       ),
