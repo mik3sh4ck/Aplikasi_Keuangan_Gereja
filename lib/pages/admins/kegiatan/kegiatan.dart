@@ -196,7 +196,7 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
           },
         ),
         child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
           controller: ScrollController(),
           child: SafeArea(
             child: Container(
@@ -208,7 +208,7 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       responsiveText("Kegiatan", 26, FontWeight.w900, darkText),
-                      const SizedBox(
+                      SizedBox(
                         width: 25,
                       ),
                       Row(
@@ -221,9 +221,9 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                           const Duration(milliseconds: 250),
                                       curve: Curves.ease);
                             },
-                            icon: const Icon(Icons.history_rounded),
+                            icon: Icon(Icons.history_rounded),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             width: 25,
                           ),
                           ElevatedButton(
@@ -241,8 +241,8 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                             },
                             child: Row(
                               children: [
-                                const Icon(Icons.add_circle_outline_rounded),
-                                const SizedBox(
+                                Icon(Icons.add_circle_outline_rounded),
+                                SizedBox(
                                   width: 5,
                                 ),
                                 Text(
@@ -254,7 +254,7 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                               ],
                             ),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             width: 10,
                           ),
                           ElevatedButton(
@@ -272,8 +272,8 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                             },
                             child: Row(
                               children: [
-                                const Icon(Icons.add_circle_outline_rounded),
-                                const SizedBox(
+                                Icon(Icons.add_circle_outline_rounded),
+                                SizedBox(
                                   width: 5,
                                 ),
                                 Text(
@@ -292,7 +292,7 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                   const Divider(
                     height: 56,
                   ),
-                  const SizedBox(height: 25),
+                  SizedBox(height: 25),
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -1155,7 +1155,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
           bottom: 30,
           child: Image(
             width: (MediaQuery.of(context).size.width) * 0.33,
-            image: const AssetImage(
+            image: AssetImage(
               'lib/assets/images/createaktifitas.png',
             ),
           ),
@@ -1206,7 +1206,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                       children: [
                         responsiveText(
                             "Kode Kegiatan", 14, FontWeight.w700, darkText),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         Container(
@@ -1262,7 +1262,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 10,
                               ),
                               responsiveText(
@@ -1270,50 +1270,50 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         responsiveText(
                             "Nama Kegiatan", 14, FontWeight.w700, darkText),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         responsiveTextField(
                             deviceWidth, deviceHeight, _controllerNamaKegiatan),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         responsiveText(
                             "Lokasi Kegiatan", 14, FontWeight.w700, darkText),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         responsiveTextField(
                             deviceWidth, deviceHeight, _controllerLokasi),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         responsiveText("Keterangan Kegiatan", 14,
                             FontWeight.w700, darkText),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         responsiveTextField(deviceWidth, deviceHeight,
                             _controllerKeteranganKegiatan),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(0),
+                              padding: EdgeInsets.all(0),
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   responsiveText("Tanggal Acara Mulai", 14,
                                       FontWeight.w700, darkText),
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 10,
                                   ),
                                   Card(
@@ -1345,14 +1345,14 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.all(0),
+                              padding: EdgeInsets.all(0),
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   responsiveText("Tanggal Acara Selesai", 14,
                                       FontWeight.w700, darkText),
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 10,
                                   ),
                                   Card(
@@ -1386,20 +1386,20 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             )
                           ],
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(0),
+                              padding: EdgeInsets.all(0),
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   responsiveText("Tanggal Kegiatan Mulai", 14,
                                       FontWeight.w700, darkText),
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 10,
                                   ),
                                   Card(
@@ -1431,14 +1431,14 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.all(0),
+                              padding: EdgeInsets.all(0),
                               width: deviceWidth / 2 * 0.5,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   responsiveText("Tanggal Kegiatan Selesai", 14,
                                       FontWeight.w700, darkText),
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 10,
                                   ),
                                   Card(
@@ -1471,12 +1471,12 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             )
                           ],
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         responsiveText(
                             "Penanggung Jawab", 14, FontWeight.w700, darkText),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         SizedBox(
@@ -1520,12 +1520,12 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         responsiveText(
                             "Anggota", 14, FontWeight.w700, darkText),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         SizedBox(
@@ -1573,12 +1573,12 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                       .removeAt(index);
                                                 });
                                               },
-                                              icon: const Icon(Icons.close)),
+                                              icon: Icon(Icons.close)),
                                         ),
                                       );
                                     },
                                   ),
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 10,
                                   ),
                                   SizedBox(
@@ -1588,7 +1588,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         ElevatedButton(
                                           style: TextButton.styleFrom(
                                             primary: Colors.white,
-                                            backgroundColor: const Color(0xFFf9ab27),
+                                            backgroundColor: Color(0xFFf9ab27),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(40),
@@ -1602,9 +1602,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                             crossAxisAlignment:
                                                 WrapCrossAlignment.center,
                                             children: [
-                                              const Icon(Icons
+                                              Icon(Icons
                                                   .add_circle_outline_rounded),
-                                              const SizedBox(
+                                              SizedBox(
                                                 width: 5,
                                               ),
                                               responsiveText(
@@ -1623,10 +1623,10 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         SizedBox(
@@ -1639,7 +1639,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ElevatedButton(
                                 style: TextButton.styleFrom(
                                   primary: Colors.white,
-                                  backgroundColor: const Color(0xFFf9ab27),
+                                  backgroundColor: Color(0xFFf9ab27),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(40),
                                   ),
@@ -1651,8 +1651,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                 child: Wrap(
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    const Icon(Icons.add_circle_outline_rounded),
-                                    const SizedBox(
+                                    Icon(Icons.add_circle_outline_rounded),
+                                    SizedBox(
                                       width: 5,
                                     ),
                                     responsiveText("Kebutuhan", 14,
@@ -1663,7 +1663,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 10,
                         ),
                         SizedBox(
@@ -1711,12 +1711,12 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                   _saldoList.removeAt(index);
                                                 });
                                               },
-                                              icon: const Icon(Icons.close)),
+                                              icon: Icon(Icons.close)),
                                         ),
                                       );
                                     },
                                   ),
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 10,
                                   ),
                                 ],
@@ -1724,7 +1724,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         SizedBox(
@@ -1734,7 +1734,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ElevatedButton(
                                 style: TextButton.styleFrom(
                                   primary: Colors.white,
-                                  backgroundColor: const Color(0xFFf9ab27),
+                                  backgroundColor: Color(0xFFf9ab27),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(40),
                                   ),
@@ -1793,10 +1793,10 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   _singleList = "";
 
                                   widget.controllerPageKegiatan.animateToPage(0,
-                                      duration: const Duration(milliseconds: 700),
+                                      duration: Duration(milliseconds: 700),
                                       curve: Curves.easeOut);
                                 },
-                                child: const Padding(
+                                child: Padding(
                                   padding: EdgeInsets.only(left: 20, right: 20),
                                   child: Text(
                                     'Buat',
@@ -1967,11 +1967,11 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
         },
       ),
       child: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         controller: ScrollController(),
         child: SafeArea(
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             width: deviceWidth,
             child: Column(
               children: [
@@ -2018,7 +2018,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                     style: TextButton.styleFrom(
                       elevation: 1,
                       primary: Colors.white,
-                      backgroundColor: const Color(0xFFf9ab27),
+                      backgroundColor: Color(0xFFf9ab27),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -2026,7 +2026,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                     child: const Text("Absen"),
                   ),
                 ),
-                const SizedBox(
+                SizedBox(
                   height: 15,
                 ),
                 Column(
@@ -2034,14 +2034,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                   children: [
                     responsiveText("Tabel Anggota Kegiatan", 20,
                         FontWeight.w700, darkText),
-                    const SizedBox(
+                    SizedBox(
                       height: 10,
                     ),
                     Container(
                       width: deviceWidth,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFfef5e5),
-                        borderRadius: const BorderRadius.all(
+                        color: Color(0xFFfef5e5),
+                        borderRadius: BorderRadius.all(
                           Radius.circular(10),
                         ),
                         border: Border.all(
@@ -2049,7 +2049,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                         ),
                       ),
                       //width: deviceWidth / 2,
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10),
                       child: FutureBuilder(
                         future: kategoriDetailAnggotaPIC,
                         builder: (context, snapshot) {
@@ -2104,17 +2104,17 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                     ),
                   ],
                 ),
-                const SizedBox(
+                SizedBox(
                   height: 15,
                 ),
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
                       //width: deviceWidth / 2 * 0.4,
-                      padding: const EdgeInsets.all(5),
+                      padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFfef5e5),
-                        borderRadius: const BorderRadius.all(
+                        color: Color(0xFFfef5e5),
+                        borderRadius: BorderRadius.all(
                           Radius.circular(10),
                         ),
                         border: Border.all(
@@ -2124,7 +2124,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                       child: responsiveText("Overbudget : " "25.5%", 18,
                           FontWeight.w500, darkText),
                     )),
-                const SizedBox(
+                SizedBox(
                   height: 10,
                 ),
                 Align(
@@ -2136,7 +2136,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                       FontWeight.w500,
                       Colors.blueAccent),
                 ),
-                const SizedBox(
+                SizedBox(
                   height: 10,
                 ),
                 Column(
@@ -2146,19 +2146,19 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               responsiveText("Tabel Budget", 20,
                                   FontWeight.w700, darkText),
-                              const SizedBox(
+                              SizedBox(
                                 height: 10,
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFfef5e5),
-                                  borderRadius: const BorderRadius.all(
+                                  color: Color(0xFFfef5e5),
+                                  borderRadius: BorderRadius.all(
                                     Radius.circular(10),
                                   ),
                                   border: Border.all(
@@ -2166,7 +2166,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                   ),
                                 ),
                                 width: deviceWidth / 2 * 0.8,
-                                padding: const EdgeInsets.all(10),
+                                padding: EdgeInsets.all(10),
                                 child: FutureBuilder(
                                   future: kategoriDetailItemProposalKegiatan,
                                   builder: (context, snapshot) {
@@ -2210,7 +2210,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                           ['jenis_kebutuhan']),
                                                       Text(
                                                         "RP. ${snapData[1][index]['budget_kebutuhan']}",
-                                                        style: const TextStyle(
+                                                        style: TextStyle(
                                                             fontSize: 15),
                                                       ),
                                                     ],
@@ -2231,19 +2231,19 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.all(5),
+                            padding: EdgeInsets.all(5),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 responsiveText("Tabel Real", 20,
                                     FontWeight.w700, darkText),
-                                const SizedBox(
+                                SizedBox(
                                   height: 10,
                                 ),
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFfef5e5),
-                                    borderRadius: const BorderRadius.all(
+                                    color: Color(0xFFfef5e5),
+                                    borderRadius: BorderRadius.all(
                                       Radius.circular(10),
                                     ),
                                     border: Border.all(
@@ -2253,7 +2253,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
 
                                   //width: deviceWidth / 2,
 
-                                  padding: const EdgeInsets.all(10),
+                                  padding: EdgeInsets.all(10),
                                   child: FutureBuilder(
                                     future: kategoriDetailItemProposalKegiatan,
                                     builder: (context, snapshot) {
@@ -2312,7 +2312,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                                         [
                                                                         'jenis_kebutuhan'],
                                                                   ),
-                                                                  const Text(
+                                                                  Text(
                                                                     "0",
                                                                     style: TextStyle(
                                                                         fontSize:
@@ -2322,7 +2322,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                               ),
                                                               Row(
                                                                 children: [
-                                                                  const SizedBox(
+                                                                  SizedBox(
                                                                     width: 5,
                                                                   ),
                                                                   IconButton(
@@ -2338,7 +2338,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                                                 const Duration(milliseconds: 250),
                                                                             curve: Curves.ease);
                                                                       },
-                                                                      icon: const Icon(
+                                                                      icon: Icon(
                                                                           Icons
                                                                               .arrow_forward_rounded)),
                                                                 ],
@@ -2348,11 +2348,11 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                         ),
                                                       ),
                                                     ),
-                                                    const SizedBox(
+                                                    SizedBox(
                                                       width: 5,
                                                     ),
-                                                    const Text("0%"),
-                                                    const SizedBox(
+                                                    Text("0%"),
+                                                    SizedBox(
                                                       width: 5,
                                                     ),
                                                   ],
@@ -2373,7 +2373,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                         )
                       ],
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 10,
                     ),
                   ],
@@ -2430,7 +2430,7 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
             physics: const ClampingScrollPhysics(),
             controller: ScrollController(),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               width: deviceWidth,
               child: Column(
                 children: [
@@ -2586,7 +2586,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
             physics: const ClampingScrollPhysics(),
             controller: ScrollController(),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               width: deviceWidth,
               child: Column(
                 children: [
@@ -2619,8 +2619,8 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                       Container(
                         width: deviceWidth / 2,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFfef5e5),
-                          borderRadius: const BorderRadius.all(
+                          color: Color(0xFFfef5e5),
+                          borderRadius: BorderRadius.all(
                             Radius.circular(10),
                           ),
                           border: Border.all(
@@ -2628,7 +2628,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                           ),
                         ),
                         //width: deviceWidth / 2,
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(10),
                         child: FutureBuilder(
                           future: kategoriAbsensiKegiatan,
                           builder: (context, snapshot) {
@@ -2661,7 +2661,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                         ),
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
-                                          title: const Text(
+                                          title: Text(
                                             "31/08/2022",
                                           ),
                                           trailing: ElevatedButton(
@@ -2797,7 +2797,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
             physics: const ClampingScrollPhysics(),
             controller: ScrollController(),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               width: deviceWidth,
               child: Column(
                 children: [
@@ -2852,8 +2852,8 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                       Container(
                         width: deviceWidth / 2,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFfef5e5),
-                          borderRadius: const BorderRadius.all(
+                          color: Color(0xFFfef5e5),
+                          borderRadius: BorderRadius.all(
                             Radius.circular(10),
                           ),
                           border: Border.all(
@@ -2861,7 +2861,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                           ),
                         ),
                         //width: deviceWidth / 2,
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(10),
                         child: FutureBuilder(
                           future: kategoriDetailAbsensiKegiatan,
                           builder: (context, snapshot) {
@@ -2894,7 +2894,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                         ),
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
-                                          title: const Text(
+                                          title: Text(
                                             "Nama",
                                           ),
                                           trailing: ToggleSwitch(
@@ -3031,7 +3031,7 @@ class _DetailPengeluaranKebutuhanState
         physics: const ClampingScrollPhysics(),
         controller: ScrollController(),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           width: deviceWidth,
           child: Column(
             children: [
@@ -3068,15 +3068,15 @@ class _DetailPengeluaranKebutuhanState
                   Container(
                     width: deviceWidth / 2,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFfef5e5),
-                      borderRadius: const BorderRadius.all(
+                      color: Color(0xFFfef5e5),
+                      borderRadius: BorderRadius.all(
                         Radius.circular(10),
                       ),
                       border: Border.all(
                         color: Colors.black.withOpacity(0.5),
                       ),
                     ),
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
                     child: FutureBuilder(
                       future: kategoriDetailPengeluaran,
                       builder: (context, snapshot) {
@@ -3373,7 +3373,7 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
         physics: const ClampingScrollPhysics(),
         controller: ScrollController(),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           width: deviceWidth,
           child: Column(
             children: [
@@ -3419,8 +3419,8 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                   child: Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const Icon(Icons.add_circle_outline_rounded),
-                      const SizedBox(
+                      Icon(Icons.add_circle_outline_rounded),
+                      SizedBox(
                         width: 5,
                       ),
                       Text(
@@ -3432,7 +3432,7 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                   ),
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 height: 15,
               ),
               Row(
@@ -3441,15 +3441,15 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                   Container(
                     width: deviceWidth / 2,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFfef5e5),
-                      borderRadius: const BorderRadius.all(
+                      color: Color(0xFFfef5e5),
+                      borderRadius: BorderRadius.all(
                         Radius.circular(10),
                       ),
                       border: Border.all(
                         color: Colors.black.withOpacity(0.5),
                       ),
                     ),
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
                     child: FutureBuilder(
                       future: kategoriDetailPengeluaran,
                       builder: (context, snapshot) {

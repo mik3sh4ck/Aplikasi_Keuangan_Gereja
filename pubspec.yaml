@@ -46,8 +46,10 @@ dependencies:
   auto_size_text: ^3.0.0
   dropdown_search: ^5.0.2
   textfield_search: ^0.10.0
+
   carousel_slider: ^4.1.1
   pinput: ^2.2.12
+
 
   fl_chart: ^0.55.1
   csc_picker: ^0.2.6
