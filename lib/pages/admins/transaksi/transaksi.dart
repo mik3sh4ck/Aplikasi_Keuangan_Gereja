@@ -1092,7 +1092,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   _cardInfo(title, nominal) {
     return Card(
       elevation: 3,
-      color: primaryColor,
+      color: cardInfoColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(

@@ -68,7 +68,7 @@ void main() async {
             ),
           ),
           scaffoldBackgroundColor: scaffoldBackgroundColor,
-          cardColor: surfaceColor,
+          cardColor: cardColor,
           textTheme: GoogleFonts.nunitoTextTheme(
             TextTheme(
               headline1: GoogleFonts.nunito(

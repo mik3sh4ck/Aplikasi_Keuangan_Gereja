@@ -12,7 +12,7 @@ import '../../../widgets/responsivetext.dart';
 import 'package:d_chart/d_chart.dart';
 
 TextStyle welcomeText = GoogleFonts.nunito(
-  color: Colors.black,
+  color: darkText,
   fontWeight: FontWeight.bold,
   fontSize: 36,
 );
@@ -90,7 +90,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       height: 100,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: primaryColor,
+        color: cardInfoColor,
         border: Border.all(color: Colors.black),
         borderRadius: const BorderRadius.all(Radius.circular(15)),
       ),
@@ -188,7 +188,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     Text(
                       nama,
                       style: GoogleFonts.nunito(
-                        color: primaryColorVariant,
+                        color: darkText,
                         fontWeight: FontWeight.w800,
                         fontSize: 36,
                       ),
@@ -260,7 +260,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                
                                 cardNews('judul news',
                                     'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
                                 const SizedBox(
