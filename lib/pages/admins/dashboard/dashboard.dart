@@ -260,17 +260,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Selamat Datang',
-                                  style: welcomeText,
-                                ),
-                                Text(
-                                  nama,
-                                  style: welcomeText,
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
+                                
                                 cardNews('judul news',
                                     'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
                                 const SizedBox(

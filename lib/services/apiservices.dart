@@ -63,7 +63,7 @@ class ServicesUser {
     }
   }
 
-  //TODO: get kode Transaksi
+  //TODO: get kode Perkiraan
   Future getKodePerkiraan(kodeGereja) async {
     final response = await http.get(
       Uri.parse("${_linkPath}kode-perkiraan?kode_gereja=$kodeGereja"),
@@ -77,16 +77,61 @@ class ServicesUser {
     }
   }
 
-  //TODO: Input Kode Transaksi
-  Future inputKodePerkiraan(kodeGereja, namaPerkiraan, kodePerkiraan) async {
+  //TODO: Input Kode Perkiraan
+  Future inputKodePerkiraan(
+      kodeGereja, namaKodePerkiraan, kodePerkiraan) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaPerkiraan&kode_transaksi=$kodePerkiraan"),
+          "${_linkPath}input-kode-perkiraan?kode_perkiraan=$kodePerkiraan&nama_kode_perkiraan=$namaKodePerkiraan&kode_gereja=$kodeGereja"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
       var jsonRespMessage = json.decode(response.body)['message'];
       return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal memasukan data");
+    }
+  }
+
+  //TODO: get kode Transaksi
+  Future getKodeTransaksi(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}kode-transaksi?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Input Kode Transaksi
+  Future inputKodeTransaksi(
+      kodeGereja, namaKodeTransaksi, kodeTransaksi, status) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaKodeTransaksi&kode_transaksi=$kodeTransaksi&status=$status"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal memasukan data");
+    }
+  }
+
+  Future getSingleKodeTransaksi(kodeTransaksiGabungan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-kode-transaksi-single-row?kode_transaksi_gabungan=$kodeTransaksiGabungan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
     } else {
       throw Exception("Gagal memasukan data");
     }
@@ -191,17 +236,19 @@ class ServicesUser {
 
   //TODO: Input Kegiatan
   Future inputProposalKegiatan(
-      kodeProposalKegiatan,
-      kodeProposalGereja,
-      namaProposalKegiatan,
-      penanggungjawabProposalKegiatan,
-      mulaiProposalKegiatan,
-      selesaiProposalKegiatan,
-      lokasiProposalKegiatan,
-      keteranganProposalKegiatan) async {
+      kodekegiatan,
+      kodegereja,
+      namakegiatan,
+      penanggungjawabkode,
+      tanggalacaradimulai,
+      tanggalacaraselesai,
+      lokasikegiatan,
+      keterangankegiatan,
+      tanggalkegiatandimulai,
+      tanggalkegiatanselesai) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-proposal-kegiatan?kode_kegiatan=$kodeProposalKegiatan&kode_gereja=$kodeProposalGereja&nama_kegiatan=$namaProposalKegiatan&penanggungjawab_1=$penanggungjawabProposalKegiatan&tanggal_acara_dimulai=$mulaiProposalKegiatan&tanggal_acara_selesai=$selesaiProposalKegiatan&lokasi_kegiatan=$lokasiProposalKegiatan&keterangan_kegiatan=$keteranganProposalKegiatan"),
+          "${_linkPath}input-proposal-kegiatan?kode_kegiatan=$kodekegiatan&kode_gereja=$kodegereja&nama_kegiatan=$namakegiatan&penanggungjawab_1=$penanggungjawabkode&tanggal_acara_dimulai=$tanggalacaradimulai&tanggal_acara_selesai=$tanggalacaraselesai&lokasi_kegiatan=$lokasikegiatan&keterangan_kegiatan=$keterangankegiatan&tanggal_kegiatan_dimulai=$tanggalkegiatandimulai&tanggal_kegiatan_selesai=$tanggalkegiatanselesai"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -213,16 +260,31 @@ class ServicesUser {
   }
 
   //TODO: Input Item Kebutuhan
-  Future inputItemKebutuhan(kodeItemProposalKegiatan, kodeProposalKegiatan,
-      kodeProposalGereja, jenisKebutuhan, budgetKebutuhan) async {
+  Future inputItemKebutuhan(kodeItemProposalPerkiraan, kodeItemProposalKegiatan,
+      kodeProposalGereja, budgetKebutuhan) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-item-proposal-kegiatan?kode_item_proposal_kegiatan=$kodeItemProposalKegiatan&kode_kegiatan=$kodeProposalKegiatan&kode_gereja=$kodeProposalGereja&jenis_kebutuhan=$jenisKebutuhan&budget_kebutuhan=$budgetKebutuhan"),
+          "${_linkPath}input-item-proposal-kegiatan?kode_perkiraan=$kodeItemProposalPerkiraan&kode_kegiatan=$kodeItemProposalKegiatan&kode_gereja=$kodeProposalGereja&budget_kebutuhan=$budgetKebutuhan"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
       var jsonRespMessage = json.decode(response.body)['message'];
       return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get PIC
+  Future getPIC(kodeKegiatanGabungan) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}PIC?kode_kegiatan_gabungan=$kodeKegiatanGabungan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
     } else {
       throw Exception("Gagal mengambil data");
     }
@@ -296,6 +358,22 @@ class ServicesUser {
     final response = await http.get(
       Uri.parse(
           "${_linkPath}kategori-kegiatan?kode_gereja=$kodeGerejaAmbilKategori"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get Single Row
+  Future getsingleRow(kodekategorikegiatangabungan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-kategori-kegiatan-single-row?kode_kategori_kegiatan_gabungan=$kodekategorikegiatangabungan"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

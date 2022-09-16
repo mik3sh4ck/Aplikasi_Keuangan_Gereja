@@ -84,12 +84,10 @@ class _AdminAnggotaControllerState extends State<AdminAnggotaController> {
                           controllerPageRole: _controllerPageRole,
                           controllerPageBuatRole: _controllerPageBuatRole,
                           controllerPageEditRole: _controllerPageEditRole,
-                          controllerPageDetailRole:
-                              _controllerPageDetailRole,
+                          controllerPageDetailRole: _controllerPageDetailRole,
                         ),
                         AdminDetailRole(
-                            controllerPageDetailRole:
-                                _controllerPageDetailRole)
+                            controllerPageDetailRole: _controllerPageDetailRole)
                       ],
                     ),
                     AdminBuatRole(
@@ -139,6 +137,10 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
   late Future listUser;
 
   final _controllerSearch = TextEditingController();
+
+  final _controllerNamaTambahMember = TextEditingController();
+  final _controllerEmailTambahMember = TextEditingController();
+  final _controllerTelpTambahMember = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -149,8 +151,185 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
   @override
   void dispose() {
     // TODO: implement dispose
+    _controllerNamaTambahMember.dispose();
+    _controllerEmailTambahMember.dispose();
+    _controllerTelpTambahMember.dispose();
     _controllerSearch.dispose();
     super.dispose();
+  }
+
+  responsiveTextField(deviceWidth, deviceHeight, controllerText) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: SizedBox(
+        width: deviceWidth * 0.5,
+        child: TextField(
+          controller: controllerText,
+          autofocus: false,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _showTambahDialogMember(dw, dh) {
+    showDialog(
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw * 0.5,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw * 0.5,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              responsiveText("Tambah Member Baru", 26,
+                                  FontWeight.w700, darkText),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Nama Member", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerNamaTambahMember),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  responsiveText("Email Member", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerEmailTambahMember),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  responsiveText("Nomor Telepon Member", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerTelpTambahMember),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Tambah"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -256,9 +435,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                               horizontal: 24, vertical: 16),
                         ),
                         onPressed: () {
-                          widget.controllerPageAnggota.animateToPage(1,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
+                          _showTambahDialogMember(deviceWidth, deviceHeight);
                         },
                         child: Row(
                           children: const [
@@ -266,7 +443,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                             SizedBox(
                               width: 10,
                             ),
-                            Text("Absensi"),
+                            Text("Jemaat"),
                           ],
                         ),
                       ),
@@ -1123,8 +1300,7 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                                             }
                                           }
                                           return FittedBox(
-                                            child: loadingIndicator(
-                                                ),
+                                            child: loadingIndicator(),
                                           );
                                         },
                                       ),
@@ -1154,7 +1330,6 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
     );
   }
 }
-
 
 class AdminDetailRole extends StatefulWidget {
   final PageController controllerPageDetailRole;
@@ -1441,8 +1616,7 @@ class _AdminDetailRoleState extends State<AdminDetailRole> {
                                             }
                                           }
                                           return FittedBox(
-                                            child: loadingIndicator(
-                                                ),
+                                            child: loadingIndicator(),
                                           );
                                         },
                                       ),
@@ -1914,8 +2088,7 @@ class _AdminAbsensiPageState extends State<AdminAbsensiPage> {
                                         );
                                       }
                                     }
-                                    return loadingIndicator(
-                                        );
+                                    return loadingIndicator();
                                   },
                                 ),
                               ),
@@ -2128,8 +2301,7 @@ class _AdminDetailAbsenState extends State<AdminDetailAbsen> {
                                                 );
                                               }
                                             }
-                                            return loadingIndicator(
-                                                );
+                                            return loadingIndicator();
                                           },
                                         ),
                                       ),
@@ -2254,8 +2426,7 @@ class _AdminDetailAbsenState extends State<AdminDetailAbsen> {
                                                   );
                                                 }
                                               }
-                                              return loadingIndicator(
-                                                  );
+                                              return loadingIndicator();
                                             },
                                           ),
                                         ),
