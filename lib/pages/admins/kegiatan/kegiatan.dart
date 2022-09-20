@@ -1210,6 +1210,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                           height: 10,
                         ),
                         Container(
+                          padding: const EdgeInsets.all(0),
                           width: deviceWidth / 2,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

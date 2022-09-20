@@ -112,7 +112,6 @@ flutter:
     - lib/assets/lotties/error_404.json
     - lib/assets/lotties/loading_animation.json
     - lib/assets/lotties/success.json
-    - lib/assets/lotties/success_v2.json
     - lib/assets/lotties/no_data.json
     - lib/assets/lotties/search_not_found.json
 

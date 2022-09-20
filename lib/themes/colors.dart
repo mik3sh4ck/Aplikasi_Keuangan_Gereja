@@ -9,7 +9,7 @@ Color secondaryColorVariant = const Color(0xff27272f);
 Color navButtonPrimary = const Color(0xff427980);
 Color navButtonPrimaryVariant = const Color(0xffffffff);
 
-Color buttonColor = const Color(0xff8cc1c8);
+Color buttonColor = const Color(0xff427980);
 
 Color cardColor = const Color(0xffe2eff1);
 Color cardInfoColor = const Color(0xffccea77);

@@ -154,23 +154,37 @@ class ServicesUser {
   //TODO: Input Transaksi
   Future inputTransaksi(
       kodeGereja,
-      kodeTransaksiGabungan,
-      kodeSubTransaksi,
-      kodeKegiatanGabungan,
-      deskripsiTransaksi,
+      kodeTransaksi,
+      kodePerkiraan,
+      kodeRefKegiatan,
       tanggalTransaksi,
-      jenisTransaksi,
+      deskripsiTransaksi,
       nominalTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-transaksi?kode_transaksi_gabungan=$kodeTransaksiGabungan&kode_sub_transaksi=$kodeSubTransaksi&kode_gereja=$kodeGereja&kode_kegiatan_gabungan=$kodeKegiatanGabungan&uraian_transaksi=$deskripsiTransaksi&tanggal_transaksi=$tanggalTransaksi&jenis_transaksi=$jenisTransaksi&nominal=$nominalTransaksi"),
+          "${_linkPath}input-transaksi?kode_transaksi=$kodeTransaksi&kode_perkiraan=$kodePerkiraan&kode_gereja=$kodeGereja&kode_kegiatan=$kodeRefKegiatan&uraian_transaksi=$deskripsiTransaksi&tanggal_transaksi=$tanggalTransaksi&nominal=$nominalTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
       var jsonRespMessage = json.decode(response.body)['message'];
       return [jsonRespStatus, jsonRespMessage];
     } else {
-      throw Exception("Gagal mengambil data");
+      throw Exception("Gagal menginput data");
+    }
+  }
+
+  //TODO: Update Count Kode Transaksi
+  Future updateCountKodeTransaksi(kodeGereja, kodeTransaksi) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}update-count-kode-transaksi?kode_transaksi=$kodeTransaksi&kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengupdate data");
     }
   }
 
@@ -259,7 +273,6 @@ class ServicesUser {
     }
   }
 
-
   //TODO: Input Item Kebutuhan
   Future inputItemKebutuhan(kodeItemProposalPerkiraan, kodeItemProposalKegiatan,
       kodeProposalGereja, budgetKebutuhan) async {
@@ -309,7 +322,6 @@ class ServicesUser {
   //TODO: Input kebutuhan kegiatan
   Future inputKebutuhanKegiatan(tanggalKebutuhan, keteranganPengeluaran,
       pengeluaranKebutuhan, kodeItemProposalKegiatan) async {
-
     final response = await http.post(
       Uri.parse(
           "${_linkPath}input-kebutuhan-kegiatan?tanggal_kebutuhan=$tanggalKebutuhan&keterangan_pengeluaran_kebutuhan=$keteranganPengeluaran&pengeluaran_kebutuhan=$pengeluaranKebutuhan&kode_item_proposal_gabungan=$kodeItemProposalKegiatan"),
@@ -322,7 +334,6 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
-
 
   //TODO: Get pengeluaran item kebutuhan
   Future getPengeluaranKebutuhan(kodeGabunganPengeluaran) async {
@@ -388,4 +399,3 @@ class ServicesUser {
     }
   }
 }
-

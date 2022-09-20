@@ -7,8 +7,6 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../services/apiservices.dart';
 import '../../../widgets/loadingindicator.dart';

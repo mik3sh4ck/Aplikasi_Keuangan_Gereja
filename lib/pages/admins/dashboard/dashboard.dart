@@ -1,7 +1,6 @@
 //ignore_for_file: todo
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -85,24 +84,36 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   cardSaldo(judul, jumlah) {
-    return Container(
-      width: 200,
-      height: 100,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Card(
+        elevation: 3,
         color: cardInfoColor,
-        border: Border.all(color: Colors.black),
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
-      ),
-      child: Column(
-        children: [
-          Text("$judul"),
-          const Divider(
-            color: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+            color: dividerColor,
+            width: 1,
           ),
-          const Spacer(),
-          Text("Rp. $jumlah"),
-        ],
+        ),
+        child: SizedBox(
+          width: 200,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                responsiveText(judul, 16, FontWeight.w700, darkText),
+                Divider(
+                  color: navButtonPrimary.withOpacity(0.5),
+                  thickness: 1,
+                  height: 10,
+                ),
+                responsiveText(jumlah, 16, FontWeight.w700, darkText),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -111,31 +122,34 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(0),
       width: 350,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-          width: 350,
-          decoration: BoxDecoration(
-            color: primaryColor,
-            border: Border.all(color: Colors.black),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 350,
+            decoration: BoxDecoration(
+              color: primaryColor,
+              border: Border.all(color: Colors.black),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+              ),
             ),
+            padding: const EdgeInsets.all(10),
+            child: Text("$judul"),
           ),
-          padding: const EdgeInsets.all(10),
-          child: Text("$judul"),
-        ),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15)),
-            border: Border.all(color: Colors.black),
-          ),
-          child: Text("$isi"),
-        )
-      ]),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15)),
+              border: Border.all(color: Colors.black),
+            ),
+            child: Text("$isi"),
+          )
+        ],
+      ),
     );
   }
 
@@ -151,21 +165,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    List<LineChartBarData> lineChartBarData = [
-      LineChartBarData(
-        isCurved: true,
-        spots: [
-          const FlSpot(1, 0),
-          const FlSpot(2, 12),
-          const FlSpot(3, 10),
-          const FlSpot(4, 7),
-          const FlSpot(5, 8),
-          const FlSpot(6, 10),
-        ],
-        color: primaryColor,
-        barWidth: 3,
-      )
-    ];
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
@@ -281,17 +280,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  Wrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    alignment: WrapAlignment.spaceEvenly,
                                     children: [
                                       cardSaldo('Saldo', '20000'),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
                                       cardSaldo('Pemasukan', '20000'),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
                                       cardSaldo('Pengeluaran', '20000'),
                                     ],
                                   ),
