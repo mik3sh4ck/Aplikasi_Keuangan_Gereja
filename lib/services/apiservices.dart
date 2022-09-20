@@ -93,6 +93,21 @@ class ServicesUser {
     }
   }
 
+  //TODO: Delete Kode Perkiraan
+  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan) async {
+    final response = await http.delete(
+      Uri.parse(
+          "${_linkPath}delete-kode-perkiraan?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal menghapus data");
+    }
+  }
+
   //TODO: get kode Transaksi
   Future getKodeTransaksi(kodeGereja) async {
     final response = await http.get(
@@ -120,6 +135,21 @@ class ServicesUser {
       return [jsonRespStatus, jsonRespMessage];
     } else {
       throw Exception("Gagal memasukan data");
+    }
+  }
+
+  //TODO: Delete Kode Transaksi
+  Future deleteKodeTransaksi(kodeGereja, kodeTransaksi) async {
+    final response = await http.delete(
+      Uri.parse(
+          "${_linkPath}delete-kode-transaksi?kode_gereja=$kodeGereja&kode_transaksi=$kodeTransaksi"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal menghapus data");
     }
   }
 
@@ -188,6 +218,36 @@ class ServicesUser {
     }
   }
 
+  //TODO: Query Transaksi Berdasar Tanggal
+  Future queryTransaksiTanggal(kodeGereja, kode, tanggal1, tanggal2) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}query-tanggal?tanggal_ke_1=$tanggal1&tanggal_ke_2=$tanggal2&kode_gereja=$kodeGereja&kode=$kode"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Query Transaksi Berdasar Tanggal
+  Future queryTransaksiKode(kodeGereja, kodeTransaksi, kodePerkiraan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}query-kode-transaksi?kode_transaksi=$kodeTransaksi&kode_perkiraan=$kodePerkiraan&kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
   //TODO: Get Role
   Future getRole(kodeGereja) async {
     final response = await http.get(
@@ -233,10 +293,10 @@ class ServicesUser {
   }
 
   //TODO: Get Item Proposal Kegiatan
-  Future getAllItemProposalKegiatan(kodeKegiatan) async {
+  Future getAllItemProposalKegiatan(kodeKegiatangab, kodeKeg, kodeGer) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}item-proposal-kegiatan?kode_kegiatan_gabungan=$kodeKegiatan"),
+          "${_linkPath}item-proposal-kegiatan?kode_kegiatan_gabungan=$kodeKegiatangab&kode_kegiatan=$kodeKeg&kode_gereja=$kodeGer"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -396,6 +456,83 @@ class ServicesUser {
       return [jsonRespStatus, jsonRespData];
     } else {
       throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get persentase
+  Future getPersentase(kodepregabungan, kodeprekeg, kodepregre) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}persentase-global?kode_kegiatan_gabungan=$kodepregabungan&kode_kegiatan=$kodeprekeg&kode_gereja=$kodepregre"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Get kebutuhan kegiatan
+  Future getDetailKebutuhanKegiatan(kodeKeg, kodeGer, kodePer) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}kebutuhan-kegiatan?kode_kegiatan=$kodeKeg&kode_gereja=$kodeGer&kode_perkiraan=$kodePer"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Update Count Kode Kegiatan
+  Future updateCountKodeKegiatan(kodeGereja, kodeKegiatan) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}update-count-kategori-kegiatan?kode_kategori_kegiatan=$kodeKegiatan&kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengupdate data");
+    }
+  }
+
+//TODO: Get riwayat Proposal Kegiatan
+  Future getAllRiwayat(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}history?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Delete Kode Kegiatan
+  Future deleteKodeKegiatan(kodeGereja, kodeKategoriKegiatan) async {
+    final response = await http.delete(
+      Uri.parse(
+          "${_linkPath}delete-kategori-kegiatan?kode_gereja=$kodeGereja&kode_kategori_kegiatan=$kodeKategoriKegiatan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal menghapus data");
     }
   }
 }

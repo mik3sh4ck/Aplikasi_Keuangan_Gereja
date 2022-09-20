@@ -26,7 +26,15 @@ String _tempKodePerkiraan = "";
 String _tempNamaKodePerkiraan = "";
 String _tempKodePenanggungjawab = "";
 String _tempkodekegiatangabungan = "";
-String _singleList = "";
+String _singleList = "0000000";
+String _tempmulaiacara = "";
+String _tempselesaiacara = "";
+String _tempmulaikegiatan = "";
+String _tempselesaikegiatan = "";
+
+String _presentase = "0%";
+String _totalreal = "";
+String _totalbudget = "";
 
 final List _user = [];
 final List _kodeKegiatanbuatList = [];
@@ -224,12 +232,12 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                             icon: const Icon(Icons.history_rounded),
                           ),
                           const SizedBox(
-                            width: 25,
+                            width: 15,
                           ),
                           ElevatedButton(
                             style: TextButton.styleFrom(
                               primary: Colors.white,
-                              backgroundColor: primaryColorVariant,
+                              backgroundColor: buttonColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(40),
                               ),
@@ -241,47 +249,15 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                             },
                             child: Row(
                               children: [
-                                const Icon(Icons.add_circle_outline_rounded),
+                                Icon(
+                                  Icons.add_circle_outline_rounded,
+                                  color: lightText,
+                                ),
                                 const SizedBox(
                                   width: 5,
                                 ),
-                                Text(
-                                  'Kode Kegiatan',
-                                  style: GoogleFonts.nunito(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          ElevatedButton(
-                            style: TextButton.styleFrom(
-                              primary: Colors.white,
-                              backgroundColor: primaryColorVariant,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40),
-                              ),
-                            ),
-                            onPressed: () {
-                              widget.controllerPageKegiatan.animateToPage(1,
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease);
-                            },
-                            child: Row(
-                              children: [
-                                const Icon(Icons.add_circle_outline_rounded),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  'Buat Data Kegiatan',
-                                  style: GoogleFonts.nunito(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14),
-                                ),
+                                responsiveText("Kode Kegiatan", 15,
+                                    FontWeight.w700, lightText)
                               ],
                             ),
                           ),
@@ -292,90 +268,153 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                   const Divider(
                     height: 56,
                   ),
-                  const SizedBox(height: 25),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: navButtonPrimary.withOpacity(0.4),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: FutureBuilder(
-                        future: kategoriProposalKegiatan,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            List snapData = snapshot.data! as List;
-                            if (snapData[0] != 404) {
-                              return ScrollConfiguration(
-                                behavior:
-                                    ScrollConfiguration.of(context).copyWith(
-                                  dragDevices: {
-                                    PointerDeviceKind.touch,
-                                    PointerDeviceKind.mouse,
-                                  },
+                  const SizedBox(height: 15),
+                  Column(
+                    children: [
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              ElevatedButton(
+                                style: TextButton.styleFrom(
+                                  primary: Colors.white,
+                                  backgroundColor: buttonColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
                                 ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  controller: ScrollController(),
-                                  physics: const ClampingScrollPhysics(),
-                                  itemCount: snapData[1].length,
-                                  itemBuilder: (context, index) {
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: BorderSide(
-                                          color:
-                                              navButtonPrimary.withOpacity(0.4),
-                                        ),
-                                      ),
-                                      color: scaffoldBackgroundColor,
-                                      child: ListTile(
-                                        title: responsiveText(
-                                            snapData[1][index]['nama_kegiatan'],
-                                            18,
-                                            FontWeight.w700,
-                                            darkText),
-                                        subtitle: responsiveText(
-                                            snapData[1][index]['kode_kegiatan'],
-                                            16,
-                                            FontWeight.w500,
-                                            darkText),
-                                        trailing: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.all(12),
-                                            shape: const CircleBorder(),
+                                onPressed: () {
+                                  widget.controllerPageKegiatan.animateToPage(1,
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      curve: Curves.ease);
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle_outline_rounded,
+                                      color: lightText,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    responsiveText("Buat Data Kegiatan", 15,
+                                        FontWeight.w700, lightText)
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: navButtonPrimary.withOpacity(0.4),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: FutureBuilder(
+                            future: kategoriProposalKegiatan,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List snapData = snapshot.data! as List;
+                                if (snapData[0] != 404) {
+                                  return ScrollConfiguration(
+                                    behavior: ScrollConfiguration.of(context)
+                                        .copyWith(
+                                      dragDevices: {
+                                        PointerDeviceKind.touch,
+                                        PointerDeviceKind.mouse,
+                                      },
+                                    ),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.vertical,
+                                      controller: ScrollController(),
+                                      physics: const ClampingScrollPhysics(),
+                                      itemCount: snapData[1].length,
+                                      itemBuilder: (context, index) {
+                                        return Card(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            side: BorderSide(
+                                              color: navButtonPrimary
+                                                  .withOpacity(0.4),
+                                            ),
                                           ),
-                                          onPressed: () {
-                                            _namaKegiatan = snapData[1][index]
-                                                ['nama_kegiatan'];
-                                            _kodeKegiatan = snapData[1][index]
-                                                ['kode_kegiatan'];
-                                            _kodeKegiatanGabungan = snapData[1]
-                                                    [index]
-                                                ['kode_kegiatan_gabungan'];
-                                            widget.controllerDetailPageKegiatan
-                                                .animateToPage(1,
-                                                    duration: const Duration(
-                                                        milliseconds: 250),
-                                                    curve: Curves.ease);
-                                          },
-                                          child: const Icon(
-                                              Icons.arrow_forward_rounded),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          }
-                          return loadingIndicator();
-                        },
+                                          color: scaffoldBackgroundColor,
+                                          child: ListTile(
+                                            title: responsiveText(
+                                                snapData[1][index]
+                                                    ['nama_kegiatan'],
+                                                18,
+                                                FontWeight.w700,
+                                                darkText),
+                                            subtitle: responsiveText(
+                                                snapData[1][index]
+                                                    ['kode_kegiatan'],
+                                                16,
+                                                FontWeight.w500,
+                                                darkText),
+                                            trailing: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                shape: const CircleBorder(),
+                                              ),
+                                              onPressed: () {
+                                                _namaKegiatan = snapData[1]
+                                                    [index]['nama_kegiatan'];
+                                                _kodeKegiatan = snapData[1]
+                                                    [index]['kode_kegiatan'];
+                                                _kodeKegiatanGabungan = snapData[
+                                                        1][index]
+                                                    ['kode_kegiatan_gabungan'];
+                                                _tempmulaiacara = snapData[1]
+                                                        [index]
+                                                    ['tanggal_acara_dimulai'];
+                                                _tempselesaiacara = snapData[1]
+                                                        [index]
+                                                    ['tanggal_acara_selesai'];
+                                                _tempmulaikegiatan = snapData[1]
+                                                        [index][
+                                                    'tanggal_kegiatan_dimulai'];
+                                                _tempselesaikegiatan = snapData[
+                                                        1][index][
+                                                    'tanggal_kegiatan_selesai'];
+                                                widget
+                                                    .controllerDetailPageKegiatan
+                                                    .animateToPage(1,
+                                                        duration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    250),
+                                                        curve: Curves.ease);
+                                              },
+                                              child: const Icon(
+                                                  Icons.arrow_forward_rounded),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }
+                              }
+                              return loadingIndicator();
+                            },
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -492,6 +531,20 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     }
   }
 
+  Future _updateCountKodeKegiatan(kodeGereja, kodeKegiatan, context) async {
+    var response = await servicesUserItem.updateCountKodeKegiatan(
+        kodeGereja, kodeKegiatan);
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
   _splitString(val) {
     var value = val.toString();
     var split = value.indexOf(" ");
@@ -524,19 +577,19 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateDariKegiatan,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
+                  primary: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -561,19 +614,19 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateSampaiKegiatan,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
+                  primary: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -598,19 +651,19 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateDariAcara,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
+                  primary: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -635,19 +688,19 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateSampaiAcara,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
+                  primary: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -1156,7 +1209,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
           child: Image(
             width: (MediaQuery.of(context).size.width) * 0.33,
             image: const AssetImage(
-              'lib/assets/images/createaktifitas.png',
+              'lib/assets/images/budgeting2.png',
             ),
           ),
         ),
@@ -1183,7 +1236,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                           widget.controllerPageKegiatan.animateToPage(0,
                               duration: const Duration(milliseconds: 250),
                               curve: Curves.ease);
-                          _singleList = "";
+                          _singleList = "0000000";
                         },
                       ),
                       const SizedBox(
@@ -1210,7 +1263,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                           height: 10,
                         ),
                         Container(
-                          padding: const EdgeInsets.all(0),
                           width: deviceWidth / 2,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1589,7 +1641,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         ElevatedButton(
                                           style: TextButton.styleFrom(
                                             primary: Colors.white,
-                                            backgroundColor: const Color(0xFFf9ab27),
+                                            backgroundColor: buttonColor,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(40),
@@ -1640,7 +1692,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ElevatedButton(
                                 style: TextButton.styleFrom(
                                   primary: Colors.white,
-                                  backgroundColor: const Color(0xFFf9ab27),
+                                  backgroundColor: buttonColor,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(40),
                                   ),
@@ -1652,7 +1704,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                 child: Wrap(
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    const Icon(Icons.add_circle_outline_rounded),
+                                    const Icon(
+                                        Icons.add_circle_outline_rounded),
                                     const SizedBox(
                                       width: 5,
                                     ),
@@ -1735,12 +1788,15 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               ElevatedButton(
                                 style: TextButton.styleFrom(
                                   primary: Colors.white,
-                                  backgroundColor: const Color(0xFFf9ab27),
+                                  backgroundColor: buttonColor,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(40),
                                   ),
                                 ),
                                 onPressed: () {
+                                  _updateCountKodeKegiatan(kodeGereja,
+                                      _tempkodekegiatangabungan, context);
+
                                   postProposalKegiatan(
                                       _tempkodekegiatangabungan + _singleList,
                                       kodeGereja,
@@ -1782,7 +1838,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         _jabatanList[i],
                                         context);
                                   }
-
                                   _controllerKodeKegiatan.clear();
                                   _controllerNamaKegiatan.clear();
                                   _controllerjawab1.clear();
@@ -1794,7 +1849,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   _singleList = "";
 
                                   widget.controllerPageKegiatan.animateToPage(0,
-                                      duration: const Duration(milliseconds: 700),
+                                      duration:
+                                          const Duration(milliseconds: 700),
                                       curve: Curves.easeOut);
                                 },
                                 child: const Padding(
@@ -1840,24 +1896,35 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
   ServicesUser servicesUserItem = ServicesUser();
   late Future kategoriDetailItemProposalKegiatan;
   late Future kategoriDetailAnggotaPIC;
-
-
-  var stateOfDisable = true;
-  DateTime selectedDatePengeluaran = DateTime.now();
-  String formattedDatePengeluaran = "";
-  String datePengeluaran = "Date";
+  late Future kategoriDetailpre;
 
   @override
   void initState() {
     // TODO: implement initState
-    kategoriDetailItemProposalKegiatan = servicesUserItem.getAllItemProposalKegiatan(_kodeKegiatanGabungan);
+    kategoriDetailItemProposalKegiatan =
+        servicesUserItem.getAllItemProposalKegiatan(
+            _kodeKegiatanGabungan, _kodeKegiatan, kodeGereja);
     kategoriDetailAnggotaPIC = servicesUserItem.getPIC(_kodeKegiatanGabungan);
+    _getPresentase(_kodeKegiatanGabungan, _kodeKegiatan, kodeGereja)
+        .whenComplete(() => setState(() {}));
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future _getPresentase(kodepregabungan, kodeprekeg, kodepregre) async {
+    var response = await servicesUserItem.getPersentase(
+        kodepregabungan, kodeprekeg, kodepregre);
+    if (response[0] != 404) {
+      _presentase = response[1]['presentase_global'].toString();
+      _totalreal = response[1]['total_pengeluaran'].toString();
+      _totalbudget = response[1]['total_budgeting'].toString();
+    } else {
+      throw "Gagal Mengambil Data";
+    }
   }
 
   Future postKebutuhanKegiatan(tanggalKebutuhan, keteranganPengeluaran,
@@ -1918,43 +1985,6 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
     );
   }
 
-  Future<void> selectDatePengeluaran(context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDatePengeluaran,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
-                ),
-              ),
-            ),
-            child: child!);
-      },
-    );
-    if (picked != null && picked != selectedDatePengeluaran) {
-      if (mounted) {
-        selectedDatePengeluaran = picked;
-        formattedDatePengeluaran =
-            DateFormat('dd-MM-yyyy').format(selectedDatePengeluaran);
-        datePengeluaran = formattedDatePengeluaran;
-        stateOfDisable = false;
-        debugPrint("Selected Date From $selectedDatePengeluaran");
-
-        setState(() {});
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -1975,6 +2005,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
             padding: const EdgeInsets.all(16),
             width: deviceWidth,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -1996,10 +2027,6 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                           "Detail Kegiatan $_namaKegiatan",
                           style: Theme.of(context).textTheme.headline5,
                         ),
-                        Text(
-                          "($_kodeKegiatan)",
-                          style: Theme.of(context).textTheme.headline5,
-                        ),
                       ],
                     ),
                   ],
@@ -2008,24 +2035,42 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                   thickness: 1,
                   height: 56,
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      widget.controllerPageAbsensiKegiatan.animateToPage(1,
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.ease);
-                    },
-                    style: TextButton.styleFrom(
-                      elevation: 1,
-                      primary: Colors.white,
-                      backgroundColor: const Color(0xFFf9ab27),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                responsiveText(
+                    "Periode Kegiatan : $_tempmulaikegiatan sampai $_tempselesaikegiatan",
+                    18,
+                    FontWeight.w600,
+                    darkText),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            widget.controllerPageAbsensiKegiatan.animateToPage(
+                                1,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.ease);
+                          },
+                          style: TextButton.styleFrom(
+                            elevation: 1,
+                            primary: Colors.white,
+                            backgroundColor: buttonColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: responsiveText(
+                              "Absen", 15, FontWeight.w700, lightText)),
                     ),
-                    child: const Text("Absen"),
-                  ),
+                    Text(
+                      "Kode : $_kodeKegiatan",
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ],
                 ),
                 const SizedBox(
                   height: 15,
@@ -2033,15 +2078,15 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    responsiveText("Tabel Anggota Kegiatan", 20,
-                        FontWeight.w700, darkText),
+                    responsiveText(
+                        "Anggota Kegiatan", 20, FontWeight.w700, darkText),
                     const SizedBox(
                       height: 10,
                     ),
                     Container(
                       width: deviceWidth,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFfef5e5),
+                        color: cardColor,
                         borderRadius: const BorderRadius.all(
                           Radius.circular(10),
                         ),
@@ -2074,7 +2119,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                   itemBuilder: (context, index) {
                                     return Card(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(10),
                                         side: BorderSide(
                                           color:
                                               navButtonPrimary.withOpacity(0.4),
@@ -2089,7 +2134,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                             darkText),
                                         subtitle: responsiveText(
                                             snapData[1][index]['peran'],
-                                            12,
+                                            15,
                                             FontWeight.w400,
                                             darkText),
                                       ),
@@ -2114,7 +2159,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                       //width: deviceWidth / 2 * 0.4,
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFfef5e5),
+                        color: primaryColorVariant,
                         borderRadius: const BorderRadius.all(
                           Radius.circular(10),
                         ),
@@ -2122,7 +2167,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                           color: Colors.black.withOpacity(0.5),
                         ),
                       ),
-                      child: responsiveText("Overbudget : " "25.5%", 18,
+                      child: responsiveText("Presentase :  $_presentase %", 18,
                           FontWeight.w500, darkText),
                     )),
                 const SizedBox(
@@ -2151,14 +2196,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              responsiveText("Tabel Budget", 20,
-                                  FontWeight.w700, darkText),
+                              responsiveText(
+                                  "Budget", 20, FontWeight.w700, darkText),
                               const SizedBox(
                                 height: 10,
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFfef5e5),
+                                  color: cardColor,
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(10),
                                   ),
@@ -2183,42 +2228,64 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                               PointerDeviceKind.mouse,
                                             },
                                           ),
-                                          child: ListView.builder(
-                                            shrinkWrap: true,
-                                            scrollDirection: Axis.vertical,
-                                            controller: ScrollController(),
-                                            physics:
-                                                const ClampingScrollPhysics(),
-                                            itemCount: snapData[1].length,
-                                            itemBuilder: (context, index) {
-                                              return Card(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  side: BorderSide(
-                                                    color: navButtonPrimary
-                                                        .withOpacity(0.4),
-                                                  ),
-                                                ),
-                                                color: scaffoldBackgroundColor,
-                                                child: ListTile(
-                                                  title: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(snapData[1][index]
-                                                          ['jenis_kebutuhan']),
-                                                      Text(
-                                                        "RP. ${snapData[1][index]['budget_kebutuhan']}",
-                                                        style: const TextStyle(
-                                                            fontSize: 15),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                scrollDirection: Axis.vertical,
+                                                controller: ScrollController(),
+                                                physics:
+                                                    const ClampingScrollPhysics(),
+                                                itemCount: snapData[1].length,
+                                                itemBuilder: (context, index) {
+                                                  return Card(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      side: BorderSide(
+                                                        color: navButtonPrimary
+                                                            .withOpacity(0.4),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
+                                                    ),
+                                                    color:
+                                                        scaffoldBackgroundColor,
+                                                    child: ListTile(
+                                                      title: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(snapData[1]
+                                                                  [index][
+                                                              'jenis_kebutuhan']),
+                                                          Text(
+                                                            "RP. ${snapData[1][index]['budget_kebutuhan']}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        15),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        10, 15, 0, 0),
+                                                child: responsiveText(
+                                                    "Total : RP $_totalbudget",
+                                                    16,
+                                                    FontWeight.w600,
+                                                    darkText),
+                                              )
+                                            ],
                                           ),
                                         );
                                       }
@@ -2236,14 +2303,14 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                responsiveText("Tabel Real", 20,
-                                    FontWeight.w700, darkText),
+                                responsiveText(
+                                    "Realisasi", 20, FontWeight.w700, darkText),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFfef5e5),
+                                    color: cardColor,
                                     borderRadius: const BorderRadius.all(
                                       Radius.circular(10),
                                     ),
@@ -2251,9 +2318,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                       color: Colors.black.withOpacity(0.5),
                                     ),
                                   ),
-
                                   //width: deviceWidth / 2,
-
                                   padding: const EdgeInsets.all(10),
                                   child: FutureBuilder(
                                     future: kategoriDetailItemProposalKegiatan,
@@ -2270,95 +2335,112 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                 PointerDeviceKind.mouse,
                                               },
                                             ),
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.vertical,
-                                              controller: ScrollController(),
-                                              physics:
-                                                  const ClampingScrollPhysics(),
-                                              itemCount: snapData[1].length,
-                                              itemBuilder: (context, index) {
-                                                return Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Card(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(20),
-                                                          side: BorderSide(
-                                                            color:
-                                                                navButtonPrimary
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.vertical,
+                                                  controller:
+                                                      ScrollController(),
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
+                                                  itemCount: snapData[1].length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Card(
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              side: BorderSide(
+                                                                color: navButtonPrimary
                                                                     .withOpacity(
                                                                         0.4),
-                                                          ),
-                                                        ),
-                                                        color:
-                                                            scaffoldBackgroundColor,
-                                                        child: ListTile(
-                                                          title: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
+                                                              ),
+                                                            ),
+                                                            color:
+                                                                scaffoldBackgroundColor,
+                                                            child: ListTile(
+                                                              title: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
                                                                 children: [
-                                                                  Text(
-                                                                    snapData[1][
-                                                                            index]
-                                                                        [
-                                                                        'jenis_kebutuhan'],
+                                                                  Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        snapData[1][index]
+                                                                            [
+                                                                            'jenis_kebutuhan'],
+                                                                      ),
+                                                                      Text(
+                                                                        "RP. ${snapData[1][index]['sum_kebutuhan']}",
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                15),
+                                                                      ),
+                                                                    ],
                                                                   ),
-                                                                  const Text(
-                                                                    "0",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            15),
-                                                                  )
+                                                                  Row(
+                                                                    children: [
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            5,
+                                                                      ),
+                                                                      IconButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            _tempKodePerkiraan =
+                                                                                snapData[1][index]['kode_perkiraan'].toString();
+                                                                            _namaItemKebutuhan =
+                                                                                snapData[1][index]['jenis_kebutuhan'].toString();
+                                                                            widget.controllerDetailPengeluaranKebutuhan.animateToPage(1,
+                                                                                duration: const Duration(milliseconds: 250),
+                                                                                curve: Curves.ease);
+                                                                          },
+                                                                          icon:
+                                                                              const Icon(Icons.arrow_forward_rounded)),
+                                                                    ],
+                                                                  ),
                                                                 ],
                                                               ),
-                                                              Row(
-                                                                children: [
-                                                                  const SizedBox(
-                                                                    width: 5,
-                                                                  ),
-                                                                  IconButton(
-                                                                      onPressed:
-                                                                          () {
-                                                                        _kodeItemKebutuhan =
-                                                                            snapData[1][index]['kode_item_proposal_gabungan'].toString();
-                                                                        _namaItemKebutuhan =
-                                                                            snapData[1][index]['jenis_kebutuhan'].toString();
-                                                                        widget.controllerDetailPengeluaranKebutuhan.animateToPage(
-                                                                            1,
-                                                                            duration:
-                                                                                const Duration(milliseconds: 250),
-                                                                            curve: Curves.ease);
-                                                                      },
-                                                                      icon: const Icon(
-                                                                          Icons
-                                                                              .arrow_forward_rounded)),
-                                                                ],
-                                                              ),
-                                                            ],
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    const Text("0%"),
-                                                    const SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                  ],
-                                                );
-                                              },
+                                                        const SizedBox(
+                                                          width: 5,
+                                                        ),
+                                                        Text(
+                                                            "${snapData[1][index]['persentase_kebutuhan']} %"),
+                                                        const SizedBox(
+                                                          width: 5,
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          10, 15, 0, 0),
+                                                  child: responsiveText(
+                                                      "Total : RP $_totalreal",
+                                                      16,
+                                                      FontWeight.w600,
+                                                      darkText),
+                                                )
+                                              ],
                                             ),
                                           );
                                         }
@@ -2404,7 +2486,7 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
   @override
   void initState() {
     // TODO: implement initState
-    kategoriTransaksiRiwayat = servicesUser.getAllProposalKegiatan(kodeGereja);
+    kategoriTransaksiRiwayat = servicesUser.getAllRiwayat(kodeGereja);
     super.initState();
   }
 
@@ -2498,9 +2580,16 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                                       ),
                                       color: scaffoldBackgroundColor,
                                       child: ListTile(
-                                        leading: Text(
-                                          snapData[1][index]['nama_kegiatan'],
-                                        ),
+                                        title: responsiveText(
+                                            snapData[1][index]['nama_kegiatan'],
+                                            18,
+                                            FontWeight.w700,
+                                            darkText),
+                                        subtitle: responsiveText(
+                                            snapData[1][index]['kode_kegiatan'],
+                                            16,
+                                            FontWeight.w500,
+                                            darkText),
                                         trailing: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             padding: const EdgeInsets.all(12),
@@ -2620,7 +2709,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                       Container(
                         width: deviceWidth / 2,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFfef5e5),
+                          color: cardColor,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(10),
                           ),
@@ -2853,7 +2942,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                       Container(
                         width: deviceWidth / 2,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFfef5e5),
+                          color: cardColor,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(10),
                           ),
@@ -2907,7 +2996,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                             inactiveFgColor: Colors.white,
                                             totalSwitches: 2,
                                             activeBgColors: [
-                                              [Colors.red.withOpacity(0.5)],
+                                              [errorColor.withOpacity(0.5)],
                                               [
                                                 correctColor.withOpacity(0.8),
                                               ],
@@ -2971,8 +3060,8 @@ class _DetailPengeluaranKebutuhanState
   @override
   void initState() {
     // TODO: implement initState
-    kategoriDetailPengeluaran =
-        servicesUser.getPengeluaranKebutuhan(_kodeItemKebutuhan);
+    kategoriDetailPengeluaran = servicesUser.getDetailKebutuhanKegiatan(
+        _kodeKegiatan, kodeGereja, _tempKodePerkiraan);
     super.initState();
   }
 
@@ -3069,7 +3158,7 @@ class _DetailPengeluaranKebutuhanState
                   Container(
                     width: deviceWidth / 2,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFfef5e5),
+                      color: cardColor,
                       borderRadius: const BorderRadius.all(
                         Radius.circular(10),
                       ),
@@ -3110,16 +3199,14 @@ class _DetailPengeluaranKebutuhanState
                                     color: scaffoldBackgroundColor,
                                     child: ListTile(
                                       title: Text(
-                                        snapData[1][index]
-                                                ['pengeluaran_kebutuhan']
-                                            .toString(),
+                                        snapData[1][index]['uraian_transaksi'],
                                       ),
                                       subtitle: Text(
-                                        snapData[1][index][
-                                            'keterangan_pengeluaran_kebutuhan'],
+                                        snapData[1][index]['nominal']
+                                            .toString(),
                                       ),
                                       trailing: Text(
-                                        snapData[1][index]['tanggal_kebutuhan'],
+                                        snapData[1][index]['tanggal_transaksi'],
                                       ),
                                     ),
                                   );
@@ -3163,6 +3250,21 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
       kodeGerejaKegiatan, context) async {
     var response = await servicesUser.inputKodeKegiatan(
         kodeKategoriKegiatan, namaKategoriKegiatan, kodeGerejaKegiatan);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future deleteKodeKegiatan(kodeGereja, kodeKegiatan, context) async {
+    var response =
+        await servicesUser.deleteKodeKegiatan(kodeGereja, kodeKegiatan);
 
     if (response[0] != 404) {
       return true;
@@ -3409,7 +3511,7 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                 child: ElevatedButton(
                   style: TextButton.styleFrom(
                     primary: Colors.white,
-                    backgroundColor: primaryColorVariant,
+                    backgroundColor: buttonColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40),
                     ),
@@ -3442,7 +3544,7 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                   Container(
                     width: deviceWidth / 2,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFfef5e5),
+                      color: cardColor,
                       borderRadius: const BorderRadius.all(
                         Radius.circular(10),
                       ),
@@ -3489,6 +3591,20 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                       subtitle: Text(
                                         snapData[1][index]
                                             ['kode_kategori_kegiatan'],
+                                      ),
+                                      trailing: IconButton(
+                                        onPressed: () {
+                                          deleteKodeKegiatan(
+                                                  kodeGereja,
+                                                  snapData[1][index][
+                                                      'kode_kategori_kegiatan'],
+                                                  context)
+                                              .whenComplete(() {
+                                            kategoriDetailPengeluaran = servicesUser.getKodeKegiatan(kodeGereja);
+                                            setState(() {});
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete_forever),
                                       ),
                                     ),
                                   );

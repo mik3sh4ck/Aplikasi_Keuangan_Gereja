@@ -25,6 +25,8 @@ int _totalSaldo = 0;
 String _singleKodeTransaksi = "";
 String _kodeTransaksiCount = "000";
 
+int kodeQueryTanggal = 0;
+
 class AdminControllerTransaksiPage extends StatefulWidget {
   const AdminControllerTransaksiPage({Key? key}) : super(key: key);
 
@@ -120,7 +122,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   DateTime firstDay = DateTime.now();
   DateTime lastDay = DateTime.now();
 
-  int? _indexFilterTanggal;
+  int _indexFilterTanggal = 0;
 
   @override
   void initState() {
@@ -223,6 +225,62 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _totalPengeluaran = 0;
     _totalSaldo = 0;
     var response = await servicesUser.getTransaksi(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowTransaksi(
+            element['kode_transaksi'],
+            element['tanggal_transaksi'],
+            element['uraian_transaksi'],
+            element['jenis_transaksi'],
+            element['nominal']);
+        if (element['jenis_transaksi'] == "pemasukan") {
+          _totalPemasukan += element['nominal'] as int;
+        } else {
+          _totalPengeluaran += element['nominal'] as int;
+        }
+      }
+      _totalSaldo = _totalPemasukan - _totalPengeluaran;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  Future _queryTransaksiTanggal(kodeGereja, tanggal1, tanggal2, kode) async {
+    _rowList.clear();
+    _totalPemasukan = 0;
+    _totalPengeluaran = 0;
+    _totalSaldo = 0;
+    var response = await servicesUser.queryTransaksiTanggal(
+        kodeGereja, kode, tanggal1, tanggal2);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowTransaksi(
+            element['kode_transaksi'],
+            element['tanggal_transaksi'],
+            element['uraian_transaksi'],
+            element['jenis_transaksi'],
+            element['nominal']);
+        if (element['jenis_transaksi'] == "pemasukan") {
+          _totalPemasukan += element['nominal'] as int;
+        } else {
+          _totalPengeluaran += element['nominal'] as int;
+        }
+      }
+      _totalSaldo = _totalPemasukan - _totalPengeluaran;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  Future _queryTransaksiKode(kodeGereja, kodeTransaksi, kodePerkiraan) async {
+    _rowList.clear();
+    _totalPemasukan = 0;
+    _totalPengeluaran = 0;
+    _totalSaldo = 0;
+    var response = await servicesUser.queryTransaksiKode(
+        kodeGereja, kodeTransaksi, kodePerkiraan);
     if (response[0] != 404) {
       for (var element in response[1]) {
         _addRowTransaksi(
@@ -475,6 +533,36 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   _filterTanggalField() {
     if (_indexFilterTanggal == 0) {
       return Column(
+        children: const [
+          // ElevatedButton(
+          //   //TODO: search btn
+          //   style: ElevatedButton.styleFrom(
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(10),
+          //     ),
+          //   ),
+          //   onPressed: () {
+          //     _getTransaksi(kodeGereja).whenComplete(() => setState(() {}));
+          //   },
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Icon(Icons.search),
+          //       const SizedBox(
+          //         width: 10,
+          //       ),
+          //       Text(
+          //         "Cari",
+          //         style: GoogleFonts.nunito(
+          //             fontWeight: FontWeight.w700, fontSize: 16),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+        ],
+      );
+    } else if (_indexFilterTanggal == 1) {
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           responsiveText("Tanggal", 14, FontWeight.w700, darkText),
@@ -510,7 +598,10 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              _queryTransaksiTanggal(kodeGereja, date, "", _indexFilterTanggal)
+                  .whenComplete(() => setState(() {}));
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -528,7 +619,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
           ),
         ],
       );
-    } else if (_indexFilterTanggal == 1) {
+    } else if (_indexFilterTanggal == 2) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -588,7 +679,11 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              _queryTransaksiTanggal(
+                      kodeGereja, dateFrom, dateTo, _indexFilterTanggal)
+                  .whenComplete(() => setState(() {}));
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -606,7 +701,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
           ),
         ],
       );
-    } else if (_indexFilterTanggal == 2) {
+    } else if (_indexFilterTanggal == 3) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -643,7 +738,10 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              _queryTransaksiTanggal(kodeGereja, month, "", _indexFilterTanggal)
+                  .whenComplete(() => setState(() {}));
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -664,13 +762,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     } else {
       return Column();
     }
-  }
-
-  _showFilterTanggal() {
-    return Visibility(
-      visible: _indexFilterTanggal != null ? true : false,
-      child: _filterTanggalField(),
-    );
   }
 
   _cardInfo(title, nominal) {
@@ -956,15 +1047,20 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                             width: 16,
                           ),
                           SizedBox(
-                            width: 220,
+                            width: 300,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 ToggleSwitch(
                                   initialLabelIndex: _indexFilterTanggal,
-                                  totalSwitches: 3,
-                                  labels: const ['Hari', 'Minggu', 'Bulan'],
+                                  totalSwitches: 4,
+                                  labels: const [
+                                    'Semua',
+                                    'Hari',
+                                    'Minggu',
+                                    'Bulan'
+                                  ],
                                   activeBgColor: [primaryColorVariant],
                                   activeFgColor: darkText,
                                   inactiveBgColor: Colors.grey[200],
@@ -974,20 +1070,24 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                   animationDuration: 250,
                                   onToggle: (index) {
                                     setState(() {
-                                      _indexFilterTanggal = index;
+                                      _indexFilterTanggal = index!;
                                     });
                                     debugPrint(
                                         'switched to: $_indexFilterTanggal');
+                                    if (_indexFilterTanggal == 0) {
+                                      _getTransaksi(kodeGereja)
+                                          .whenComplete(() => setState(() {}));
+                                    }
                                   },
                                 ),
                                 const SizedBox(
                                   height: 25,
                                 ),
-                                _showFilterTanggal(),
+                                _filterTanggalField(),
                                 const Divider(
                                   height: 56,
                                 ),
-                                responsiveText("Filter Kategori", 14,
+                                responsiveText("Filter Kode Keuangan", 14,
                                     FontWeight.w700, darkText),
                                 Card(
                                   color: primaryColor,
@@ -1020,7 +1120,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                       debugPrint(_splitString(val));
                                       debugPrint(_buatKodeGabungan(val));
                                     },
-                                    selectedItem: "pilih kategori",
+                                    selectedItem: "pilih Kode Perkiraan",
                                   ),
                                 ),
                                 const SizedBox(
@@ -1097,10 +1197,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   @override
   void initState() {
     // TODO: implement initState
-    _rowList.clear();
-    _totalPemasukan = 0;
-    _totalPengeluaran = 0;
-    _totalSaldo = 0;
+
     kodePerkiraan = servicesUser.getKodePerkiraan(kodeGereja);
     kodeTransaksi = servicesUser.getKodeTransaksi(kodeGereja);
 
@@ -1521,10 +1618,40 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     }
   }
 
+  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan, context) async {
+    var response =
+        await servicesUser.deleteKodePerkiraan(kodeGereja, kodePerkiraan);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
   Future postKodeTransaksi(
       kodeGereja, namaKodeTransaksi, kodeTransaksi, status, context) async {
     var response = await servicesUser.inputKodeTransaksi(
         kodeGereja, namaKodeTransaksi, kodeTransaksi, status);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future deleteKodeTransaksi(kodeGereja, kodeTransaksi, context) async {
+    var response =
+        await servicesUser.deleteKodeTransaksi(kodeGereja, kodeTransaksi);
 
     if (response[0] != 404) {
       return true;
@@ -1648,9 +1775,13 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                         child: ListTile(
                                                           dense: true,
                                                           minLeadingWidth: 85,
-                                                          leading: Text(snapData[
-                                                                  1][index][
-                                                              'kode_transaksi']),
+                                                          leading: responsiveText(
+                                                              snapData[1][index]
+                                                                  [
+                                                                  'kode_transaksi'],
+                                                              16,
+                                                              FontWeight.w600,
+                                                              darkText),
                                                           title: Row(
                                                             children: [
                                                               SizedBox(
@@ -1661,13 +1792,33 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                       dividerColor,
                                                                 ),
                                                               ),
-                                                              Text(snapData[1]
-                                                                      [index][
-                                                                  'nama_transaksi']),
+                                                              responsiveText(
+                                                                  snapData[1][
+                                                                          index]
+                                                                      [
+                                                                      'nama_transaksi'],
+                                                                  16,
+                                                                  FontWeight
+                                                                      .w600,
+                                                                  darkText),
                                                               const Spacer(),
                                                               IconButton(
-                                                                onPressed:
-                                                                    () {},
+                                                                onPressed: () {
+                                                                  deleteKodeTransaksi(
+                                                                          kodeGereja,
+                                                                          snapData[1][index]
+                                                                              [
+                                                                              'kode_transaksi'],
+                                                                          context)
+                                                                      .whenComplete(
+                                                                          () {
+                                                                    kodeTransaksi =
+                                                                        servicesUser
+                                                                            .getKodeTransaksi(kodeGereja);
+                                                                    setState(
+                                                                        () {});
+                                                                  });
+                                                                },
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .delete_rounded),
@@ -1756,9 +1907,13 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                         child: ListTile(
                                                           dense: true,
                                                           minLeadingWidth: 85,
-                                                          leading: Text(snapData[
-                                                                  1][index][
-                                                              'kode_perkiraan']),
+                                                          leading: responsiveText(
+                                                              snapData[1][index]
+                                                                  [
+                                                                  'kode_perkiraan'],
+                                                              16,
+                                                              FontWeight.w600,
+                                                              darkText),
                                                           title: Row(
                                                             children: [
                                                               SizedBox(
@@ -1769,13 +1924,33 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                       dividerColor,
                                                                 ),
                                                               ),
-                                                              Text(snapData[1]
-                                                                      [index][
-                                                                  'nama_kode_perkiraan']),
+                                                              responsiveText(
+                                                                  snapData[1][
+                                                                          index]
+                                                                      [
+                                                                      'nama_kode_perkiraan'],
+                                                                  16,
+                                                                  FontWeight
+                                                                      .w600,
+                                                                  darkText),
                                                               const Spacer(),
                                                               IconButton(
-                                                                onPressed:
-                                                                    () {},
+                                                                onPressed: () {
+                                                                  deleteKodePerkiraan(
+                                                                          kodeGereja,
+                                                                          snapData[1][index]
+                                                                              [
+                                                                              'kode_perkiraan'],
+                                                                          context)
+                                                                      .whenComplete(
+                                                                          () {
+                                                                    kodePerkiraan =
+                                                                        servicesUser
+                                                                            .getKodePerkiraan(kodeGereja);
+                                                                    setState(
+                                                                        () {});
+                                                                  });
+                                                                },
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .delete_rounded),
@@ -1866,9 +2041,13 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                         child: ListTile(
                                                           dense: true,
                                                           minLeadingWidth: 85,
-                                                          leading: Text(snapData[
-                                                                  1][index][
-                                                              'kode_transaksi']),
+                                                          leading: responsiveText(
+                                                              snapData[1][index]
+                                                                  [
+                                                                  'kode_transaksi'],
+                                                              16,
+                                                              FontWeight.w600,
+                                                              darkText),
                                                           title: Row(
                                                             children: [
                                                               SizedBox(
@@ -1879,13 +2058,33 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                       dividerColor,
                                                                 ),
                                                               ),
-                                                              Text(snapData[1]
-                                                                      [index][
-                                                                  'nama_transaksi']),
+                                                              responsiveText(
+                                                                  snapData[1][
+                                                                          index]
+                                                                      [
+                                                                      'nama_transaksi'],
+                                                                  16,
+                                                                  FontWeight
+                                                                      .w600,
+                                                                  darkText),
                                                               const Spacer(),
                                                               IconButton(
-                                                                onPressed:
-                                                                    () {},
+                                                                onPressed: () {
+                                                                  deleteKodeTransaksi(
+                                                                          kodeGereja,
+                                                                          snapData[1][index]
+                                                                              [
+                                                                              'kode_transaksi'],
+                                                                          context)
+                                                                      .whenComplete(
+                                                                          () {
+                                                                    kodeTransaksi =
+                                                                        servicesUser
+                                                                            .getKodeTransaksi(kodeGereja);
+                                                                    setState(
+                                                                        () {});
+                                                                  });
+                                                                },
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .delete_rounded),
@@ -1973,9 +2172,13 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                         child: ListTile(
                                                           dense: true,
                                                           minLeadingWidth: 85,
-                                                          leading: Text(snapData[
-                                                                  1][index][
-                                                              'kode_perkiraan']),
+                                                          leading: responsiveText(
+                                                              snapData[1][index]
+                                                                  [
+                                                                  'kode_perkiraan'],
+                                                              16,
+                                                              FontWeight.w600,
+                                                              darkText),
                                                           title: Row(
                                                             children: [
                                                               SizedBox(
@@ -1986,13 +2189,33 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                       dividerColor,
                                                                 ),
                                                               ),
-                                                              Text(snapData[1]
-                                                                      [index][
-                                                                  'nama_kode_perkiraan']),
+                                                              responsiveText(
+                                                                  snapData[1][
+                                                                          index]
+                                                                      [
+                                                                      'nama_kode_perkiraan'],
+                                                                  16,
+                                                                  FontWeight
+                                                                      .w600,
+                                                                  darkText),
                                                               const Spacer(),
                                                               IconButton(
-                                                                onPressed:
-                                                                    () {},
+                                                                onPressed: () {
+                                                                  deleteKodePerkiraan(
+                                                                          kodeGereja,
+                                                                          snapData[1][index]
+                                                                              [
+                                                                              'kode_perkiraan'],
+                                                                          context)
+                                                                      .whenComplete(
+                                                                          () {
+                                                                    kodePerkiraan =
+                                                                        servicesUser
+                                                                            .getKodePerkiraan(kodeGereja);
+                                                                    setState(
+                                                                        () {});
+                                                                  });
+                                                                },
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .delete_rounded),
@@ -2718,9 +2941,15 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
               children: [
                 IconButton(
                   onPressed: () {
-                    widget.controllerPageBuatTransaksi.animateToPage(0,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.ease);
+                    _rowList.clear();
+                    _totalPemasukan = 0;
+                    _totalPengeluaran = 0;
+                    _totalSaldo = 0;
+                    _getTransaksi(kodeGereja).whenComplete(
+                      () => widget.controllerPageBuatTransaksi.animateToPage(0,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease),
+                    );
                   },
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
                 ),
@@ -2878,27 +3107,82 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                       child: ListTile(
                                         dense: true,
                                         minLeadingWidth: 85,
-                                        leading: Text(
-                                            itemTransaksi[index][0].toString()),
+                                        minVerticalPadding: 16,
                                         title: Row(
                                           children: [
+                                            Expanded(
+                                              flex: 1,
+                                              child: responsiveText(
+                                                  "${itemTransaksi[index][0]}-${itemTransaksi[index][1]}",
+                                                  16,
+                                                  FontWeight.w600,
+                                                  darkText),
+                                            ),
                                             SizedBox(
                                               height: 25,
                                               child: VerticalDivider(
                                                 color: dividerColor,
                                               ),
                                             ),
-                                            Text(itemTransaksi[index][5]
-                                                .toString()),
-                                            const Spacer(),
-                                            IconButton(
-                                              onPressed: () {
-                                                itemTransaksi.removeAt(index);
-                                              },
-                                              icon: const Icon(
-                                                  Icons.delete_rounded),
+                                            Expanded(
+                                              flex: 1,
+                                              child: responsiveText(
+                                                  itemTransaksi[index][3]
+                                                      .toString(),
+                                                  16,
+                                                  FontWeight.w600,
+                                                  darkText),
+                                            ),
+                                            SizedBox(
+                                              height: 25,
+                                              child: VerticalDivider(
+                                                color: dividerColor,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: responsiveText(
+                                                  itemTransaksi[index][5]
+                                                      .toString(),
+                                                  16,
+                                                  FontWeight.w600,
+                                                  darkText),
+                                            ),
+                                            SizedBox(
+                                              height: 25,
+                                              child: VerticalDivider(
+                                                color: dividerColor,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 1,
+                                              child: responsiveText(
+                                                  CurrencyFormat.convertToIdr(
+                                                      int.parse(
+                                                          itemTransaksi[index]
+                                                              [4]),
+                                                      2),
+                                                  16,
+                                                  FontWeight.w600,
+                                                  darkText),
+                                            ),
+                                            SizedBox(
+                                              height: 25,
+                                              child: VerticalDivider(
+                                                color: dividerColor,
+                                              ),
                                             ),
                                           ],
+                                        ),
+                                        trailing: IconButton(
+                                          onPressed: () {
+                                            itemTransaksi.removeAt(index);
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+                                          },
+                                          icon:
+                                              const Icon(Icons.delete_rounded),
                                         ),
                                       ),
                                     ),
