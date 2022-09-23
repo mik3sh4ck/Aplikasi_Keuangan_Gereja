@@ -1,7 +1,6 @@
 //ignore_for_file: todo
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -172,6 +171,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     }
   }
 
+  getBulanForChart(String tanggal) {
+    var getdash = tanggal.indexOf("-");
+    var temp = tanggal.substring(getdash + 1, getdash + 3);
+    if (temp[0] == "0") {
+      debugPrint(temp[1]);
+      return temp[1];
+    } else {
+      debugPrint(temp);
+      return temp;
+    }
+  }
+
   Future _getTransaksi(kodeGereja) async {
     _rowList.clear();
     _totalPemasukan = 0;
@@ -180,12 +191,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     var response = await servicesUser.getTransaksi(kodeGereja);
     if (response[0] != 404) {
       for (var element in response[1]) {
-        // _addRowTransaksi(
-        //     element['kode_transaksi'],
-        //     element['tanggal_transaksi'],
-        //     element['uraian_transaksi'],
-        //     element['jenis_transaksi'],
-        //     element['nominal']);
+        getBulanForChart(element['tanggal_transaksi']);
+        _dataChart.add({
+          'id': 'Line',
+          'data': [
+            {'domain': 0, 'measure': 4.1},
+            {'domain': 2, 'measure': 4},
+            {'domain': 3, 'measure': 6},
+            {'domain': 4, 'measure': 1},
+          ],
+        });
+        debugPrint(element['kode_transaksi'].toString());
+        debugPrint(element['tanggal_transaksi'].toString());
+        debugPrint(element['uraian_transaksi'].toString());
+        debugPrint(element['jenis_transaksi'].toString());
+        debugPrint(element['nominal'].toString());
         if (element['jenis_transaksi'] == "pemasukan") {
           _totalPemasukan += element['nominal'] as int;
         } else {
@@ -198,8 +218,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       }
     }
   }
-
-  generateGraphChart() {}
 
   @override
   Widget build(BuildContext context) {
