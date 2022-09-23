@@ -218,6 +218,20 @@ class ServicesUser {
     }
   }
 
+  //TODO: Get Transaksi
+  Future getKodeTransaksiAdded(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}read-transaksi-distinc?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
   //TODO: Query Transaksi Berdasar Tanggal
   Future queryTransaksiTanggal(kodeGereja, kode, tanggal1, tanggal2) async {
     final response = await http.get(

@@ -533,7 +533,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                                           child: Text(
                                             "Beri Role",
                                             style: GoogleFonts.nunito(
-                                              color: primaryColorVariant,
+                                              color: darkText,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -618,7 +618,7 @@ class _AdminBeriRoleState extends State<AdminBeriRole> {
       body: Stack(
         children: [
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.bottomRight,
             child: Image(
               width: deviceWidth < 800
                   ? (deviceHeight * 0.6)

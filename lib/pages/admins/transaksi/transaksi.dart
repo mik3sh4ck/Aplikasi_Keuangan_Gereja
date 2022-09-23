@@ -14,6 +14,7 @@ import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
 final List _kodePerkiraan = List.empty(growable: true);
+final List _kodeTransaksiAdded = List.empty(growable: true);
 final List _kodeTransaksi = List.empty(growable: true);
 final List _kodeRefKegiatan = List.empty(growable: true);
 final List<DataRow> _rowList = List.empty(growable: true);
@@ -124,6 +125,9 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
   int _indexFilterTanggal = 0;
 
+  String kodeTransaksiFilter = "";
+  String kodePerkiraanFilter = "";
+
   @override
   void initState() {
     // TODO: implement initState
@@ -131,6 +135,9 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
+
+    kodeTransaksiFilter = "";
+    kodePerkiraanFilter = "";
 
     widget.controllerPageBuatTransaksi.addListener(() {
       debugPrint("Refreshed");
@@ -140,6 +147,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     });
 
     _getKodePerkiraan(kodeGereja);
+    _getKodeTransaksiAdded(kodeGereja);
     // _getKodeTransaksi(kodeGereja);
     // _getKodeRefKegiatan(kodeGereja);
     _getTransaksi(kodeGereja);
@@ -191,13 +199,13 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     }
   }
 
-  Future _getKodeTransaksi(kodeGereja) async {
-    _kodeTransaksi.clear();
-    var response = await servicesUser.getKodeTransaksi(kodeGereja);
+  Future _getKodeTransaksiAdded(kodeGereja) async {
+    _kodeTransaksiAdded.clear();
+    var response = await servicesUser.getKodeTransaksiAdded(kodeGereja);
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
-        _kodeTransaksi
+        _kodeTransaksiAdded
             .add("${element['kode_transaksi']} - ${element['nama_transaksi']}");
       }
     } else {
@@ -533,33 +541,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   _filterTanggalField() {
     if (_indexFilterTanggal == 0) {
       return Column(
-        children: const [
-          // ElevatedButton(
-          //   //TODO: search btn
-          //   style: ElevatedButton.styleFrom(
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(10),
-          //     ),
-          //   ),
-          //   onPressed: () {
-          //     _getTransaksi(kodeGereja).whenComplete(() => setState(() {}));
-          //   },
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       const Icon(Icons.search),
-          //       const SizedBox(
-          //         width: 10,
-          //       ),
-          //       Text(
-          //         "Cari",
-          //         style: GoogleFonts.nunito(
-          //             fontWeight: FontWeight.w700, fontSize: 16),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-        ],
+        children: const [],
       );
     } else if (_indexFilterTanggal == 1) {
       return Column(
@@ -1087,7 +1069,47 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                 const Divider(
                                   height: 56,
                                 ),
-                                responsiveText("Filter Kode Keuangan", 14,
+                                responsiveText("Filter Transaksi", 14,
+                                    FontWeight.w700, darkText),
+                                Card(
+                                  color: primaryColor,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: DropdownSearch<dynamic>(
+                                    popupProps: PopupProps.menu(
+                                      showSearchBox: true,
+                                      searchFieldProps: TextFieldProps(
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: "Cari Disini",
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              _controllerDropdownFilter.clear();
+                                            },
+                                            icon: Icon(
+                                              Icons.clear,
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                            ),
+                                          ),
+                                        ),
+                                        controller: _controllerDropdownFilter,
+                                      ),
+                                    ),
+                                    items: _kodeTransaksiAdded,
+                                    onChanged: (val) {
+                                      debugPrint(val);
+                                      debugPrint(_splitString(val));
+                                      kodeTransaksiFilter = _splitString(val);
+                                      _queryTransaksiKode(kodeGereja,
+                                              kodeTransaksiFilter, "")
+                                          .whenComplete(() => setState(() {}));
+                                      debugPrint(_buatKodeGabungan(val));
+                                    },
+                                    selectedItem: "pilih Transaksi",
+                                  ),
+                                ),
+                                responsiveText("Filter Kode Perkiraan", 14,
                                     FontWeight.w700, darkText),
                                 Card(
                                   color: primaryColor,
@@ -1118,13 +1140,48 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     onChanged: (val) {
                                       debugPrint(val);
                                       debugPrint(_splitString(val));
+                                      kodePerkiraanFilter = _splitString(val);
+                                      _queryTransaksiKode(kodeGereja, "",
+                                              kodePerkiraanFilter)
+                                          .whenComplete(() => setState(() {}));
                                       debugPrint(_buatKodeGabungan(val));
                                     },
                                     selectedItem: "pilih Kode Perkiraan",
                                   ),
                                 ),
                                 const SizedBox(
-                                  height: 16,
+                                  height: 10,
+                                ),
+                                ElevatedButton(
+                                  //TODO: search btn
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    _queryTransaksiKode(kodeGereja, kodeTransaksiFilter,
+                                              kodePerkiraanFilter)
+                                          .whenComplete(() => setState(() {}));
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.search),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        "Cari",
+                                        style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 56,
                                 ),
                                 _cardInfo(
                                   "Pemasukan",

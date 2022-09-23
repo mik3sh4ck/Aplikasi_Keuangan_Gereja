@@ -1,6 +1,8 @@
 //ignore_for_file: todo
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,11 +12,21 @@ import '../../../globals.dart';
 import '../../../widgets/responsivetext.dart';
 import 'package:d_chart/d_chart.dart';
 
+import '../../../widgets/string_extension.dart';
+
 TextStyle welcomeText = GoogleFonts.nunito(
   color: darkText,
   fontWeight: FontWeight.bold,
   fontSize: 36,
 );
+
+final List<DataRow> _rowList = List.empty(growable: true);
+
+int _totalPemasukan = 0;
+int _totalPengeluaran = 0;
+int _totalSaldo = 0;
+
+List<Map<String, dynamic>> _dataChart = List.empty(growable: true);
 
 class AdminDashboardControllerPage extends StatefulWidget {
   const AdminDashboardControllerPage({Key? key}) : super(key: key);
@@ -72,8 +84,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   @override
   void initState() {
-    getUserName(kodeUser);
     // TODO: implement initState
+    getUserName(kodeUser);
+    _getTransaksi(kodeGereja);
     super.initState();
   }
 
@@ -83,35 +96,33 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     super.dispose();
   }
 
-  cardSaldo(judul, jumlah) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+  _cardInfo(title, nominal) {
+    return SizedBox(
+      width: 250,
       child: Card(
         elevation: 3,
         color: cardInfoColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
           side: BorderSide(
-            color: dividerColor,
+            color: navButtonPrimary.withOpacity(0.5),
             width: 1,
           ),
         ),
-        child: SizedBox(
-          width: 200,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                responsiveText(judul, 16, FontWeight.w700, darkText),
-                Divider(
-                  color: navButtonPrimary.withOpacity(0.5),
-                  thickness: 1,
-                  height: 10,
-                ),
-                responsiveText(jumlah, 16, FontWeight.w700, darkText),
-              ],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              responsiveText(title, 16, FontWeight.w700, darkText),
+              Divider(
+                color: navButtonPrimary.withOpacity(0.5),
+                thickness: 1,
+                height: 10,
+              ),
+              responsiveText(CurrencyFormat.convertToIdr(nominal, 2), 16,
+                  FontWeight.w700, darkText),
+            ],
           ),
         ),
       ),
@@ -160,6 +171,35 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       setState(() {});
     }
   }
+
+  Future _getTransaksi(kodeGereja) async {
+    _rowList.clear();
+    _totalPemasukan = 0;
+    _totalPengeluaran = 0;
+    _totalSaldo = 0;
+    var response = await servicesUser.getTransaksi(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        // _addRowTransaksi(
+        //     element['kode_transaksi'],
+        //     element['tanggal_transaksi'],
+        //     element['uraian_transaksi'],
+        //     element['jenis_transaksi'],
+        //     element['nominal']);
+        if (element['jenis_transaksi'] == "pemasukan") {
+          _totalPemasukan += element['nominal'] as int;
+        } else {
+          _totalPengeluaran += element['nominal'] as int;
+        }
+      }
+      _totalSaldo = _totalPemasukan - _totalPengeluaran;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  generateGraphChart() {}
 
   @override
   Widget build(BuildContext context) {
@@ -256,43 +296,48 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                cardNews('judul news',
-                                    'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                cardNews('judul news',
-                                    'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                cardNews('judul news',
-                                    'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.')
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  cardNews('judul news',
+                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  cardNews('judul news',
+                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  cardNews('judul news',
+                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.')
+                                ],
+                              ),
                             ),
                             const SizedBox(
                               width: 20,
                             ),
                             Expanded(
+                              flex: 3,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Wrap(
-                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
                                     alignment: WrapAlignment.spaceEvenly,
                                     children: [
-                                      cardSaldo('Saldo', '20000'),
-                                      cardSaldo('Pemasukan', '20000'),
-                                      cardSaldo('Pengeluaran', '20000'),
+                                      _cardInfo('Saldo', _totalSaldo),
+                                      _cardInfo('Pemasukan', _totalPemasukan),
+                                      _cardInfo(
+                                          'Pengeluaran', _totalPengeluaran),
                                     ],
                                   ),
                                   Container(
                                     padding: const EdgeInsets.all(0),
-                                    width: 800,
-                                    height: 600,
+                                    width: double.infinity,
+                                    height: deviceWidth * 0.35,
                                     child: DChartLine(
                                       data: const [
                                         {
@@ -373,6 +418,35 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
   String time = "Time";
   String date = "Date";
 
+  bool uploadCheck = false;
+  String uploadImg = "";
+
+  Future<void> getFileFromDir(context) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+      uploadCheck = false;
+      uploadImg = file.path.toString();
+
+      if (mounted) {
+        setState(() {});
+      }
+
+      debugPrint(file.name.toString());
+      debugPrint(file.bytes.toString());
+      debugPrint(file.size.toString());
+      debugPrint(file.extension.toString());
+      debugPrint(file.path.toString());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gagal Mengambil Gambar"),
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -440,14 +514,14 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
+                  primary: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -473,14 +547,14 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.amber, // header background color
-                onPrimary: Colors.black, // header text color
-                onSurface: Colors.black, // body text color
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: primaryColorVariant, // button text color
+                  primary: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -497,6 +571,70 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
 
         setState(() {});
       }
+    }
+  }
+
+  checkGambar() {
+    if (!uploadCheck) {
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: buttonColor,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          textStyle: GoogleFonts.nunito(
+              color: lightText,
+              fontWeight: FontWeight.w800,
+              fontSize: 14,
+              letterSpacing: 0.125),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        onPressed: () {
+          getFileFromDir(context);
+          if (mounted) {
+            uploadCheck = true;
+            setState(() {});
+          }
+        },
+        child: const Text("Unggah Gambar"),
+      );
+    } else {
+      return Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Image(
+              height: 250,
+              image: AssetImage(uploadImg),
+            ),
+          ),
+          const SizedBox(
+            height: 25,
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: buttonColor,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              textStyle: GoogleFonts.nunito(
+                  color: lightText,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  letterSpacing: 0.125),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            onPressed: () {
+              if (mounted) {
+                uploadCheck = false;
+                uploadImg = "";
+                setState(() {});
+              }
+            },
+            child: const Text("Hapus Gambar"),
+          ),
+        ],
+      );
     }
   }
 
@@ -564,28 +702,30 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 25),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(date),
-                                        IconButton(
-                                          onPressed: () {
-                                            selectDate(context).then(
-                                              (value) => setState(() {}),
-                                            );
-                                          },
-                                          icon:
-                                              const Icon(Icons.calendar_month),
-                                        ),
-                                      ],
+                                GestureDetector(
+                                  onTap: () {
+                                    selectDate(context).then(
+                                      (value) => setState(() {}),
+                                    );
+                                  },
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 25),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(date),
+                                          const IconButton(
+                                            onPressed: null,
+                                            icon: Icon(Icons.calendar_month),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -597,27 +737,30 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 25),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(time),
-                                        IconButton(
-                                          onPressed: () {
-                                            selectTime(context).then(
-                                              (value) => setState(() {}),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.alarm),
-                                        ),
-                                      ],
+                                GestureDetector(
+                                  onTap: () {
+                                    selectTime(context).then(
+                                      (value) => setState(() {}),
+                                    );
+                                  },
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 25),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(time),
+                                          const IconButton(
+                                            onPressed: null,
+                                            icon: Icon(Icons.alarm),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -656,23 +799,7 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: buttonColor,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 16),
-                                    textStyle: GoogleFonts.nunito(
-                                        color: lightText,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 14,
-                                        letterSpacing: 0.125),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text("Unggah Gambar"),
-                                ),
+                                checkGambar()
                               ],
                             ),
                           ),
