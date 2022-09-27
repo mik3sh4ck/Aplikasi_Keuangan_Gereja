@@ -53,6 +53,7 @@ dependencies:
   fl_chart: ^0.55.1
   csc_picker: ^0.2.6
   toggle_switch: ^2.0.1
+  d_chart: ^0.0.4
 
   provider: ^6.0.3
   http: ^0.13.5
@@ -60,14 +61,18 @@ dependencies:
   path_provider: ^2.0.11
   shared_preferences: ^2.0.15
   image_picker: ^0.8.5
-
+  crypt: ^4.2.1
   pdf: ^3.8.2
   printing: ^5.9.2
   intl: ^0.17.0
+
+  encrypt: ^5.0.1
+
   d_chart: ^0.0.4
   image_picker_web: ^2.1.1
   file_picker: ^4.6.1
   syncfusion_flutter_charts: ^20.2.50
+
 
   # window_size:
   #   git:/

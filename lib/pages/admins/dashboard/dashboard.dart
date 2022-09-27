@@ -7,12 +7,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-
 import '../../../globals.dart';
 import '../../../widgets/responsivetext.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
 import '../../../widgets/string_extension.dart';
 
 TextStyle welcomeText = GoogleFonts.nunito(
@@ -779,6 +777,7 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
 
   @override
   Widget build(BuildContext context) {
+
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -929,6 +928,7 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                           const SizedBox(
                             width: 25,
                           ),
+
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -940,6 +940,7 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                                 ),
                                 checkGambar()
                               ],
+
                             ),
                           ),
                         ],

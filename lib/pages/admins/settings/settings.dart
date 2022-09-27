@@ -105,8 +105,11 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                                                     milliseconds: 250),
                                                 curve: Curves.ease);
                                       },
-                                      child: const Icon(
-                                          Icons.arrow_forward_rounded),
+                                      child: Tooltip(
+                                        message: "Details",
+                                        child: const Icon(
+                                            Icons.arrow_forward_rounded),
+                                      ),
                                     ),
                                   ),
                                 );
@@ -206,13 +209,16 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
           children: [
             Row(
               children: [
-                IconButton(
-                  onPressed: () {
-                    widget.controllerAddRolePade.animateToPage(0,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.ease);
-                  },
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                Tooltip(
+                  message: "Back",
+                  child: IconButton(
+                    onPressed: () {
+                      widget.controllerAddRolePade.animateToPage(0,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    },
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  ),
                 ),
                 const SizedBox(
                   width: 25,
