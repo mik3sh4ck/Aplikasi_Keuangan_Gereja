@@ -1,5 +1,6 @@
 //ignore_for_file: todo, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:animations/animations.dart';
 import 'package:aplikasi_keuangan_gereja/main.dart';
 import 'package:aplikasi_keuangan_gereja/pages/Profiles/profile.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/anggota/anggota.dart';
@@ -115,40 +116,46 @@ class NavigationSidebarX extends StatelessWidget {
       animationDuration: Duration(milliseconds: 400),
       controller: _controller,
       theme: SidebarXTheme(
-        // margin: EdgeInsets.all(5),
         decoration: BoxDecoration(
           color: primaryColor,
         ),
         textStyle: GoogleFonts.nunito(
           color: navButtonPrimaryVariant,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
         ),
         selectedTextStyle: GoogleFonts.nunito(
           color: navButtonPrimary,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
         ),
         iconTheme: IconThemeData(
           color: navButtonPrimaryVariant,
-          size: 20,
+          size: 24,
         ),
         selectedIconTheme: IconThemeData(
           color: navButtonPrimary,
-          size: 20,
+          size: 24,
         ),
         itemTextPadding: EdgeInsets.only(left: 20),
         selectedItemTextPadding: EdgeInsets.only(left: 30),
         selectedItemDecoration: BoxDecoration(
-          color: scaffoldBackgroundColor.withOpacity(0.40),
-          borderRadius: BorderRadius.circular(30),
+          color: scaffoldBackgroundColor.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.transparent),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
+              blurRadius: 5,
             )
           ],
         ),
       ),
       extendedTheme: SidebarXTheme(
-        width: 160,
+        width: 200,
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: primaryColor,
         ),
@@ -158,25 +165,28 @@ class NavigationSidebarX extends StatelessWidget {
       headerBuilder: (context, extended) {
         return Container(
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfilePage(),
+          child: OpenContainer(
+            openColor: Colors.transparent,
+            closedColor: Colors.transparent,
+            openElevation: 0,
+            closedElevation: 0,
+            transitionDuration: const Duration(milliseconds: 500),
+            transitionType: ContainerTransitionType.fadeThrough,
+            closedBuilder: (context, action) {
+              return FittedBox(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(360),
+                  child: Image.asset(
+                    'lib/assets/images/defaultprofilepicture.png',
+                    width: 56,
+                    height: 56,
+                  ),
                 ),
               );
             },
-            child: FittedBox(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(360),
-                child: Image.asset(
-                  'lib/assets/images/defaultprofilepicture.png',
-                  width: 56,
-                  height: 56,
-                ),
-              ),
-            ),
+            openBuilder: (context, action) {
+              return ProfilePage();
+            },
           ),
         );
       },
@@ -203,7 +213,7 @@ class NavigationSidebarX extends StatelessWidget {
                       Icon(
                         Icons.logout_rounded,
                         color: navButtonPrimaryVariant,
-                        size: 21,
+                        size: 24,
                       ),
                       Visibility(
                         visible: extended == true ? true : false,
@@ -211,8 +221,11 @@ class NavigationSidebarX extends StatelessWidget {
                           padding: EdgeInsets.only(left: 30),
                           child: Text(
                             'Keluar',
-                            style: TextStyle(
+                            style: GoogleFonts.nunito(
                               color: navButtonPrimaryVariant,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
@@ -267,15 +280,15 @@ class NavigationScreen extends StatelessWidget {
       builder: (context, child) {
         switch (controller.selectedIndex) {
           case 0:
-            return AdminDashboardPage();
+            return AdminDashboardControllerPage();
           case 1:
             return AdminControllerTransaksiPage();
           case 2:
             return AdminAnggotaController();
           case 3:
             return AdminControllerKegiatanPage();
-          case 4:
-            return AdminControllerDonasiPage();
+          // case 4:
+          //   return AdminControllerDonasiPage();
           case 5:
             return AdminSettingPageController();
           default:

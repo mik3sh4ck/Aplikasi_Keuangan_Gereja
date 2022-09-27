@@ -182,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Navigator.pop(context);
           },
           icon: Icon(
-            Icons.arrow_back_rounded,
+            Icons.arrow_back_ios_new_rounded,
             color: navButtonPrimaryVariant,
           ),
         ),

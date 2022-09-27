@@ -177,33 +177,36 @@ class ClassItemProposalKegiatan {
   int budgetKebutuhan;
   String keteranganKebutuhan;
 
-  ClassItemProposalKegiatan({
-    required this.kodeProposalKegiatan,
-    required this.kodeKegiatan,
-    required this.namaKebutuhan,
-    required this.budgetKebutuhan,
-    required this.keteranganKebutuhan
-  });
+  ClassItemProposalKegiatan(
+      {required this.kodeProposalKegiatan,
+      required this.kodeKegiatan,
+      required this.namaKebutuhan,
+      required this.budgetKebutuhan,
+      required this.keteranganKebutuhan});
 
   Map<String, dynamic> toJson() {
     return {
-      'kode_proposal_kegiatan' : kodeProposalKegiatan,
+      'kode_proposal_kegiatan': kodeProposalKegiatan,
       'kode_kegiatan': kodeKegiatan,
       'jenis_kebutuhan': namaKebutuhan,
       'budget_kebutuhan': budgetKebutuhan,
-      'keterangan_kebutuhan' : keteranganKebutuhan
+      'keterangan_kebutuhan': keteranganKebutuhan
     };
   }
 
   factory ClassItemProposalKegiatan.fromJSON(Map<String, dynamic> json) {
     return ClassItemProposalKegiatan(
-      kodeProposalKegiatan: json['kode_proposal_kegiatan'],
-      kodeKegiatan: json['kode_kegiatan'],
-      namaKebutuhan: json['jenis_kebutuhan'],
-      budgetKebutuhan: json['budget_kebutuhan'],
-      keteranganKebutuhan: json['keterangan_kebutuhan']
-    );
+        kodeProposalKegiatan: json['kode_proposal_kegiatan'],
+        kodeKegiatan: json['kode_kegiatan'],
+        namaKebutuhan: json['jenis_kebutuhan'],
+        budgetKebutuhan: json['budget_kebutuhan'],
+        keteranganKebutuhan: json['keterangan_kebutuhan']);
   }
 }
 
-
+//Syncfusion Chart
+class TransactionData {
+  TransactionData(this.year, this.amount);
+  final String year;
+  final double amount;
+}

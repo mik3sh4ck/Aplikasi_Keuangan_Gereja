@@ -36,12 +36,19 @@ dependencies:
 
   flutter_native_splash: ^2.2.7
   loading_animation_widget: ^1.2.0+2
+  animations: ^2.0.4
+  getwidget: ^3.0.1
+  lottie: ^1.4.2
 
   sidebarx: ^0.9.0
   google_fonts: ^3.0.1
   font_awesome_flutter: ^10.1.0
   auto_size_text: ^3.0.0
   dropdown_search: ^5.0.2
+  textfield_search: ^0.10.0
+
+  carousel_slider: ^4.1.1
+  pinput: ^2.2.12
 
   fl_chart: ^0.55.1
   csc_picker: ^0.2.6
@@ -58,9 +65,17 @@ dependencies:
   pdf: ^3.8.2
   printing: ^5.9.2
   intl: ^0.17.0
+
   encrypt: ^5.0.1
+
+  d_chart: ^0.0.4
+  image_picker_web: ^2.1.1
+  file_picker: ^4.6.1
+  syncfusion_flutter_charts: ^20.2.50
+
+
   # window_size:
-  #   git:
+  #   git:/
   #     url: https://github.com/google/flutter-desktop-embedding
   #     path: plugins/window_size
 
@@ -87,11 +102,16 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # - lib/assets/images
+    # - lib/assets/lotties
+
+
     - lib/assets/images/loginbgimg.png
     - lib/assets/images/loginactivationheader.png
     - lib/assets/images/MobileHeader.png
     - lib/assets/images/defaultprofilepicture.png
     - lib/assets/images/budgeting.png
+    - lib/assets/images/budgeting2.png
     - lib/assets/images/role.png
     - lib/assets/images/donation.png
     - lib/assets/images/incomeicons.png
@@ -99,8 +119,11 @@ flutter:
     - lib/assets/images/absen.png
     - lib/assets/images/createaktifitas.png
     - lib/assets/images/tangan.png
-    - lib/assets/images/success.gif
-
+    - lib/assets/lotties/error_404.json
+    - lib/assets/lotties/loading_animation.json
+    - lib/assets/lotties/success.json
+    - lib/assets/lotties/no_data.json
+    - lib/assets/lotties/search_not_found.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

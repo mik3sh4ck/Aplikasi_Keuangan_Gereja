@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             suffixIcon: pw == true
                 ? IconButton(
-                    color: const Color(0xFFeead48),
+                    color: buttonColor,
                     onPressed: () {
                       _passwordVisibility();
                     },
@@ -201,7 +201,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               suffixIcon: pw == true
                   ? IconButton(
-                      color: const Color(0xFFeead48),
+                      color: buttonColor,
                       onPressed: () {
                         _passwordVisibility();
                       },
@@ -280,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                       height: 25,
                     ),
                     responsiveText(
-                      "Password",
+                      "Kata Sandi",
                       20,
                       FontWeight.w900,
                       Colors.black,
@@ -534,7 +534,7 @@ class _ActivationPageState extends State<ActivationPage> {
             ),
             suffixIcon: pw == true
                 ? IconButton(
-                    color: const Color(0xFFeead48),
+                    color: buttonColor,
                     onPressed: () {
                       _passwordVisibility();
                     },
@@ -581,7 +581,7 @@ class _ActivationPageState extends State<ActivationPage> {
               ),
               suffixIcon: pw == true
                   ? IconButton(
-                      color: const Color(0xFFeead48),
+                      color: buttonColor,
                       onPressed: () {
                         _passwordVisibility();
                       },
