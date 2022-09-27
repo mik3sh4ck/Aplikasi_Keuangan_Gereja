@@ -5,7 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:d_chart/d_chart.dart';
 import '../../../globals.dart';
 
 TextStyle welcomeText = GoogleFonts.nunito(
@@ -101,23 +101,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   Widget build(BuildContext context) {
     getUserName(kodeUser);
-    List<LineChartBarData> lineChartBarData = [
 
-      LineChartBarData(
-        isCurved: true,
-        spots: [
-          const FlSpot(1, 0),
-          const FlSpot(2, 12),
-          const FlSpot(3, 10),
-          const FlSpot(4, 7),
-          const FlSpot(5, 8),
-          const FlSpot(6, 10),
-        ],
-        color: primaryColor,
-        barWidth: 3,
-      )
-
-    ];
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -192,22 +176,52 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             ],
                           ),
                           Container(
-
-                              padding: const EdgeInsets.all(20),
-                              width: 800,
-                              height: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  minX: 1,
-                                  minY: 0,
-                                  maxX: 6,
-                                  maxY: 15,
-                                  lineBarsData: lineChartBarData,
-                                  gridData: FlGridData(show: false),
-                                  borderData: FlBorderData(show: false),
-                                ),
-                              ))
-
+                            padding: const EdgeInsets.all(20),
+                            width: 800,
+                            height: 500,
+                            child: DChartLine(
+                              data: [
+                                {
+                                  'id': 'Line',
+                                  'data': [
+                                    {'domain': 0, 'measure': 4.1},
+                                    {'domain': 2, 'measure': 4},
+                                    {'domain': 3, 'measure': 6},
+                                    {'domain': 4, 'measure': 1},
+                                  ],
+                                },
+                                {
+                                  'id': 'Line1',
+                                  'data': [
+                                    {'domain': 0, 'measure': 10},
+                                    {'domain': 2, 'measure': 22},
+                                    {'domain': 3, 'measure': 3},
+                                    {'domain': 4, 'measure': 12},
+                                  ],
+                                },
+                                {
+                                  'id': 'Line3',
+                                  'data': [
+                                    {'domain': 0, 'measure': 11},
+                                    {'domain': 2, 'measure': 2},
+                                    {'domain': 3, 'measure': 1},
+                                    {'domain': 4, 'measure': 15},
+                                  ],
+                                },
+                              ],
+                              lineColor: (lineData, index, id) {
+                                if (id == 'Line') {
+                                  return Colors.yellow;
+                                } else if (id == 'Line1') {
+                                  return Colors.blue;
+                                } else if (id == 'Line3') {
+                                  return Colors.green;
+                                } else {
+                                  return Colors.black;
+                                }
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ],

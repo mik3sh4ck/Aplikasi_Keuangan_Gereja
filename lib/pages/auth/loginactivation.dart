@@ -9,6 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/apiservices.dart';
 import '../../themes/colors.dart';
 import '../../widgets/responsivetext.dart';
+import 'package:encrypt/encrypt.dart' as ecpt;
+import 'dart:convert';
+import 'package:crypt/crypt.dart';
 
 class LoginActivationController extends StatefulWidget {
   const LoginActivationController({Key? key}) : super(key: key);
@@ -598,6 +601,11 @@ class _ActivationPageState extends State<ActivationPage> {
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
+    encryptPassword(password) {
+      final encrypted = Crypt.sha256(password, salt: 'abcdefghijklmnop');
+      return encrypted;
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -843,7 +851,10 @@ class _ActivationPageState extends State<ActivationPage> {
                                 Column(
                                   children: [
                                     ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        print(encryptPassword(
+                                            _controllerPassword));
+                                      },
                                       child: const Text("AKTIVASI"),
                                     ),
                                   ],
@@ -858,7 +869,10 @@ class _ActivationPageState extends State<ActivationPage> {
                                   Column(
                                     children: [
                                       ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          print(encryptPassword(
+                                              _controllerPassword.text));
+                                        },
                                         child: const Text("AKTIVASI"),
                                       ),
                                     ],
