@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, todo
 
+import 'package:animations/animations.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/home/home.dart';
 import 'package:aplikasi_keuangan_gereja/pages/auth/loginactivation.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
@@ -55,7 +56,7 @@ void main() async {
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               primary: buttonColor,
-              padding: EdgeInsets.symmetric(horizontal: 34, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               textStyle: GoogleFonts.nunito(
                   color: lightText,
                   fontWeight: FontWeight.w800,
@@ -67,7 +68,7 @@ void main() async {
             ),
           ),
           scaffoldBackgroundColor: scaffoldBackgroundColor,
-          cardColor: surfaceColor,
+          cardColor: cardColor,
           textTheme: GoogleFonts.nunitoTextTheme(
             TextTheme(
               headline1: GoogleFonts.nunito(
@@ -151,6 +152,14 @@ void main() async {
           ),
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(primary: primaryColor, secondary: primaryColorVariant),
+        ).copyWith(
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: ZoomPageTransitionsBuilder(),
+              TargetPlatform.windows: SharedAxisPageTransitionsBuilder(
+                  transitionType: SharedAxisTransitionType.horizontal),
+            },
+          ),
         ),
         home: MyApp(),
       ),

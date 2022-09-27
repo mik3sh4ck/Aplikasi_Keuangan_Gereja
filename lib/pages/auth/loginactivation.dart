@@ -4,7 +4,6 @@ import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/main.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/apiservices.dart';
@@ -152,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             suffixIcon: pw == true
                 ? IconButton(
-                    color: const Color(0xFFeead48),
+                    color: buttonColor,
                     onPressed: () {
                       _passwordVisibility();
                     },
@@ -199,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               suffixIcon: pw == true
                   ? IconButton(
-                      color: const Color(0xFFeead48),
+                      color: buttonColor,
                       onPressed: () {
                         _passwordVisibility();
                       },
@@ -278,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                       height: 25,
                     ),
                     responsiveText(
-                      "Password",
+                      "Kata Sandi",
                       20,
                       FontWeight.w900,
                       Colors.black,
@@ -532,7 +531,7 @@ class _ActivationPageState extends State<ActivationPage> {
             ),
             suffixIcon: pw == true
                 ? IconButton(
-                    color: const Color(0xFFeead48),
+                    color: buttonColor,
                     onPressed: () {
                       _passwordVisibility();
                     },
@@ -579,7 +578,7 @@ class _ActivationPageState extends State<ActivationPage> {
               ),
               suffixIcon: pw == true
                   ? IconButton(
-                      color: const Color(0xFFeead48),
+                      color: buttonColor,
                       onPressed: () {
                         _passwordVisibility();
                       },

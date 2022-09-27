@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
 
-loadingIndicator(Color color) {
+loadingIndicator() {
   return Center(
-    child: Column(
-      children: [
-        LoadingAnimationWidget.staggeredDotsWave(
-          size: 100,
-          color: color,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Memuat, Tunggu Sebentar ...",
-              style: GoogleFonts.nunito(
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
+    child: Lottie.asset(
+        width: 200,
+        height: 200,
+        fit: BoxFit.fill,
+        "lib/assets/lotties/loading_animation.json"),
+  );
+}
+
+noData() {
+  return Center(
+    child: Lottie.asset(
+        width: 200,
+        height: 200,
+        fit: BoxFit.fill,
+        "lib/assets/lotties/no_data.json"),
   );
 }
