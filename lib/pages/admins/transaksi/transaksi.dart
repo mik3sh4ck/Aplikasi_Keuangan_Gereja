@@ -22,6 +22,7 @@ final List<DataRow> _rowList = List.empty(growable: true);
 int _totalPemasukan = 0;
 int _totalPengeluaran = 0;
 int _totalSaldo = 0;
+int _AkunSaldo = 0;
 
 String _singleKodeTransaksi = "";
 String _kodeTransaksiCount = "000";
@@ -47,6 +48,7 @@ class _AdminControllerTransaksiPageState
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
+    _AkunSaldo = 0;
     super.initState();
   }
 
@@ -128,6 +130,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   String kodeTransaksiFilter = "";
   String kodePerkiraanFilter = "";
 
+  String selectedKodePerkiraan = "Pilih Akun";
+
   @override
   void initState() {
     // TODO: implement initState
@@ -135,9 +139,12 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
+    _AkunSaldo = 0;
 
     kodeTransaksiFilter = "";
     kodePerkiraanFilter = "";
+
+    selectedKodePerkiraan = "Pilih Akun";
 
     widget.controllerPageBuatTransaksi.addListener(() {
       debugPrint("Refreshed");
@@ -792,6 +799,17 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     return temp;
   }
 
+  Future _getSaldoAkun(kodeGereja, kodePerkiraan) async {
+    var response = await servicesUser.getSaldoAkun(kodeGereja, kodePerkiraan);
+    _AkunSaldo = 0;
+    if (response[0] != 404) {
+      _AkunSaldo = response[1]['nominal'];
+      debugPrint(response[1].toString());
+    } else {
+      _AkunSaldo = 0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -1160,9 +1178,11 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    _queryTransaksiKode(kodeGereja, kodeTransaksiFilter,
-                                              kodePerkiraanFilter)
-                                          .whenComplete(() => setState(() {}));
+                                    _queryTransaksiKode(
+                                            kodeGereja,
+                                            kodeTransaksiFilter,
+                                            kodePerkiraanFilter)
+                                        .whenComplete(() => setState(() {}));
                                   },
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1204,9 +1224,55 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                 const SizedBox(
                                   height: 25,
                                 ),
+                                const Divider(
+                                  height: 56,
+                                ),
+                                //Kas or Bank
+                                Card(
+                                  color: primaryColor,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: DropdownSearch<dynamic>(
+                                    popupProps: PopupProps.menu(
+                                      showSearchBox: true,
+                                      searchFieldProps: TextFieldProps(
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: "Cari Disini",
+                                          suffixIcon: IconButton(
+                                            onPressed: () {
+                                              _controllerDropdownFilter.clear();
+                                            },
+                                            icon: Icon(
+                                              Icons.clear,
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                            ),
+                                          ),
+                                        ),
+                                        controller: _controllerDropdownFilter,
+                                      ),
+                                    ),
+                                    items: _kodePerkiraan,
+                                    onChanged: (val) {
+                                      selectedKodePerkiraan = val;
+                                      debugPrint(selectedKodePerkiraan);
+                                      debugPrint(
+                                          _splitString(selectedKodePerkiraan));
+                                      debugPrint(_buatKodeGabungan(
+                                          selectedKodePerkiraan));
+                                      var kodeAkun =
+                                          _splitString(selectedKodePerkiraan);
+                                      debugPrint(kodeAkun);
+                                      _getSaldoAkun(kodeGereja, kodeAkun)
+                                          .whenComplete(() => setState(() {}));
+                                    },
+                                    selectedItem: selectedKodePerkiraan,
+                                  ),
+                                ),
                                 _cardInfo(
                                   "Saldo Total",
-                                  _totalSaldo,
+                                  _AkunSaldo,
                                 ),
                                 const SizedBox(
                                   height: 25,
@@ -1349,7 +1415,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                 height: 16,
                               ),
                               responsiveText("Tambah Kode Perkiraan", 26,
-                                  FontWeight.w700, darkText),
+                                  FontWeight.w700, lightText),
                               const SizedBox(
                                 height: 16,
                               ),
@@ -1495,7 +1561,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                 height: 16,
                               ),
                               responsiveText("Tambah Kode Transaksi", 26,
-                                  FontWeight.w700, darkText),
+                                  FontWeight.w700, lightText),
                               const SizedBox(
                                 height: 16,
                               ),

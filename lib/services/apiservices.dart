@@ -232,6 +232,20 @@ class ServicesUser {
     }
   }
 
+  //TODO: Get Saldo Akun
+  Future getSaldoAkun(kodeGereja, kodePerkiraansync) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}filter-kas?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraansync"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
   //TODO: Query Transaksi Berdasar Tanggal
   Future queryTransaksiTanggal(kodeGereja, kode, tanggal1, tanggal2) async {
     final response = await http.get(

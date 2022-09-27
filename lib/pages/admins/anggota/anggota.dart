@@ -746,7 +746,7 @@ class _AdminRolePageState extends State<AdminRolePage> {
       body: Stack(
         children: [
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.bottomRight,
             child: Image(
               width: deviceWidth < 800
                   ? (deviceHeight * 0.6)
@@ -1077,7 +1077,7 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
       body: Stack(
         children: [
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.bottomRight,
             child: Image(
               width: deviceWidth < 800
                   ? (deviceHeight * 0.6)
@@ -1401,7 +1401,7 @@ class _AdminDetailRoleState extends State<AdminDetailRole> {
       body: Stack(
         children: [
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.bottomRight,
             child: Image(
               width: deviceWidth < 800
                   ? (deviceHeight * 0.6)

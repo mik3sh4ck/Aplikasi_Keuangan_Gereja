@@ -1,4 +1,5 @@
 //ignore_for_file: todo
+import 'package:aplikasi_keuangan_gereja/dataclass/dataclass.dart';
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +11,7 @@ import 'package:intl/intl.dart';
 import '../../../globals.dart';
 import '../../../widgets/responsivetext.dart';
 import 'package:d_chart/d_chart.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../widgets/string_extension.dart';
 
@@ -25,7 +27,10 @@ int _totalPemasukan = 0;
 int _totalPengeluaran = 0;
 int _totalSaldo = 0;
 
-List<Map<String, dynamic>> _dataChart = List.empty(growable: true);
+List _dataChart = List.empty(growable: true);
+List _dataPengeluaranChart = List.empty(growable: true);
+List _dataPemasukanChart = List.empty(growable: true);
+List _dataSaldoChart = List.empty(growable: true);
 
 class AdminDashboardControllerPage extends StatefulWidget {
   const AdminDashboardControllerPage({Key? key}) : super(key: key);
@@ -41,6 +46,10 @@ class _AdminDashboardControllerPageState
   @override
   void initState() {
     // TODO: implement initState
+    _dataPemasukanChart.clear();
+    _dataPengeluaranChart.clear();
+    _dataChart.clear();
+    _dataSaldoChart.clear();
     super.initState();
   }
 
@@ -188,29 +197,35 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
+
+    final tempPemasukan = List.empty(growable: true);
+    final tempPengeluaran = List.empty(growable: true);
     var response = await servicesUser.getTransaksi(kodeGereja);
     if (response[0] != 404) {
       for (var element in response[1]) {
-        getBulanForChart(element['tanggal_transaksi']);
-        _dataChart.add({
-          'id': 'Line',
-          'data': [
-            {'domain': 0, 'measure': 4.1},
-            {'domain': 2, 'measure': 4},
-            {'domain': 3, 'measure': 6},
-            {'domain': 4, 'measure': 1},
-          ],
-        });
-        debugPrint(element['kode_transaksi'].toString());
-        debugPrint(element['tanggal_transaksi'].toString());
-        debugPrint(element['uraian_transaksi'].toString());
-        debugPrint(element['jenis_transaksi'].toString());
-        debugPrint(element['nominal'].toString());
+        tempPemasukan.clear();
+        tempPengeluaran.clear();
+        if (element['jenis_transaksi'] == "pemasukan") {
+          tempPemasukan.add(getBulanForChart(element['tanggal_transaksi']));
+          tempPemasukan.add(element['nominal']);
+          _dataPemasukanChart.add(tempPemasukan.toList());
+        } else {
+          tempPengeluaran.add(getBulanForChart(element['tanggal_transaksi']));
+          tempPengeluaran.add(element['nominal']);
+          _dataPengeluaranChart.add(tempPemasukan.toList());
+        }
+        // debugPrint(element['kode_transaksi'].toString());
+        // debugPrint(element['tanggal_transaksi'].toString());
+        // debugPrint(element['uraian_transaksi'].toString());
+        // debugPrint(element['jenis_transaksi'].toString());
+        // debugPrint(element['nominal'].toString());
         if (element['jenis_transaksi'] == "pemasukan") {
           _totalPemasukan += element['nominal'] as int;
         } else {
           _totalPengeluaran += element['nominal'] as int;
         }
+        debugPrint(_dataPemasukanChart.toString());
+        debugPrint(_dataPengeluaranChart.toString());
       }
       _totalSaldo = _totalPemasukan - _totalPengeluaran;
       if (mounted) {
@@ -218,6 +233,68 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       }
     }
   }
+
+  generateListChart() {}
+
+  // loopDataChart(data, index) {
+  //   for (int i = 0; i < data.length; i++) {
+  //     return data[i][0];
+  //   }
+  // }
+
+  // generateDataChart() {
+  //   return DChartLine(
+  //     data: [
+  //       {
+  //         'id': 'Line1',
+  //         'data': {
+  //           'domain': loopDataChart(_dataPemasukanChart, 0),
+  //           'measure': loopDataChart(_dataPemasukanChart, 1),
+  //         },
+  //       },
+
+  //       {
+  //         'id': 'Line2',
+  //         'data': {
+  //           'domain': loopDataChart(_dataPengeluaranChart, 0),
+  //           'measure': loopDataChart(_dataPengeluaranChart, 1),
+  //         },
+  //       },
+
+  //       // {
+  //       //   'id': 'Line2',
+  //       //   'data': [
+  //       //     {'domain': 0, 'measure': 10},
+  //       //     {'domain': 2, 'measure': 22},
+  //       //     {'domain': 3, 'measure': 3},
+  //       //     {'domain': 4, 'measure': 12},
+  //       //   ],
+  //       // },
+  //       // {
+  //       //   'id': 'Line3',
+  //       //   'data': [
+  //       //     {'domain': 0, 'measure': 11},
+  //       //     {'domain': 2, 'measure': 2},
+  //       //     {'domain': 3, 'measure': 1},
+  //       //     {'domain': 4, 'measure': 15},
+  //       //   ],
+  //       // },
+  //     ],
+  //     lineColor: (lineData, index, id) {
+  //       if (id == 'Line1') {
+  //         return Colors.yellow;
+  //       } else if (id == 'Line2') {
+  //         return Colors.blue;
+  //       } else if (id == 'Line3') {
+  //         return Colors.green;
+  //       } else {
+  //         return Colors.black;
+  //       }
+  //     },
+  //     includePoints: true,
+  //     includeArea: true,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -341,62 +418,106 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    alignment: WrapAlignment.spaceEvenly,
-                                    children: [
-                                      _cardInfo('Saldo', _totalSaldo),
-                                      _cardInfo('Pemasukan', _totalPemasukan),
-                                      _cardInfo(
-                                          'Pengeluaran', _totalPengeluaran),
-                                    ],
-                                  ),
+
                                   Container(
                                     padding: const EdgeInsets.all(0),
                                     width: double.infinity,
                                     height: deviceWidth * 0.35,
-                                    child: DChartLine(
-                                      data: const [
-                                        {
-                                          'id': 'Line',
-                                          'data': [
-                                            {'domain': 0, 'measure': 4.1},
-                                            {'domain': 2, 'measure': 4},
-                                            {'domain': 3, 'measure': 6},
-                                            {'domain': 4, 'measure': 1},
-                                          ],
-                                        },
-                                        {
-                                          'id': 'Line1',
-                                          'data': [
-                                            {'domain': 0, 'measure': 10},
-                                            {'domain': 2, 'measure': 22},
-                                            {'domain': 3, 'measure': 3},
-                                            {'domain': 4, 'measure': 12},
-                                          ],
-                                        },
-                                        {
-                                          'id': 'Line3',
-                                          'data': [
-                                            {'domain': 0, 'measure': 11},
-                                            {'domain': 2, 'measure': 2},
-                                            {'domain': 3, 'measure': 1},
-                                            {'domain': 4, 'measure': 15},
-                                          ],
-                                        },
+                                    child: SfCartesianChart(
+                                      enableAxisAnimation: true,
+                                      legend: Legend(
+                                        textStyle: Theme.of(context).textTheme.subtitle2,
+                                        isVisible: true,
+                                        position: LegendPosition.top,
+                                        alignment: ChartAlignment.center,
+                                        overflowMode:
+                                            LegendItemOverflowMode.scroll,
+                                        isResponsive: true,
+                                        // title: LegendTitle(
+                                        //     text:
+                                        //         "Grafik Keuangan Tahun ${DateTime.now().year}",
+                                        //     textStyle: Theme.of(context)
+                                        //         .textTheme
+                                        //         .headline4),
+                                      ),
+
+                                      // Initialize category axis
+                                      primaryXAxis: CategoryAxis(),
+                                      series: <
+                                          LineSeries<TransactionData, String>>[
+                                        LineSeries<TransactionData, String>(
+                                            // Bind data source
+                                            color: Colors.green,
+                                            name: "Pemasukan",
+                                            dataSource: <TransactionData>[
+                                              TransactionData('Jan', 10000000),
+                                              TransactionData('Feb', 7500000),
+                                              TransactionData('Mar', 8250000),
+                                              TransactionData('Apr', 5480000),
+                                              TransactionData('May', 7650000),
+                                              TransactionData('Jun', 8250000),
+                                              TransactionData('Jul', 7000000),
+                                              TransactionData('Aug', 5500000),
+                                              TransactionData('Sep', 5800000),
+                                              TransactionData('Okt', 4270000),
+                                              TransactionData('Nov', 8250000),
+                                              TransactionData('Dec', 4250000),
+                                            ],
+                                            xValueMapper:
+                                                (TransactionData sales, _) =>
+                                                    sales.year,
+                                            yValueMapper:
+                                                (TransactionData sales, _) =>
+                                                    sales.amount),
+                                        LineSeries<TransactionData, String>(
+                                            // Bind data source
+                                            color: Colors.red,
+                                            name: "Pengeluaran",
+                                            dataSource: <TransactionData>[
+                                              TransactionData('Jan', 5500000),
+                                              TransactionData('Feb', 2500000),
+                                              TransactionData('Mar', 4250000),
+                                              TransactionData('Apr', 3360000),
+                                              TransactionData('May', 6350000),
+                                              TransactionData('Jun', 2730000),
+                                              TransactionData('Jul', 5600000),
+                                              TransactionData('Aug', 3756000),
+                                              TransactionData('Sep', 4450000),
+                                              TransactionData('Okt', 3845000),
+                                              TransactionData('Nov', 4750000),
+                                              TransactionData('Dec', 6000000),
+                                            ],
+                                            xValueMapper:
+                                                (TransactionData sales, _) =>
+                                                    sales.year,
+                                            yValueMapper:
+                                                (TransactionData sales, _) =>
+                                                    sales.amount),
+                                        LineSeries<TransactionData, String>(
+                                            // Bind data source
+                                            color: Colors.yellow,
+                                            name: "Saldo",
+                                            dataSource: <TransactionData>[
+                                              TransactionData('Jan', 10000000-5500000),
+                                              TransactionData('Feb', 7500000-2500000),
+                                              TransactionData('Mar', 8250000-4250000),
+                                              TransactionData('Apr', 5480000-3360000),
+                                              TransactionData('May', 7650000-6350000),
+                                              TransactionData('Jun', 8250000-2730000),
+                                              TransactionData('Jul', 7000000-5600000),
+                                              TransactionData('Aug', 5500000-3756000),
+                                              TransactionData('Sep', 5800000-4450000),
+                                              TransactionData('Okt', 4270000-3845000),
+                                              TransactionData('Nov', 8250000-4750000),
+                                              TransactionData('Dec', 4250000-3000000),
+                                            ],
+                                            xValueMapper:
+                                                (TransactionData sales, _) =>
+                                                    sales.year,
+                                            yValueMapper:
+                                                (TransactionData sales, _) =>
+                                                    sales.amount)
                                       ],
-                                      lineColor: (lineData, index, id) {
-                                        if (id == 'Line') {
-                                          return Colors.yellow;
-                                        } else if (id == 'Line1') {
-                                          return Colors.blue;
-                                        } else if (id == 'Line3') {
-                                          return Colors.green;
-                                        } else {
-                                          return Colors.black;
-                                        }
-                                      },
                                     ),
                                   )
                                 ],
