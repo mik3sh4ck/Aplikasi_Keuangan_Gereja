@@ -221,15 +221,18 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                       ),
                       Row(
                         children: [
-                          IconButton(
-                            onPressed: () {
-                              widget.controllerHistoryPageKegiatan
-                                  .animateToPage(1,
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.ease);
-                            },
-                            icon: const Icon(Icons.history_rounded),
+                          Tooltip(
+                            message: "Histori Transaksi",
+                            child: IconButton(
+                              onPressed: () {
+                                widget.controllerHistoryPageKegiatan
+                                    .animateToPage(1,
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        curve: Curves.ease);
+                              },
+                              icon: const Icon(Icons.history_rounded),
+                            ),
                           ),
                           const SizedBox(
                             width: 15,
@@ -364,43 +367,46 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                                 16,
                                                 FontWeight.w500,
                                                 darkText),
-                                            trailing: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                padding:
-                                                    const EdgeInsets.all(12),
-                                                shape: const CircleBorder(),
+                                            trailing: Tooltip(
+                                              message: "Detail kegiatan",
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  shape: const CircleBorder(),
+                                                ),
+                                                onPressed: () {
+                                                  _namaKegiatan = snapData[1]
+                                                      [index]['nama_kegiatan'];
+                                                  _kodeKegiatan = snapData[1]
+                                                      [index]['kode_kegiatan'];
+                                                  _kodeKegiatanGabungan = snapData[
+                                                          1][index][
+                                                      'kode_kegiatan_gabungan'];
+                                                  _tempmulaiacara = snapData[1]
+                                                          [index]
+                                                      ['tanggal_acara_dimulai'];
+                                                  _tempselesaiacara = snapData[
+                                                          1][index]
+                                                      ['tanggal_acara_selesai'];
+                                                  _tempmulaikegiatan = snapData[
+                                                          1][index][
+                                                      'tanggal_kegiatan_dimulai'];
+                                                  _tempselesaikegiatan = snapData[
+                                                          1][index][
+                                                      'tanggal_kegiatan_selesai'];
+                                                  widget
+                                                      .controllerDetailPageKegiatan
+                                                      .animateToPage(1,
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      250),
+                                                          curve: Curves.ease);
+                                                },
+                                                child: const Icon(Icons
+                                                    .arrow_forward_rounded),
                                               ),
-                                              onPressed: () {
-                                                _namaKegiatan = snapData[1]
-                                                    [index]['nama_kegiatan'];
-                                                _kodeKegiatan = snapData[1]
-                                                    [index]['kode_kegiatan'];
-                                                _kodeKegiatanGabungan = snapData[
-                                                        1][index]
-                                                    ['kode_kegiatan_gabungan'];
-                                                _tempmulaiacara = snapData[1]
-                                                        [index]
-                                                    ['tanggal_acara_dimulai'];
-                                                _tempselesaiacara = snapData[1]
-                                                        [index]
-                                                    ['tanggal_acara_selesai'];
-                                                _tempmulaikegiatan = snapData[1]
-                                                        [index][
-                                                    'tanggal_kegiatan_dimulai'];
-                                                _tempselesaikegiatan = snapData[
-                                                        1][index][
-                                                    'tanggal_kegiatan_selesai'];
-                                                widget
-                                                    .controllerDetailPageKegiatan
-                                                    .animateToPage(1,
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    250),
-                                                        curve: Curves.ease);
-                                              },
-                                              child: const Icon(
-                                                  Icons.arrow_forward_rounded),
                                             ),
                                           ),
                                         );
@@ -3600,7 +3606,9 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                                       'kode_kategori_kegiatan'],
                                                   context)
                                               .whenComplete(() {
-                                            kategoriDetailPengeluaran = servicesUser.getKodeKegiatan(kodeGereja);
+                                            kategoriDetailPengeluaran =
+                                                servicesUser.getKodeKegiatan(
+                                                    kodeGereja);
                                             setState(() {});
                                           });
                                         },

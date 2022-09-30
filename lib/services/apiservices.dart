@@ -20,6 +20,47 @@ class ServicesUser {
     }
   }
 
+  //TODO: nambah user
+  Future CreateUser(kodeGereja, namaLengkapUser, emailUser, noTelpUser) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}input-user?kode_gereja=$kodeGereja&nama_lengkap_user=$namaLengkapUser&email_user=$emailUser&no_telp_user=$noTelpUser"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal edit data");
+    }
+  }
+
+  //TODO: Update Profile User
+  Future UpdateUserProfile(
+      kodeUser,
+      emailUser,
+      jenisKelamin,
+      tanggalUser,
+      noTelpUser,
+      alamatUser,
+      kemampuanUser,
+      namaLengkapUser,
+      fotoProfileUser) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}kode_user=$kodeUser&email_user=$emailUser&jenis_kelamin_user=$jenisKelamin&tanggal_lahir_user=$tanggalUser&no_telp_user=$noTelpUser&alamat_user=$alamatUser&kemampuan_user=$kemampuanUser&nama_lengkap_user=$namaLengkapUser&foto_profile=$fotoProfileUser"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal edit data");
+    }
+  }
+
   //TODO: Get User
   Future getSingleUser(kodeuser) async {
     final response = await http.get(
@@ -235,7 +276,8 @@ class ServicesUser {
   //TODO: Get Saldo Akun
   Future getSaldoAkun(kodeGereja, kodePerkiraansync) async {
     final response = await http.get(
-      Uri.parse("${_linkPath}filter-kas?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraansync"),
+      Uri.parse(
+          "${_linkPath}filter-kas?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraansync"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
