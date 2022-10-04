@@ -613,11 +613,26 @@ class ServicesUser {
     }
   }
 
-  //TODO: Get detail pemasukan Kegiatan
+  // //TODO: Get detail pemasukan Kegiatan
+  // Future getPemasukanDetail(kodeGerejaDetail, kodeKegiatanDetail) async {
+  //   final response = await http.get(
+  //     Uri.parse(
+  //         "${_linkPath}pemasukan-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     var jsonRespStatus = json.decode(response.body)['status'];
+  //     var jsonRespData = json.decode(response.body)['data'];
+
+  //     return [jsonRespStatus, jsonRespData];
+  //   } else {
+  //     throw Exception("Gagal mengambil data");
+  //   }
+  // }
+
+  //TODO: Get detail dan form pemasukan Kegiatan
   Future getPemasukanDetail(kodeGerejaDetail, kodeKegiatanDetail) async {
     final response = await http.get(
-      Uri.parse(
-          "${_linkPath}pemasukan-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
+      Uri.parse("${_linkPath}pemasukan-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -628,4 +643,20 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
+  //TODO: Get detail dan form pengeluaran Kegiatan
+  Future getPengeluaranForm(kodeGerejaDetail, kodeKegiatanDetail) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}read-all-pengeluaran-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
 }

@@ -1,6 +1,7 @@
 //ignore_for_file: todo
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
+import 'package:aplikasi_keuangan_gereja/widgets/string_extension.dart';
 
 import 'package:dropdown_search/dropdown_search.dart';
 
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
@@ -20,6 +22,8 @@ String _kodeKegiatan = "";
 String _kodeKegiatanGabungan = "";
 String _kodeItemKebutuhan = "";
 String _namaItemKebutuhan = "";
+
+String _kodeKegiatanHistory = "";
 
 String _tempNamaPIC = "";
 String _tempKodeUserPIC = "";
@@ -40,6 +44,8 @@ String _totalbudget = "";
 final List _user = [];
 final List _kodeKegiatanbuatList = [];
 final List _kodePerkiraan = [];
+final List _kodePerkiraanSingleKegiatan = [];
+final List _tanggalAbsen = [];
 
 final List<DataRow> _rowListForm = List.empty(growable: true);
 int _totalPemasukan = 0;
@@ -424,6 +430,8 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                       },
                                     ),
                                   );
+                                } else if (snapData[0] == 404) {
+                                  return noData();
                                 }
                               }
                               return loadingIndicator();
@@ -524,12 +532,15 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     }
   }
 
-  Future _getAllKodePerkiraanList(kodeGereja, headerKodePerkiraan) async {
-    var response = await servicesUserItem.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
+  Future _getKodePerkiraanSingleKegiatan(kodeGereja, kodeKegiatan) async {
+    _kodePerkiraanSingleKegiatan.clear();
+
+    var response = await servicesUserItem.getKodePerkiraanSingleKegiatan(
+        kodeGereja, kodeKegiatan);
     if (response[0] != 404) {
-      _kodePerkiraan.clear();
       for (var element in response[1]) {
-        _kodePerkiraan.add(
+        debugPrint(element.toString());
+        _kodePerkiraanSingleKegiatan.add(
             "${element['nama_kode_perkiraan']} - ${element['kode_perkiraan']}");
       }
     } else {
@@ -581,6 +592,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     // TODO: implement initState
     _getAllUser(kodeGereja);
     _getAllKodeKegiatanList(kodeGereja);
+    _getKodePerkiraanSingleKegiatan(kodeGereja, "");
     super.initState();
   }
 
@@ -940,7 +952,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                 _controllerDropdownFilterKodePerkiraan,
                                           ),
                                         ),
-                                        items: _kodePerkiraan,
+                                        items: _kodePerkiraanSingleKegiatan,
                                         onChanged: (val) {
                                           debugPrint(val);
                                           debugPrint(_splitString(val));
@@ -1335,6 +1347,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                 width: 10,
                               ),
                               responsiveText(
+                                  "-", 18, FontWeight.w500, darkText),
+                              responsiveText(
                                   _singleList, 18, FontWeight.w500, darkText),
                             ],
                           ),
@@ -1351,6 +1365,18 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                             deviceWidth, deviceHeight, _controllerNamaKegiatan),
                         const SizedBox(
                           height: 15,
+                        ),
+                        Container(
+                          constraints: BoxConstraints(maxWidth: 400),
+                          padding: EdgeInsets.all(30),
+                          alignment: Alignment.topLeft,
+                          child: ElevatedButton(
+                            child: Text('Pick File'),
+                            onPressed: () async {
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles();
+                            },
+                          ),
                         ),
                         responsiveText(
                             "Lokasi Kegiatan", 14, FontWeight.w700, darkText),
@@ -1770,7 +1796,11 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           title: Text(
                                             _jenisKebutuhanList[index],
                                           ),
-                                          subtitle: Text(_saldoList[index]),
+                                          subtitle: Text(
+                                            CurrencyFormat.convertToIdr(
+                                                int.parse(_saldoList[index]),
+                                                2),
+                                          ),
                                           trailing: IconButton(
                                               onPressed: () {
                                                 setState(() {
@@ -2039,14 +2069,21 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                     const SizedBox(
                       width: 25,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Detail Kegiatan $_namaKegiatan",
-                          style: Theme.of(context).textTheme.headline5,
-                        ),
-                      ],
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Detail Kegiatan $_namaKegiatan",
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -2161,6 +2198,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                   },
                                 ),
                               );
+                            } else if (snapData[0] == 404) {
+                              return noData();
                             }
                           }
                           return loadingIndicator();
@@ -2168,49 +2207,6 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                        //width: deviceWidth / 2 * 0.4,
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: primaryColorVariant,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          border: Border.all(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                        ),
-                        child: Wrap(
-                          children: [
-                            responsiveText(
-                                "Presentase :", 18, FontWeight.w500, darkText),
-                            responsiveText(
-                                _presentase.length > 4
-                                    ? _presentase.substring(0, 4)
-                                    : _presentase,
-                                18,
-                                FontWeight.w500,
-                                darkText),
-                            responsiveText("%", 18, FontWeight.w500, darkText),
-                          ],
-                        ))),
-                const SizedBox(
-                  height: 10,
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: responsiveTextNoMax(
-                      "*"
-                      "is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's.",
-                      15,
-                      FontWeight.w500,
-                      Colors.blueAccent),
                 ),
                 const SizedBox(
                   height: 10,
@@ -2241,7 +2237,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                     color: Colors.black.withOpacity(0.5),
                                   ),
                                 ),
-                                width: deviceWidth / 2 * 0.8,
+                                width: deviceWidth / 2 * 0.7,
                                 padding: const EdgeInsets.all(10),
                                 child: FutureBuilder(
                                   future: kategoriDetailItemProposalKegiatan,
@@ -2293,7 +2289,13 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                                   [index][
                                                               'jenis_kebutuhan']),
                                                           Text(
-                                                            "RP. ${snapData[1][index]['budget_kebutuhan']}",
+                                                            CurrencyFormat
+                                                                .convertToIdr(
+                                                                    snapData[1][
+                                                                            index]
+                                                                        [
+                                                                        'budget_kebutuhan'],
+                                                                    2),
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
@@ -2306,20 +2308,204 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                 },
                                               ),
                                               Container(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        10, 15, 0, 0),
-                                                child: responsiveText(
-                                                    "Total : RP $_totalbudget",
-                                                    16,
-                                                    FontWeight.w600,
-                                                    darkText),
-                                              )
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          10, 15, 0, 0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      responsiveText(
+                                                          "Total Budget",
+                                                          16,
+                                                          FontWeight.w600,
+                                                          darkText),
+                                                      responsiveText(
+                                                          CurrencyFormat
+                                                              .convertToIdr(
+                                                                  int.parse(
+                                                                      _totalbudget),
+                                                                  2),
+                                                          16,
+                                                          FontWeight.w600,
+                                                          darkText),
+                                                    ],
+                                                  ))
                                             ],
                                           ),
                                         );
+                                      } else if (snapData[0] == 404) {
+                                        return noData();
                                       }
                                     }
+                                    return loadingIndicator();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              responsiveText(
+                                  "Realisasi", 20, FontWeight.w700, darkText),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                                width: deviceWidth / 2 * 0.7,
+                                padding: const EdgeInsets.all(10),
+                                child: FutureBuilder(
+                                  future: kategoriDetailItemProposalKegiatan,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      List snapData = snapshot.data! as List;
+                                      if (snapData[0] != 404) {
+                                        return ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(
+                                            dragDevices: {
+                                              PointerDeviceKind.touch,
+                                              PointerDeviceKind.mouse,
+                                            },
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                scrollDirection: Axis.vertical,
+                                                controller: ScrollController(),
+                                                physics:
+                                                    const ClampingScrollPhysics(),
+                                                itemCount: snapData[1].length,
+                                                itemBuilder: (context, index) {
+                                                  return Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Card(
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            side: BorderSide(
+                                                              color: navButtonPrimary
+                                                                  .withOpacity(
+                                                                      0.4),
+                                                            ),
+                                                          ),
+                                                          color:
+                                                              scaffoldBackgroundColor,
+                                                          child: ListTile(
+                                                            title: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      snapData[1]
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'jenis_kebutuhan'],
+                                                                    ),
+                                                                    Text(
+                                                                      CurrencyFormat.convertToIdr(
+                                                                          snapData[1][index]
+                                                                              [
+                                                                              'sum_kebutuhan'],
+                                                                          2),
+                                                                      style: const TextStyle(
+                                                                          fontSize:
+                                                                              15),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    const SizedBox(
+                                                                      width: 5,
+                                                                    ),
+                                                                    IconButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          _tempKodePerkiraan =
+                                                                              snapData[1][index]['kode_perkiraan'].toString();
+                                                                          _namaItemKebutuhan =
+                                                                              snapData[1][index]['jenis_kebutuhan'].toString();
+                                                                          widget.controllerDetailPengeluaranKebutuhan.animateToPage(
+                                                                              1,
+                                                                              duration: const Duration(milliseconds: 250),
+                                                                              curve: Curves.ease);
+                                                                        },
+                                                                        icon: const Icon(
+                                                                            Icons.arrow_forward_rounded)),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                              Container(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          10, 15, 0, 0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      responsiveText(
+                                                          "Total Realisasi",
+                                                          16,
+                                                          FontWeight.w600,
+                                                          darkText),
+                                                      responsiveText(
+                                                          CurrencyFormat
+                                                              .convertToIdr(
+                                                                  int.parse(
+                                                                      _totalreal),
+                                                                  2),
+                                                          16,
+                                                          FontWeight.w600,
+                                                          darkText),
+                                                    ],
+                                                  ))
+                                            ],
+                                          ),
+                                        );
+                                      } else if (snapData[0] == 404) {
+                                        return noData();
+                                      }
+                                    }
+
                                     return loadingIndicator();
                                   },
                                 ),
@@ -2334,7 +2520,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 responsiveText(
-                                    "Realisasi", 20, FontWeight.w700, darkText),
+                                    "Persenan", 20, FontWeight.w700, darkText),
                                 const SizedBox(
                                   height: 10,
                                 ),
@@ -2414,33 +2600,23 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                                             [
                                                                             'jenis_kebutuhan'],
                                                                       ),
-                                                                      Text(
-                                                                        "RP. ${snapData[1][index]['sum_kebutuhan']}",
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                15),
+                                                                      Row(
+                                                                        children: [
+                                                                          snapData[1][index]['persentase_kebutuhan'] >= 100
+                                                                              ? Row(
+                                                                                  children: [
+                                                                                    responsiveText(snapData[1][index]['persentase_kebutuhan'].toString().length > 5 ? snapData[1][index]['persentase_kebutuhan'].toString().substring(0, 5) : snapData[1][index]['persentase_kebutuhan'].toString(), 15, FontWeight.normal, Colors.red),
+                                                                                    responsiveText("%", 15, FontWeight.normal, Colors.red)
+                                                                                  ],
+                                                                                )
+                                                                              : Row(
+                                                                                  children: [
+                                                                                    responsiveText(snapData[1][index]['persentase_kebutuhan'].toString().length > 5 ? snapData[1][index]['persentase_kebutuhan'].toString().substring(0, 5) : snapData[1][index]['persentase_kebutuhan'].toString(), 15, FontWeight.normal, Colors.green),
+                                                                                    responsiveText("%", 15, FontWeight.normal, Colors.green)
+                                                                                  ],
+                                                                                )
+                                                                        ],
                                                                       ),
-                                                                    ],
-                                                                  ),
-                                                                  Row(
-                                                                    children: [
-                                                                      const SizedBox(
-                                                                        width:
-                                                                            5,
-                                                                      ),
-                                                                      IconButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            _tempKodePerkiraan =
-                                                                                snapData[1][index]['kode_perkiraan'].toString();
-                                                                            _namaItemKebutuhan =
-                                                                                snapData[1][index]['jenis_kebutuhan'].toString();
-                                                                            widget.controllerDetailPengeluaranKebutuhan.animateToPage(1,
-                                                                                duration: const Duration(milliseconds: 250),
-                                                                                curve: Curves.ease);
-                                                                          },
-                                                                          icon:
-                                                                              const Icon(Icons.arrow_forward_rounded)),
                                                                     ],
                                                                   ),
                                                                 ],
@@ -2448,51 +2624,50 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                             ),
                                                           ),
                                                         ),
-                                                        const SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            Text(snapData[1][index]
-                                                                            [
-                                                                            'persentase_kebutuhan']
-                                                                        .toString()
-                                                                        .length >
-                                                                    4
-                                                                ? snapData[1][
-                                                                            index]
-                                                                        [
-                                                                        'persentase_kebutuhan']
-                                                                    .toString()
-                                                                    .substring(
-                                                                        0, 4)
-                                                                : snapData[1]
-                                                                            [index]
-                                                                        ['persentase_kebutuhan']
-                                                                    .toString()),
-                                                            const Text(" %"),
-                                                          ],
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 5,
-                                                        ),
                                                       ],
                                                     );
                                                   },
                                                 ),
                                                 Container(
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          10, 15, 0, 0),
-                                                  child: responsiveText(
-                                                      "Total : RP $_totalreal",
-                                                      16,
-                                                      FontWeight.w600,
-                                                      darkText),
-                                                )
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(10, 15, 0, 0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        responsiveText(
+                                                            "Total Persenan",
+                                                            16,
+                                                            FontWeight.w600,
+                                                            darkText),
+                                                        Wrap(
+                                                          children: [
+                                                            responsiveText(
+                                                                _presentase.length >
+                                                                        5
+                                                                    ? _presentase
+                                                                        .substring(
+                                                                            0,
+                                                                            5)
+                                                                    : _presentase,
+                                                                16,
+                                                                FontWeight.w600,
+                                                                darkText),
+                                                            responsiveText(
+                                                                "%",
+                                                                16,
+                                                                FontWeight.w600,
+                                                                darkText),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ))
                                               ],
                                             ),
                                           );
+                                        } else if (snapData[0] == 404) {
+                                          return noData();
                                         }
                                       }
 
@@ -2569,7 +2744,10 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                 FontWeight.w700,
                                                 darkText),
                                             subtitle: responsiveText(
-                                                "Rp. ${snapData[1][index]['nominal']}",
+                                                CurrencyFormat.convertToIdr(
+                                                    snapData[1][index]
+                                                        ['nominal'],
+                                                    2),
                                                 15,
                                                 FontWeight.w400,
                                                 darkText),
@@ -2584,6 +2762,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                       },
                                     ),
                                   );
+                                } else if (snapData[0] == 404) {
+                                  return noData();
                                 }
                               }
                               return loadingIndicator();
@@ -2733,6 +2913,8 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                                             shape: const CircleBorder(),
                                           ),
                                           onPressed: () {
+                                            _kodeKegiatanHistory = snapData[1]
+                                                [index]['kode_kegiatan'];
                                             _namaKegiatanRiwayat = snapData[1]
                                                 [index]['nama_kegiatan'];
                                             widget.controllerPageForm
@@ -2750,6 +2932,8 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                                   },
                                 ),
                               );
+                            } else if (snapData[0] == 404) {
+                              return noData();
                             }
                           }
                           return loadingIndicator();
@@ -2865,66 +3049,42 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                         ),
                         //width: deviceWidth / 2,
                         padding: const EdgeInsets.all(10),
-                        child: FutureBuilder(
-                          future: kategoriAbsensiKegiatan,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              List snapData = snapshot.data! as List;
-                              if (snapData[0] != 404) {
-                                return ScrollConfiguration(
-                                  behavior:
-                                      ScrollConfiguration.of(context).copyWith(
-                                    dragDevices: {
-                                      PointerDeviceKind.touch,
-                                      PointerDeviceKind.mouse,
-                                    },
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          controller: ScrollController(),
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: 5,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: navButtonPrimary.withOpacity(0.4),
+                                ),
+                              ),
+                              color: scaffoldBackgroundColor,
+                              child: ListTile(
+                                title: Text(
+                                  _tempmulaiacara,
+                                ),
+                                trailing: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(12),
+                                    shape: const CircleBorder(),
                                   ),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.vertical,
-                                    controller: ScrollController(),
-                                    physics: const ClampingScrollPhysics(),
-                                    itemCount: 5,
-                                    itemBuilder: (context, index) {
-                                      return Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          side: BorderSide(
-                                            color: navButtonPrimary
-                                                .withOpacity(0.4),
-                                          ),
-                                        ),
-                                        color: scaffoldBackgroundColor,
-                                        child: ListTile(
-                                          title: const Text(
-                                            "31/08/2022",
-                                          ),
-                                          trailing: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              padding: const EdgeInsets.all(12),
-                                              shape: const CircleBorder(),
-                                            ),
-                                            onPressed: () {
-                                              widget
-                                                  .controllerPageDetailAbsensiKegiatan
-                                                  .animateToPage(1,
-                                                      duration: const Duration(
-                                                          milliseconds: 250),
-                                                      curve: Curves.ease);
-                                            },
-                                            child: const Icon(
-                                                Icons.arrow_forward_rounded),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                );
-                              }
-                            }
-
-                            return loadingIndicator();
+                                  onPressed: () {
+                                    widget.controllerPageDetailAbsensiKegiatan
+                                        .animateToPage(1,
+                                            duration: const Duration(
+                                                milliseconds: 250),
+                                            curve: Curves.ease);
+                                  },
+                                  child:
+                                      const Icon(Icons.arrow_forward_rounded),
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -3160,6 +3320,8 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                     },
                                   ),
                                 );
+                              } else if (snapData[0] == 404) {
+                                return noData();
                               }
                             }
 
@@ -3352,8 +3514,8 @@ class _DetailPengeluaranKebutuhanState
                                         snapData[1][index]['uraian_transaksi'],
                                       ),
                                       subtitle: Text(
-                                        snapData[1][index]['nominal']
-                                            .toString(),
+                                        CurrencyFormat.convertToIdr(
+                                            snapData[1][index]['nominal'], 2),
                                       ),
                                       trailing: Text(
                                         snapData[1][index]['tanggal_transaksi'],
@@ -3363,6 +3525,8 @@ class _DetailPengeluaranKebutuhanState
                                 },
                               ),
                             );
+                          } else if (snapData[0] == 404) {
+                            return noData();
                           }
                         }
 
@@ -3763,6 +3927,8 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                 },
                               ),
                             );
+                          } else if (snapData[0] == 404) {
+                            return noData();
                           }
                         }
 
@@ -3790,6 +3956,7 @@ class FormHistory extends StatefulWidget {
 
 class _FormHistoryState extends State<FormHistory> {
   ServicesUser servicesUser = ServicesUser();
+  late Future kategoriDetailItemProposalKegiatan;
 
   @override
   void initState() {
@@ -3798,6 +3965,12 @@ class _FormHistoryState extends State<FormHistory> {
     _totalPengeluaran = 0;
     _totalSaldo = 0;
     _getTransaksi(kodeGereja);
+    _getTransaksi2(kodeGereja);
+    kategoriDetailItemProposalKegiatan =
+        servicesUser.getAllItemProposalKegiatan(
+            kodeGereja + _kodeKegiatanHistory,
+            _kodeKegiatanHistory,
+            kodeGereja);
     super.initState();
   }
 
@@ -3809,38 +3982,57 @@ class _FormHistoryState extends State<FormHistory> {
 
   Future _getTransaksi(kodeGereja) async {
     _rowListForm.clear();
-    _totalPemasukan = 0;
-    _totalPengeluaran = 0;
-    _totalSaldo = 0;
-    var response = await servicesUser.getTransaksi(kodeGereja);
+    var response =
+        await servicesUser.getPemasukanDetail(kodeGereja, _kodeKegiatanHistory);
     if (response[0] != 404) {
       for (var element in response[1]) {
         _addRowTransaksi(
             element['kode_transaksi'],
+            element['kode_perkiraan'],
             element['tanggal_transaksi'],
             element['uraian_transaksi'],
             element['jenis_transaksi'],
             element['nominal']);
-        if (element['jenis_transaksi'] == "pemasukan") {
-          _totalPemasukan += element['nominal'] as int;
-        } else {
-          _totalPengeluaran += element['nominal'] as int;
-        }
       }
-      _totalSaldo = _totalPemasukan - _totalPengeluaran;
       if (mounted) {
         setState(() {});
       }
     }
   }
 
-  void _addRowTransaksi(kode, tanggal, deskripsi, jenis, nominal) {
+  Future _getTransaksi2(kodeGereja) async {
+    _rowListForm.clear();
+    var response =
+        await servicesUser.getPengeluaranForm(kodeGereja, _kodeKegiatanHistory);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowTransaksi(
+            element['kode_transaksi'],
+            element['kode_perkiraan'],
+            element['tanggal_transaksi'],
+            element['uraian_transaksi'],
+            element['jenis_transaksi'],
+            element['nominal']);
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _addRowTransaksi(kode1, kode2, tanggal, deskripsi, jenis, nominal) {
     _rowListForm.add(
       DataRow(
         cells: [
           DataCell(
             Text(
-              kode.toString(),
+              kode1.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              kode2.toString(),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -3881,129 +4073,57 @@ class _FormHistoryState extends State<FormHistory> {
       behavior: ScrollConfiguration.of(context).copyWith(
           dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
       child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          controller: ScrollController(),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            width: deviceWidth,
-            child: Column(
-              children: [
-                Row(
+        physics: const ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          width: deviceWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () {
+                      widget.controllerPageForm.animateToPage(0,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    },
+                  ),
+                  const SizedBox(
+                    width: 25,
+                  ),
+                  Text(
+                    "Form Riwayat Kegiatan $_namaKegiatanRiwayat",
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                ],
+              ),
+              const Divider(
+                thickness: 1,
+                height: 56,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                controller: ScrollController(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                      onPressed: () {
-                        widget.controllerPageForm.animateToPage(0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease);
-                      },
-                    ),
-                    const SizedBox(
-                      width: 25,
-                    ),
-                    Text(
-                      "Form Riwayat Kegiatan $_namaKegiatanRiwayat",
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                  ],
-                ),
-                const Divider(
-                  thickness: 1,
-                  height: 56,
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  controller: ScrollController(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: deviceWidth < 1280
-                                ? SingleChildScrollView(
-                                    physics: const ClampingScrollPhysics(),
-                                    controller: ScrollController(),
-                                    scrollDirection: Axis.horizontal,
-                                    child: DataTable(
-                                      border: TableBorder.all(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.black.withOpacity(0.5),
-                                        style: BorderStyle.solid,
-                                      ),
-                                      headingRowHeight: 70,
-                                      dataRowHeight: 56,
-                                      columns: [
-                                        DataColumn(
-                                          label: Text(
-                                            "Kode",
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Text(
-                                            "Tanggal",
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Text(
-                                            "Deskripsi",
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Text(
-                                            "Pemasukan",
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Text(
-                                            "Pengeluaran",
-                                            style: GoogleFonts.nunito(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                      rows: List.generate(
-                                        _rowListForm.length,
-                                        (index) {
-                                          return DataRow(
-                                              color: MaterialStateColor
-                                                  .resolveWith(
-                                                (states) {
-                                                  return index % 2 == 1
-                                                      ? Colors.white
-                                                      : primaryColor
-                                                          .withOpacity(0.2);
-                                                },
-                                              ),
-                                              cells: _rowListForm[index].cells);
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                : DataTable(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: deviceWidth < 1280
+                              ? SingleChildScrollView(
+                                  physics: const ClampingScrollPhysics(),
+                                  controller: ScrollController(),
+                                  scrollDirection: Axis.horizontal,
+                                  child: DataTable(
                                     border: TableBorder.all(
                                       borderRadius: BorderRadius.circular(10),
                                       color: Colors.black.withOpacity(0.5),
@@ -4014,7 +4134,16 @@ class _FormHistoryState extends State<FormHistory> {
                                     columns: [
                                       DataColumn(
                                         label: Text(
-                                          "Kode",
+                                          "Kode Transaksi",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "Kode Perkiraan",
                                           style: GoogleFonts.nunito(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 18,
@@ -4075,15 +4204,237 @@ class _FormHistoryState extends State<FormHistory> {
                                       },
                                     ),
                                   ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                                )
+                              : DataTable(
+                                  border: TableBorder.all(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black.withOpacity(0.5),
+                                    style: BorderStyle.solid,
+                                  ),
+                                  headingRowHeight: 70,
+                                  dataRowHeight: 56,
+                                  columns: [
+                                    DataColumn(
+                                      label: Text(
+                                        "Kode Transaksi",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "Kode Perkiraan",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "Tanggal",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "Deskripsi",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "Pemasukan",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "Pengeluaran",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  rows: List.generate(
+                                    _rowListForm.length,
+                                    (index) {
+                                      return DataRow(
+                                          color: MaterialStateColor.resolveWith(
+                                            (states) {
+                                              return index % 2 == 1
+                                                  ? Colors.white
+                                                  : primaryColor
+                                                      .withOpacity(0.2);
+                                            },
+                                          ),
+                                          cells: _rowListForm[index].cells);
+                                    },
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(5, 15, 5, 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    responsiveText(
+                        "Persenan Item", 20, FontWeight.w700, darkText),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ),
+                      width: deviceWidth / 2,
+                      padding: const EdgeInsets.all(10),
+                      child: FutureBuilder(
+                        future: kategoriDetailItemProposalKegiatan,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            List snapData = snapshot.data! as List;
+                            if (snapData[0] != 404) {
+                              return ScrollConfiguration(
+                                behavior:
+                                    ScrollConfiguration.of(context).copyWith(
+                                  dragDevices: {
+                                    PointerDeviceKind.touch,
+                                    PointerDeviceKind.mouse,
+                                  },
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.vertical,
+                                      controller: ScrollController(),
+                                      physics: const ClampingScrollPhysics(),
+                                      itemCount: snapData[1].length,
+                                      itemBuilder: (context, index) {
+                                        return Row(
+                                          children: [
+                                            Expanded(
+                                              child: Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  side: BorderSide(
+                                                    color: navButtonPrimary
+                                                        .withOpacity(0.4),
+                                                  ),
+                                                ),
+                                                color: scaffoldBackgroundColor,
+                                                child: ListTile(
+                                                  title: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            snapData[1][index][
+                                                                'jenis_kebutuhan'],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              snapData[1][index]
+                                                                          [
+                                                                          'persentase_kebutuhan'] >=
+                                                                      100
+                                                                  ? Row(
+                                                                      children: [
+                                                                        responsiveText(
+                                                                            snapData[1][index]['persentase_kebutuhan'].toString().length > 5
+                                                                                ? snapData[1][index]['persentase_kebutuhan'].toString().substring(0, 5)
+                                                                                : snapData[1][index]['persentase_kebutuhan'].toString(),
+                                                                            15,
+                                                                            FontWeight.normal,
+                                                                            Colors.red),
+                                                                        responsiveText(
+                                                                            "%",
+                                                                            15,
+                                                                            FontWeight.normal,
+                                                                            Colors.red)
+                                                                      ],
+                                                                    )
+                                                                  : Row(
+                                                                      children: [
+                                                                        responsiveText(
+                                                                            snapData[1][index]['persentase_kebutuhan'].toString().length > 5
+                                                                                ? snapData[1][index]['persentase_kebutuhan'].toString().substring(0, 5)
+                                                                                : snapData[1][index]['persentase_kebutuhan'].toString(),
+                                                                            15,
+                                                                            FontWeight.normal,
+                                                                            Colors.green),
+                                                                        responsiveText(
+                                                                            "%",
+                                                                            15,
+                                                                            FontWeight.normal,
+                                                                            Colors.green)
+                                                                      ],
+                                                                    )
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else if (snapData[0] == 404) {
+                              return noData();
+                            }
+                          }
+
+                          return loadingIndicator();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
