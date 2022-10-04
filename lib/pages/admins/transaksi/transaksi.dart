@@ -13,16 +13,18 @@ import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
+final List _kodeMaster = List.empty(growable: true);
 final List _kodePerkiraan = List.empty(growable: true);
 final List _kodeTransaksiAdded = List.empty(growable: true);
 final List _kodeTransaksi = List.empty(growable: true);
 final List _kodeRefKegiatan = List.empty(growable: true);
+final List _kodePerkiraanSingleKegiatan = List.empty(growable: true);
 final List<DataRow> _rowList = List.empty(growable: true);
 
 int _totalPemasukan = 0;
 int _totalPengeluaran = 0;
 int _totalSaldo = 0;
-int _AkunSaldo = 0;
+int _akunSaldo = 0;
 
 String _singleKodeTransaksi = "";
 String _kodeTransaksiCount = "000";
@@ -48,7 +50,7 @@ class _AdminControllerTransaksiPageState
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
-    _AkunSaldo = 0;
+    _akunSaldo = 0;
     super.initState();
   }
 
@@ -139,7 +141,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
-    _AkunSaldo = 0;
+    _akunSaldo = 0;
 
     kodeTransaksiFilter = "";
     kodePerkiraanFilter = "";
@@ -153,10 +155,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
       }
     });
 
-    _getKodePerkiraan(kodeGereja);
     _getKodeTransaksiAdded(kodeGereja);
-    // _getKodeTransaksi(kodeGereja);
-    // _getKodeRefKegiatan(kodeGereja);
+    _getMasterKode(kodeGereja);
     _getTransaksi(kodeGereja);
 
     formattedDate1 = DateFormat('dd-MM-yyyy').format(selectedDate1);
@@ -191,15 +191,31 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     super.dispose();
   }
 
-  Future _getKodePerkiraan(kodeGereja) async {
+  Future _getKodePerkiraan(kodeGereja, headerKodePerkiraan) async {
     _kodePerkiraan.clear();
 
-    var response = await servicesUser.getKodePerkiraan(kodeGereja);
+    var response =
+        await servicesUser.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
         _kodePerkiraan.add(
             "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  Future _getMasterKode(kodeGereja) async {
+    _kodeMaster.clear();
+
+    var response = await servicesUser.getMasterKode(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(element.toString());
+        _kodeMaster.add(
+            "${element['header_kode_perkiraan']} - ${element['nama_header']}");
       }
     } else {
       throw "Gagal Mengambil Data";
@@ -801,12 +817,12 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
   Future _getSaldoAkun(kodeGereja, kodePerkiraan) async {
     var response = await servicesUser.getSaldoAkun(kodeGereja, kodePerkiraan);
-    _AkunSaldo = 0;
+    _akunSaldo = 0;
     if (response[0] != 404) {
-      _AkunSaldo = response[1]['nominal'];
+      _akunSaldo = response[1]['nominal'];
       debugPrint(response[1].toString());
     } else {
-      _AkunSaldo = 0;
+      _akunSaldo = 0;
     }
   }
 
@@ -1224,56 +1240,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                 const SizedBox(
                                   height: 25,
                                 ),
-                                const Divider(
-                                  height: 56,
-                                ),
-                                //Kas or Bank
-                                Card(
-                                  color: primaryColor,
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: DropdownSearch<dynamic>(
-                                    popupProps: PopupProps.menu(
-                                      showSearchBox: true,
-                                      searchFieldProps: TextFieldProps(
-                                        decoration: InputDecoration(
-                                          border: const OutlineInputBorder(),
-                                          hintText: "Cari Disini",
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              _controllerDropdownFilter.clear();
-                                            },
-                                            icon: Icon(
-                                              Icons.clear,
-                                              color:
-                                                  Colors.black.withOpacity(0.5),
-                                            ),
-                                          ),
-                                        ),
-                                        controller: _controllerDropdownFilter,
-                                      ),
-                                    ),
-                                    items: _kodePerkiraan,
-                                    onChanged: (val) {
-                                      selectedKodePerkiraan = val;
-                                      debugPrint(selectedKodePerkiraan);
-                                      debugPrint(
-                                          _splitString(selectedKodePerkiraan));
-                                      debugPrint(_buatKodeGabungan(
-                                          selectedKodePerkiraan));
-                                      var kodeAkun =
-                                          _splitString(selectedKodePerkiraan);
-                                      debugPrint(kodeAkun);
-                                      _getSaldoAkun(kodeGereja, kodeAkun)
-                                          .whenComplete(() => setState(() {}));
-                                    },
-                                    selectedItem: selectedKodePerkiraan,
-                                  ),
-                                ),
-                                _cardInfo(
-                                  "Saldo Total",
-                                  _AkunSaldo,
-                                ),
                                 const SizedBox(
                                   height: 25,
                                 ),
@@ -1308,8 +1274,12 @@ class BuatKodeKeuanganPage extends StatefulWidget {
 
 class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   ServicesUser servicesUser = ServicesUser();
+  late Future kodeMaster;
   late Future kodePerkiraan;
   late Future kodeTransaksi;
+
+  final _controllerMasterKode = TextEditingController();
+  final _controllerNamaMasterKode = TextEditingController();
 
   final _controllerKodePerkiraan = TextEditingController();
   final _controllerNamaKodePerkiraan = TextEditingController();
@@ -1321,8 +1291,9 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   void initState() {
     // TODO: implement initState
 
-    kodePerkiraan = servicesUser.getKodePerkiraan(kodeGereja);
+    kodeMaster = servicesUser.getMasterKode(kodeGereja);
     kodeTransaksi = servicesUser.getKodeTransaksi(kodeGereja);
+    kodePerkiraan = servicesUser.getKodePerkiraan(kodeGereja, "M001");
 
     super.initState();
   }
@@ -1330,6 +1301,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   @override
   void dispose() {
     // TODO: implement dispose
+    _controllerMasterKode.dispose();
+    _controllerNamaMasterKode.dispose();
     _controllerKodePerkiraan.dispose();
     _controllerNamaKodePerkiraan.dispose();
     _controllerKodeTransaksi.dispose();
@@ -1374,7 +1347,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     );
   }
 
-  _showBuatKodePerkiraanDialog(dw, dh) {
+  _showBuatKodePerkiraanDialog(dw, dh, headerKodePerkiraan) {
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1483,6 +1456,152 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                 .capitalize(),
                                             _controllerKodePerkiraan.text
                                                 .toUpperCase(),
+                                            headerKodePerkiraan,
+                                            context)
+                                        .then(
+                                      (value) {
+                                        _controllerKodePerkiraan.clear();
+                                        _controllerNamaKodePerkiraan.clear();
+                                        Navigator.pop(context);
+                                      },
+                                    );
+                                  }
+                                },
+                                child: const Text("Tambah"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      if (mounted) {
+        kodePerkiraan = servicesUser
+            .getKodePerkiraan(kodeGereja, headerKodePerkiraan)
+            .whenComplete(() => setState(() {}));
+      }
+    });
+  }
+
+  _showBuatMasterKodeDialog(dw, dh) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              responsiveText("Tambah Kode Master", 26,
+                                  FontWeight.w700, lightText),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Kode Master", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerMasterKode, null),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveText("Nama Kode Master", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerNamaMasterKode, null),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    _controllerMasterKode.clear();
+                                    _controllerNamaMasterKode.clear();
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    postMasterKode(
+                                            kodeGereja,
+                                            _controllerNamaMasterKode.text
+                                                .capitalize(),
+                                            _controllerMasterKode.text
+                                                .toUpperCase(),
                                             context)
                                         .then(
                                       (value) {
@@ -1512,8 +1631,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
       },
     ).then((value) {
       if (mounted) {
-        kodePerkiraan = servicesUser
-            .getKodePerkiraan(kodeGereja)
+        kodeMaster = servicesUser
+            .getMasterKode(kodeGereja)
             .whenComplete(() => setState(() {}));
       }
     });
@@ -1725,10 +1844,41 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     });
   }
 
-  Future postKodePerkiraan(
-      kodeGereja, namaKodePerkiraan, kodePerkiraan, context) async {
+  Future postMasterKode(
+      kodeGereja, namaMasterKode, masterKodePerkiraan, context) async {
+    var response = await servicesUser.inputMasterKode(
+        kodeGereja, namaMasterKode, masterKodePerkiraan);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future deleteMasterKode(kodeGereja, kodePerkiraan, context) async {
+    var response =
+        await servicesUser.deleteKodePerkiraan(kodeGereja, kodePerkiraan);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future postKodePerkiraan(kodeGereja, namaKodePerkiraan, kodePerkiraan,
+      headerKodePerkiraan, context) async {
     var response = await servicesUser.inputKodePerkiraan(
-        kodeGereja, namaKodePerkiraan, kodePerkiraan);
+        kodeGereja, namaKodePerkiraan, kodePerkiraan, headerKodePerkiraan);
 
     if (response[0] != 404) {
       return true;
@@ -1785,6 +1935,268 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
         ),
       );
     }
+  }
+
+  confirmDialogDelKode(dw, dh, kode, type) {
+    showDialog(
+      barrierDismissible: false,
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 56, horizontal: 25),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            children: [
+                              responsiveText("Anda Yakin Ingin Menghapus", 24,
+                                  FontWeight.w800, darkText),
+                              responsiveText("Kode $kode ?", 24,
+                                  FontWeight.w800, darkText),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 56,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: cancelButtonColor,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 32, vertical: 16),
+                                  textStyle: GoogleFonts.nunito(
+                                      color: lightText,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14,
+                                      letterSpacing: 0.125),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (type == 0) {
+                                    deleteKodeTransaksi(
+                                            kodeGereja, kode, context)
+                                        .whenComplete(() {
+                                      Navigator.pop(context);
+                                      kodeTransaksi = servicesUser
+                                          .getKodeTransaksi(kodeGereja);
+                                      setState(() {});
+                                    });
+                                  } else {
+                                    // deleteKodePerkiraan(
+                                    //         kodeGereja, kode, context)
+                                    //     .whenComplete(() {
+                                    //   Navigator.pop(context);
+                                    //   kodePerkiraan = servicesUser
+                                    //       .getKodePerkiraan(kodeGereja);
+                                    //   setState(() {});
+                                    // });
+                                  }
+                                },
+                                child: const Text("Hapus"),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      setState(() {});
+    });
+  }
+
+  showKodePerkiraan(dw, dh, headerKodePerkiraan) {
+    showDialog(
+      barrierDismissible: false,
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 25, horizontal: 25),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(
+                                    Icons.arrow_back_ios_new_rounded),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              responsiveText("Kode Master $headerKodePerkiraan",
+                                  26, FontWeight.w900, darkText),
+                              const Spacer(),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 16),
+                                ),
+                                onPressed: () {
+                                  _showBuatKodePerkiraanDialog(
+                                      dw, dh, headerKodePerkiraan);
+                                },
+                                child: const Icon(Icons.add),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            thickness: 1,
+                            height: 56,
+                          ),
+                          Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: navButtonPrimary.withOpacity(0.4),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: FutureBuilder(
+                                future: kodePerkiraan,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    debugPrint(snapData.toString());
+                                    if (snapData[0] != 404) {
+                                      return ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData[1].length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            color: scaffoldBackgroundColor,
+                                            child: ListTile(
+                                              dense: true,
+                                              minLeadingWidth: 85,
+                                              leading: responsiveText(
+                                                  snapData[1][index]
+                                                      ['kode_perkiraan'],
+                                                  16,
+                                                  FontWeight.w600,
+                                                  darkText),
+                                              title: Row(
+                                                children: [
+                                                  SizedBox(
+                                                    height: 25,
+                                                    child: VerticalDivider(
+                                                      color: dividerColor,
+                                                    ),
+                                                  ),
+                                                  responsiveText(
+                                                      snapData[1][index][
+                                                          'nama_kode_perkiraan'],
+                                                      16,
+                                                      FontWeight.w600,
+                                                      darkText),
+                                                  const Spacer(),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      confirmDialogDelKode(
+                                                          dw,
+                                                          dh,
+                                                          snapData[1][index][
+                                                              'kode_perkiraan'],
+                                                          1);
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.delete_rounded),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    } else if (snapData[0] == 404) {
+                                      return noData();
+                                    }
+                                  }
+                                  return loadingIndicator();
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -1927,20 +2339,15 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                               const Spacer(),
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  deleteKodeTransaksi(
-                                                                          kodeGereja,
-                                                                          snapData[1][index]
+                                                                  confirmDialogDelKode(
+                                                                      deviceWidth,
+                                                                      deviceHeight,
+                                                                      snapData[1]
                                                                               [
-                                                                              'kode_transaksi'],
-                                                                          context)
-                                                                      .whenComplete(
-                                                                          () {
-                                                                    kodeTransaksi =
-                                                                        servicesUser
-                                                                            .getKodeTransaksi(kodeGereja);
-                                                                    setState(
-                                                                        () {});
-                                                                  });
+                                                                              index]
+                                                                          [
+                                                                          'kode_transaksi'],
+                                                                      0);
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -1975,16 +2382,16 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          responsiveText("Kode Perkiraan", 20,
+                                          responsiveText("Kode Master", 20,
                                               FontWeight.w700, darkText),
                                           ElevatedButton(
                                             onPressed: () {
-                                              _showBuatKodePerkiraanDialog(
+                                              _showBuatMasterKodeDialog(
                                                   deviceWidth, deviceHeight);
                                             },
                                             child: Row(
                                               children: const [
-                                                Text("Buat Kode Perkiraan"),
+                                                Text("Buat Kode Master"),
                                               ],
                                             ),
                                           ),
@@ -2005,7 +2412,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),
                                           child: FutureBuilder(
-                                            future: kodePerkiraan,
+                                            future: kodeMaster,
                                             builder: (context, snapshot) {
                                               if (snapshot.hasData) {
                                                 List snapData =
@@ -2033,7 +2440,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                           leading: responsiveText(
                                                               snapData[1][index]
                                                                   [
-                                                                  'kode_perkiraan'],
+                                                                  'header_kode_perkiraan'],
                                                               16,
                                                               FontWeight.w600,
                                                               darkText),
@@ -2051,7 +2458,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                   snapData[1][
                                                                           index]
                                                                       [
-                                                                      'nama_kode_perkiraan'],
+                                                                      'nama_header'],
                                                                   16,
                                                                   FontWeight
                                                                       .w600,
@@ -2059,24 +2466,49 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                               const Spacer(),
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  deleteKodePerkiraan(
-                                                                          kodeGereja,
-                                                                          snapData[1][index]
+                                                                  confirmDialogDelKode(
+                                                                      deviceWidth,
+                                                                      deviceHeight,
+                                                                      snapData[1]
                                                                               [
-                                                                              'kode_perkiraan'],
-                                                                          context)
-                                                                      .whenComplete(
-                                                                          () {
-                                                                    kodePerkiraan =
-                                                                        servicesUser
-                                                                            .getKodePerkiraan(kodeGereja);
-                                                                    setState(
-                                                                        () {});
-                                                                  });
+                                                                              index]
+                                                                          [
+                                                                          'header_kode_perkiraan'],
+                                                                      1);
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .delete_rounded),
+                                                              ),
+                                                              ElevatedButton(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(12),
+                                                                  shape:
+                                                                      const CircleBorder(),
+                                                                ),
+                                                                onPressed: () {
+                                                                  kodePerkiraan = servicesUser.getKodePerkiraan(
+                                                                      kodeGereja,
+                                                                      snapData[1]
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'header_kode_perkiraan']);
+                                                                  showKodePerkiraan(
+                                                                      deviceWidth,
+                                                                      deviceHeight,
+                                                                      snapData[1]
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'header_kode_perkiraan']);
+                                                                },
+                                                                child: const Icon(
+                                                                    Icons
+                                                                        .arrow_forward_rounded),
                                                               ),
                                                             ],
                                                           ),
@@ -2193,20 +2625,15 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                               const Spacer(),
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  deleteKodeTransaksi(
-                                                                          kodeGereja,
-                                                                          snapData[1][index]
+                                                                  confirmDialogDelKode(
+                                                                      deviceWidth,
+                                                                      deviceHeight,
+                                                                      snapData[1]
                                                                               [
-                                                                              'kode_transaksi'],
-                                                                          context)
-                                                                      .whenComplete(
-                                                                          () {
-                                                                    kodeTransaksi =
-                                                                        servicesUser
-                                                                            .getKodeTransaksi(kodeGereja);
-                                                                    setState(
-                                                                        () {});
-                                                                  });
+                                                                              index]
+                                                                          [
+                                                                          'kode_transaksi'],
+                                                                      0);
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -2240,16 +2667,16 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          responsiveText("Kode Perkiraan", 20,
+                                          responsiveText("Kode Master", 20,
                                               FontWeight.w700, darkText),
                                           ElevatedButton(
                                             onPressed: () {
-                                              _showBuatKodePerkiraanDialog(
+                                              _showBuatMasterKodeDialog(
                                                   deviceWidth, deviceHeight);
                                             },
                                             child: Row(
                                               children: const [
-                                                Text("Buat Kode Perkiraan"),
+                                                Text("Buat Kode Master"),
                                               ],
                                             ),
                                           ),
@@ -2270,7 +2697,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(16),
                                           child: FutureBuilder(
-                                            future: kodePerkiraan,
+                                            future: kodeMaster,
                                             builder: (context, snapshot) {
                                               if (snapshot.hasData) {
                                                 List snapData =
@@ -2298,7 +2725,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                           leading: responsiveText(
                                                               snapData[1][index]
                                                                   [
-                                                                  'kode_perkiraan'],
+                                                                  'header_kode_perkiraan'],
                                                               16,
                                                               FontWeight.w600,
                                                               darkText),
@@ -2316,7 +2743,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                   snapData[1][
                                                                           index]
                                                                       [
-                                                                      'nama_kode_perkiraan'],
+                                                                      'nama_header'],
                                                                   16,
                                                                   FontWeight
                                                                       .w600,
@@ -2324,24 +2751,49 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                               const Spacer(),
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  deleteKodePerkiraan(
-                                                                          kodeGereja,
-                                                                          snapData[1][index]
+                                                                  confirmDialogDelKode(
+                                                                      deviceWidth,
+                                                                      deviceHeight,
+                                                                      snapData[1]
                                                                               [
-                                                                              'kode_perkiraan'],
-                                                                          context)
-                                                                      .whenComplete(
-                                                                          () {
-                                                                    kodePerkiraan =
-                                                                        servicesUser
-                                                                            .getKodePerkiraan(kodeGereja);
-                                                                    setState(
-                                                                        () {});
-                                                                  });
+                                                                              index]
+                                                                          [
+                                                                          'header_kode_perkiraan'],
+                                                                      1);
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .delete_rounded),
+                                                              ),
+                                                              ElevatedButton(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(12),
+                                                                  shape:
+                                                                      const CircleBorder(),
+                                                                ),
+                                                                onPressed: () {
+                                                                  kodePerkiraan = servicesUser.getKodePerkiraan(
+                                                                      kodeGereja,
+                                                                      snapData[1]
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'header_kode_perkiraan']);
+                                                                  showKodePerkiraan(
+                                                                      deviceWidth,
+                                                                      deviceHeight,
+                                                                      snapData[1]
+                                                                              [
+                                                                              index]
+                                                                          [
+                                                                          'header_kode_perkiraan']);
+                                                                },
+                                                                child: const Icon(
+                                                                    Icons
+                                                                        .arrow_forward_rounded),
                                                               ),
                                                             ],
                                                           ),
@@ -2390,6 +2842,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
   final _controllerNominal = TextEditingController();
   final _controllerKeterangan = TextEditingController();
+  String kodeMaster = "";
   String kodePerkiraan = "";
   String kodeRefKegiatan = "";
 
@@ -2406,6 +2859,11 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   String selectedKodeRefKegiatan = "Pilih Kode Referensi";
   String selectedKodeTransaksi = "Pilih Kode Transaksi";
 
+  final clearKodeRef =
+      const ClearButtonProps(icon: Icon(Icons.clear), isVisible: true);
+  final clearKodePerkiraan =
+      const ClearButtonProps(icon: Icon(Icons.clear), isVisible: true);
+
   @override
   void initState() {
     // TODO: implement initState
@@ -2420,9 +2878,10 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
     _singleKodeTransaksi = "";
     _kodeTransaksiCount = "000";
-    _getKodePerkiraan(kodeGereja);
+    _getMasterKode(kodeGereja);
     _getKodeTransaksi(kodeGereja);
     _getKodeRefKegiatan(kodeGereja);
+    _getKodePerkiraanSingleKegiatan(kodeGereja, "");
 
     formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
     date = formattedDate;
@@ -2541,15 +3000,47 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     );
   }
 
-  Future _getKodePerkiraan(kodeGereja) async {
+  Future _getMasterKode(kodeGereja) async {
+    _kodeMaster.clear();
+
+    var response = await servicesUser.getMasterKode(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(element.toString());
+        _kodeMaster.add(
+            "${element['header_kode_perkiraan']} - ${element['nama_header']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  Future _getKodePerkiraan(kodeGereja, headerKodePerkiraan) async {
     _kodePerkiraan.clear();
 
-    var response = await servicesUser.getKodePerkiraan(kodeGereja);
+    var response =
+        await servicesUser.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
         _kodePerkiraan.add(
             "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  Future _getKodePerkiraanSingleKegiatan(kodeGereja, kodeKegiatan) async {
+    _kodePerkiraanSingleKegiatan.clear();
+
+    var response = await servicesUser.getKodePerkiraanSingleKegiatan(
+        kodeGereja, kodeKegiatan);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(element.toString());
+        _kodePerkiraanSingleKegiatan.add(
+            "${element['header_kode_perkiraan']}.${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
       }
     } else {
       throw "Gagal Mengambil Data";
@@ -2601,6 +3092,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   Future _postTransaksi(
       kodeGereja,
       kodeTransaksi,
+      kodeMaster,
       kodePerkiraan,
       kodeRefKegiatan,
       tanggalTransaksi,
@@ -2610,11 +3102,13 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     var response = await servicesUser.inputTransaksi(
         kodeGereja,
         kodeTransaksi,
+        kodeMaster,
         kodePerkiraan,
         kodeRefKegiatan,
         tanggalTransaksi,
         deskripsiTransaksi,
         nominalTransaksi);
+
     if (response[0] != 404) {
       return true;
     } else {
@@ -2657,6 +3151,15 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   _buatKodeGabungan(val) {
     var temp = kodeGereja + _splitString(val);
     return temp;
+  }
+
+  _splitKodeMasterDanPerkiraan(val) {
+    var value = val.toString();
+    var splitDot = value.indexOf(".");
+    var splitSpace = value.indexOf(" ");
+    var master = value.substring(0, splitDot);
+    var perkiraan = value.substring(splitDot + 1, splitSpace);
+    return [master, perkiraan];
   }
 
   Future<void> selectDate(context) async {
@@ -2703,6 +3206,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     date = formattedDate;
     kodeRefKegiatan = "";
     kodePerkiraan = "";
+    kodeMaster = "";
     tempItemTransaksi.clear();
 
     showDialog(
@@ -2773,56 +3277,6 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                   const Divider(
                                     height: 25,
                                   ),
-                                  //TODO: Input Kode Perkiraan Dialog
-                                  responsiveText("Kode Perkiraan", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Card(
-                                    color: surfaceColor,
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 10),
-                                    child: DropdownSearch<dynamic>(
-                                      popupProps: PopupProps.menu(
-                                        showSearchBox: true,
-                                        searchFieldProps: TextFieldProps(
-                                          decoration: InputDecoration(
-                                            border: const OutlineInputBorder(),
-                                            hintText: "Cari Disini",
-                                            suffixIcon: IconButton(
-                                              onPressed: () {
-                                                _controllerDropdownFilter
-                                                    .clear();
-                                              },
-                                              icon: Icon(
-                                                Icons.clear,
-                                                color: Colors.black
-                                                    .withOpacity(0.5),
-                                              ),
-                                            ),
-                                          ),
-                                          controller: _controllerDropdownFilter,
-                                        ),
-                                      ),
-                                      items: _kodePerkiraan,
-                                      onChanged: (val) {
-                                        selectedKodePerkiraan = val;
-                                        debugPrint(selectedKodePerkiraan);
-                                        debugPrint(_splitString(
-                                            selectedKodePerkiraan));
-                                        debugPrint(_buatKodeGabungan(
-                                            selectedKodePerkiraan));
-                                        kodePerkiraan =
-                                            _splitString(selectedKodePerkiraan);
-                                        debugPrint(kodePerkiraan);
-                                      },
-                                      selectedItem: selectedKodePerkiraan,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
                                   //TODO: Input Kode Referensi Dialog
                                   responsiveText("Kode Referensi Kegiatan", 16,
                                       FontWeight.w700, darkText),
@@ -2834,6 +3288,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                     margin: const EdgeInsets.symmetric(
                                         vertical: 10),
                                     child: DropdownSearch<dynamic>(
+                                      clearButtonProps: clearKodeRef,
                                       popupProps: PopupProps.menu(
                                         showSearchBox: true,
                                         searchFieldProps: TextFieldProps(
@@ -2857,21 +3312,118 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                       ),
                                       items: _kodeRefKegiatan,
                                       onChanged: (val) {
-                                        selectedKodeRefKegiatan = val;
-                                        debugPrint(selectedKodeRefKegiatan);
-                                        debugPrint(_splitString(
-                                            selectedKodeRefKegiatan));
-                                        debugPrint(_buatKodeGabungan(
-                                            selectedKodeRefKegiatan));
-                                        kodeRefKegiatan = _splitString(
-                                            selectedKodeRefKegiatan);
+                                        if (val == null) {
+                                          selectedKodeRefKegiatan =
+                                              "Pilih Kode Referensi";
+                                          kodeRefKegiatan = "";
+                                          selectedKodePerkiraan =
+                                              "Pilih Kode Perkiraan";
+                                          kodePerkiraan = "";
+                                          _getKodePerkiraanSingleKegiatan(
+                                                  kodeGereja, "")
+                                              .whenComplete(
+                                                  () => setState(() {}));
+                                        } else {
+                                          selectedKodePerkiraan =
+                                              "Pilih Kode Perkiraan";
+                                          _kodePerkiraanSingleKegiatan.clear();
+                                          selectedKodeRefKegiatan = val;
+                                          debugPrint(selectedKodeRefKegiatan);
+                                          debugPrint(_splitString(
+                                              selectedKodeRefKegiatan));
+                                          debugPrint(_buatKodeGabungan(
+                                              selectedKodeRefKegiatan));
+                                          kodeRefKegiatan = _splitString(
+                                              selectedKodeRefKegiatan);
+                                          _getKodePerkiraanSingleKegiatan(
+                                                  kodeGereja, kodeRefKegiatan)
+                                              .whenComplete(() {
+                                            setState(() {});
+                                          });
+                                        }
                                         debugPrint(kodeRefKegiatan);
+                                        if (mounted) {
+                                          setState(() {});
+                                        }
                                       },
                                       selectedItem: selectedKodeRefKegiatan,
                                     ),
                                   ),
                                   responsiveText("*Biarkan Kalau Tidak Ada", 12,
                                       FontWeight.w700, Colors.red),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      //TODO: Input Kode Perkiraan Dialog
+                                      responsiveText("Kode Perkiraan", 16,
+                                          FontWeight.w700, darkText),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Card(
+                                        color: surfaceColor,
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        child: DropdownSearch<dynamic>(
+                                          clearButtonProps: clearKodeRef,
+                                          popupProps: PopupProps.menu(
+                                            showSearchBox: true,
+                                            searchFieldProps: TextFieldProps(
+                                              decoration: InputDecoration(
+                                                border:
+                                                    const OutlineInputBorder(),
+                                                hintText: "Cari Disini",
+                                                suffixIcon: IconButton(
+                                                  onPressed: () {
+                                                    _controllerDropdownFilter
+                                                        .clear();
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.clear,
+                                                    color: Colors.black
+                                                        .withOpacity(0.5),
+                                                  ),
+                                                ),
+                                              ),
+                                              controller:
+                                                  _controllerDropdownFilter,
+                                            ),
+                                          ),
+                                          items: _kodePerkiraanSingleKegiatan,
+                                          onChanged: (val) {
+                                            if (val == null) {
+                                              selectedKodePerkiraan =
+                                                  "Pilih Kode Perkiraan";
+                                              kodePerkiraan = "";
+                                            } else {
+                                              selectedKodePerkiraan = val;
+                                              debugPrint(selectedKodePerkiraan);
+                                              debugPrint(_splitString(
+                                                  selectedKodePerkiraan));
+                                              debugPrint(_buatKodeGabungan(
+                                                  selectedKodePerkiraan));
+                                              kodeMaster =
+                                                  _splitKodeMasterDanPerkiraan(
+                                                      val)[0];
+                                              kodePerkiraan =
+                                                  _splitKodeMasterDanPerkiraan(
+                                                      val)[1];
+                                            }
+                                            debugPrint(kodeMaster);
+                                            debugPrint(kodePerkiraan);
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+                                          },
+                                          selectedItem: selectedKodePerkiraan,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
 
                                   const SizedBox(
                                     height: 10,
@@ -3001,31 +3553,43 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  //Print
-                                  debugPrint(kodeTransaksi);
-                                  debugPrint(kodePerkiraan);
-                                  debugPrint(kodeRefKegiatan);
-                                  debugPrint(date);
-                                  debugPrint(_controllerNominal.text);
-                                  debugPrint(_controllerKeterangan.text);
+                                  if (kodePerkiraan == "" || kodeMaster == "") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            "Silahkan Pilih Kode Perkiraan Terlebih Dahulu"),
+                                      ),
+                                    );
+                                  } else {
+                                    //Print
+                                    debugPrint(kodeTransaksi);
+                                    debugPrint(kodeMaster);
+                                    debugPrint(kodePerkiraan);
+                                    debugPrint(kodeRefKegiatan);
+                                    debugPrint(date);
+                                    debugPrint(_controllerNominal.text);
+                                    debugPrint(_controllerKeterangan.text);
 
-                                  //Add
-                                  tempItemTransaksi.add(kodeTransaksi);
-                                  tempItemTransaksi.add(kodePerkiraan);
-                                  tempItemTransaksi.add(kodeRefKegiatan);
-                                  tempItemTransaksi.add(date);
-                                  tempItemTransaksi
-                                      .add(_controllerNominal.text);
-                                  tempItemTransaksi
-                                      .add(_controllerKeterangan.text);
+                                    //Add
+                                    tempItemTransaksi.add(kodeTransaksi);
+                                    tempItemTransaksi.add(kodeMaster);
+                                    tempItemTransaksi.add(kodePerkiraan);
+                                    tempItemTransaksi.add(kodeRefKegiatan);
+                                    tempItemTransaksi.add(date);
+                                    tempItemTransaksi
+                                        .add(_controllerNominal.text);
+                                    tempItemTransaksi
+                                        .add(_controllerKeterangan.text);
 
-                                  debugPrint(tempItemTransaksi.toString());
-                                  itemTransaksi.add(tempItemTransaksi.toList());
-                                  if (mounted) {
-                                    setState(() {});
+                                    debugPrint(tempItemTransaksi.toString());
+                                    itemTransaksi
+                                        .add(tempItemTransaksi.toList());
+                                    if (mounted) {
+                                      setState(() {});
+                                    }
+
+                                    Navigator.pop(context);
                                   }
-
-                                  Navigator.pop(context);
                                 },
                                 child: const Text("Tambah"),
                               ),
@@ -3236,7 +3800,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             Expanded(
                                               flex: 1,
                                               child: responsiveText(
-                                                  "${itemTransaksi[index][0]}-${itemTransaksi[index][1]}",
+                                                  "${itemTransaksi[index][0]}-${itemTransaksi[index][2]}",
                                                   16,
                                                   FontWeight.w600,
                                                   darkText),
@@ -3250,7 +3814,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             Expanded(
                                               flex: 1,
                                               child: responsiveText(
-                                                  itemTransaksi[index][3]
+                                                  itemTransaksi[index][4]
                                                       .toString(),
                                                   16,
                                                   FontWeight.w600,
@@ -3265,7 +3829,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             Expanded(
                                               flex: 3,
                                               child: responsiveText(
-                                                  itemTransaksi[index][5]
+                                                  itemTransaksi[index][6]
                                                       .toString(),
                                                   16,
                                                   FontWeight.w600,
@@ -3283,7 +3847,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                                   CurrencyFormat.convertToIdr(
                                                       int.parse(
                                                           itemTransaksi[index]
-                                                              [4]),
+                                                              [5]),
                                                       2),
                                                   16,
                                                   FontWeight.w600,
@@ -3334,16 +3898,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                             debugPrint(
                                 "${element[0]} - ${element[1]} - ${element[2]} - ${element[3]} - ${element[4]} - ${element[5]}");
 
-                            _postTransaksi(
-                                    kodeGereja,
-                                    element[0],
-                                    element[1],
-                                    element[2],
-                                    element[3],
-                                    element[5],
-                                    element[4],
-                                    context)
-                                .whenComplete(
+                                _postTransaksi(kodeGereja, element[0], element[1], element[2], element[3], element[4], element[6], element[5], context).whenComplete(
                               () {
                                 ctr++;
                                 if (ctr == itemTransaksi.length) {
@@ -3367,6 +3922,8 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                 }
                               },
                             );
+
+                          
                           }
                         },
                         child: Text(

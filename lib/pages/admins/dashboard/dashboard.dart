@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../globals.dart';
 import '../../../widgets/responsivetext.dart';
-import 'package:d_chart/d_chart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../../widgets/string_extension.dart';
 
@@ -416,7 +415,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-
                                   Container(
                                     padding: const EdgeInsets.all(0),
                                     width: double.infinity,
@@ -424,7 +422,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                     child: SfCartesianChart(
                                       enableAxisAnimation: true,
                                       legend: Legend(
-                                        textStyle: Theme.of(context).textTheme.subtitle2,
+                                        textStyle: Theme.of(context)
+                                            .textTheme
+                                            .subtitle2,
                                         isVisible: true,
                                         position: LegendPosition.top,
                                         alignment: ChartAlignment.center,
@@ -496,18 +496,30 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                             color: Colors.yellow,
                                             name: "Saldo",
                                             dataSource: <TransactionData>[
-                                              TransactionData('Jan', 10000000-5500000),
-                                              TransactionData('Feb', 7500000-2500000),
-                                              TransactionData('Mar', 8250000-4250000),
-                                              TransactionData('Apr', 5480000-3360000),
-                                              TransactionData('May', 7650000-6350000),
-                                              TransactionData('Jun', 8250000-2730000),
-                                              TransactionData('Jul', 7000000-5600000),
-                                              TransactionData('Aug', 5500000-3756000),
-                                              TransactionData('Sep', 5800000-4450000),
-                                              TransactionData('Okt', 4270000-3845000),
-                                              TransactionData('Nov', 8250000-4750000),
-                                              TransactionData('Dec', 4250000-3000000),
+                                              TransactionData(
+                                                  'Jan', 10000000 - 5500000),
+                                              TransactionData(
+                                                  'Feb', 7500000 - 2500000),
+                                              TransactionData(
+                                                  'Mar', 8250000 - 4250000),
+                                              TransactionData(
+                                                  'Apr', 5480000 - 3360000),
+                                              TransactionData(
+                                                  'May', 7650000 - 6350000),
+                                              TransactionData(
+                                                  'Jun', 8250000 - 2730000),
+                                              TransactionData(
+                                                  'Jul', 7000000 - 5600000),
+                                              TransactionData(
+                                                  'Aug', 5500000 - 3756000),
+                                              TransactionData(
+                                                  'Sep', 5800000 - 4450000),
+                                              TransactionData(
+                                                  'Okt', 4270000 - 3845000),
+                                              TransactionData(
+                                                  'Nov', 8250000 - 4750000),
+                                              TransactionData(
+                                                  'Dec', 4250000 - 3000000),
                                             ],
                                             xValueMapper:
                                                 (TransactionData sales, _) =>
@@ -777,7 +789,6 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -928,7 +939,6 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                           const SizedBox(
                             width: 25,
                           ),
-
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -940,7 +950,6 @@ class _AdminBuatBeritaPageState extends State<AdminBuatBeritaPage> {
                                 ),
                                 checkGambar()
                               ],
-
                             ),
                           ),
                         ],

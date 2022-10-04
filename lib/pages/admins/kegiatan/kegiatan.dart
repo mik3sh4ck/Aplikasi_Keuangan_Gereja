@@ -15,6 +15,7 @@ import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
 String _namaKegiatan = "";
+String _namaKegiatanRiwayat = "";
 String _kodeKegiatan = "";
 String _kodeKegiatanGabungan = "";
 String _kodeItemKebutuhan = "";
@@ -40,6 +41,11 @@ final List _user = [];
 final List _kodeKegiatanbuatList = [];
 final List _kodePerkiraan = [];
 
+final List<DataRow> _rowListForm = List.empty(growable: true);
+int _totalPemasukan = 0;
+int _totalPengeluaran = 0;
+int _totalSaldo = 0;
+
 class AdminControllerKegiatanPage extends StatefulWidget {
   const AdminControllerKegiatanPage({Key? key}) : super(key: key);
 
@@ -57,6 +63,7 @@ class _AdminControllerKegiatanPageState
   final _controllerPageDetailAbsensiKegiatan = PageController();
   final _controllerDetailPengeluaranKebutuhan = PageController();
   final _controllerPageListKode = PageController();
+  final _controllerPageForm = PageController();
 
   @override
   void initState() {
@@ -74,6 +81,7 @@ class _AdminControllerKegiatanPageState
     _controllerPageDetailAbsensiKegiatan.dispose();
     _controllerDetailPengeluaranKebutuhan.dispose();
     _controllerPageListKode.dispose();
+    _controllerPageForm.dispose();
     super.dispose();
   }
 
@@ -107,8 +115,17 @@ class _AdminControllerKegiatanPageState
                         controllerPageListKode: _controllerPageListKode)
                   ],
                 ),
-                HistoryKegiatan(
-                  controllerHistoryPageKegiatan: _controllerHistoryPageKegiatan,
+                PageView(
+                  controller: _controllerPageForm,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    HistoryKegiatan(
+                      controllerHistoryPageKegiatan:
+                          _controllerHistoryPageKegiatan,
+                      controllerPageForm: _controllerPageForm,
+                    ),
+                    FormHistory(controllerPageForm: _controllerPageForm)
+                  ],
                 ),
               ],
             ),
@@ -507,8 +524,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     }
   }
 
-  Future _getAllKodePerkiraanList(kodeGereja) async {
-    var response = await servicesUserItem.getKodePerkiraan(kodeGereja);
+  Future _getAllKodePerkiraanList(kodeGereja, headerKodePerkiraan) async {
+    var response = await servicesUserItem.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
     if (response[0] != 404) {
       _kodePerkiraan.clear();
       for (var element in response[1]) {
@@ -564,7 +581,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     // TODO: implement initState
     _getAllUser(kodeGereja);
     _getAllKodeKegiatanList(kodeGereja);
-    _getAllKodePerkiraanList(kodeGereja);
     super.initState();
   }
 
@@ -1262,7 +1278,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
+                        SizedBox(
                           width: deviceWidth / 2,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1897,6 +1913,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
   late Future kategoriDetailItemProposalKegiatan;
   late Future kategoriDetailAnggotaPIC;
   late Future kategoriDetailpre;
+  late Future kategoriDetailPemasukan;
 
   @override
   void initState() {
@@ -1905,6 +1922,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
         servicesUserItem.getAllItemProposalKegiatan(
             _kodeKegiatanGabungan, _kodeKegiatan, kodeGereja);
     kategoriDetailAnggotaPIC = servicesUserItem.getPIC(_kodeKegiatanGabungan);
+    kategoriDetailPemasukan =
+        servicesUserItem.getPemasukanDetail(kodeGereja, _kodeKegiatan);
     _getPresentase(_kodeKegiatanGabungan, _kodeKegiatan, kodeGereja)
         .whenComplete(() => setState(() {}));
     super.initState();
@@ -2156,20 +2175,31 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      //width: deviceWidth / 2 * 0.4,
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: primaryColorVariant,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
+                        //width: deviceWidth / 2 * 0.4,
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: primaryColorVariant,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                          border: Border.all(
+                            color: Colors.black.withOpacity(0.5),
+                          ),
                         ),
-                        border: Border.all(
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                      ),
-                      child: responsiveText("Presentase :  $_presentase %", 18,
-                          FontWeight.w500, darkText),
-                    )),
+                        child: Wrap(
+                          children: [
+                            responsiveText(
+                                "Presentase :", 18, FontWeight.w500, darkText),
+                            responsiveText(
+                                _presentase.length > 4
+                                    ? _presentase.substring(0, 4)
+                                    : _presentase,
+                                18,
+                                FontWeight.w500,
+                                darkText),
+                            responsiveText("%", 18, FontWeight.w500, darkText),
+                          ],
+                        ))),
                 const SizedBox(
                   height: 10,
                 ),
@@ -2421,8 +2451,28 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                         const SizedBox(
                                                           width: 5,
                                                         ),
-                                                        Text(
-                                                            "${snapData[1][index]['persentase_kebutuhan']} %"),
+                                                        Row(
+                                                          children: [
+                                                            Text(snapData[1][index]
+                                                                            [
+                                                                            'persentase_kebutuhan']
+                                                                        .toString()
+                                                                        .length >
+                                                                    4
+                                                                ? snapData[1][
+                                                                            index]
+                                                                        [
+                                                                        'persentase_kebutuhan']
+                                                                    .toString()
+                                                                    .substring(
+                                                                        0, 4)
+                                                                : snapData[1]
+                                                                            [index]
+                                                                        ['persentase_kebutuhan']
+                                                                    .toString()),
+                                                            const Text(" %"),
+                                                          ],
+                                                        ),
                                                         const SizedBox(
                                                           width: 5,
                                                         ),
@@ -2457,7 +2507,90 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                       ],
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 20,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        responsiveText(
+                            "Pemasukan", 20, FontWeight.w700, darkText),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: deviceWidth,
+                          decoration: BoxDecoration(
+                            color: cardColor,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            border: Border.all(
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                          ),
+                          //width: deviceWidth / 2,
+                          padding: const EdgeInsets.all(10),
+                          child: FutureBuilder(
+                            future: kategoriDetailPemasukan,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List snapData = snapshot.data! as List;
+                                if (snapData[0] != 404) {
+                                  return ScrollConfiguration(
+                                    behavior: ScrollConfiguration.of(context)
+                                        .copyWith(
+                                      dragDevices: {
+                                        PointerDeviceKind.touch,
+                                        PointerDeviceKind.mouse,
+                                      },
+                                    ),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.vertical,
+                                      controller: ScrollController(),
+                                      physics: const ClampingScrollPhysics(),
+                                      itemCount: snapData[1].length,
+                                      itemBuilder: (context, index) {
+                                        return Card(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            side: BorderSide(
+                                              color: navButtonPrimary
+                                                  .withOpacity(0.4),
+                                            ),
+                                          ),
+                                          color: scaffoldBackgroundColor,
+                                          child: ListTile(
+                                            title: responsiveText(
+                                                snapData[1][index]
+                                                    ['uraian_transaksi'],
+                                                18,
+                                                FontWeight.w700,
+                                                darkText),
+                                            subtitle: responsiveText(
+                                                "Rp. ${snapData[1][index]['nominal']}",
+                                                15,
+                                                FontWeight.w400,
+                                                darkText),
+                                            trailing: responsiveText(
+                                                snapData[1][index]
+                                                    ['tanggal_transaksi'],
+                                                15,
+                                                FontWeight.w400,
+                                                darkText),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }
+                              }
+                              return loadingIndicator();
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 )
@@ -2472,8 +2605,12 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
 
 //TODO: Riwayat kebutuhan kegiatan
 class HistoryKegiatan extends StatefulWidget {
+  final PageController controllerPageForm;
   final PageController controllerHistoryPageKegiatan;
-  const HistoryKegiatan({Key? key, required this.controllerHistoryPageKegiatan})
+  const HistoryKegiatan(
+      {Key? key,
+      required this.controllerHistoryPageKegiatan,
+      required this.controllerPageForm})
       : super(key: key);
 
   @override
@@ -2595,7 +2732,16 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                                             padding: const EdgeInsets.all(12),
                                             shape: const CircleBorder(),
                                           ),
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            _namaKegiatanRiwayat = snapData[1]
+                                                [index]['nama_kegiatan'];
+                                            widget.controllerPageForm
+                                                .animateToPage(
+                                                    1,
+                                                    duration: const Duration(
+                                                        milliseconds: 250),
+                                                    curve: Curves.ease);
+                                          },
                                           child: const Icon(
                                               Icons.format_list_bulleted_sharp),
                                         ),
@@ -2808,6 +2954,7 @@ class DetailAbsensiKegiatan extends StatefulWidget {
 class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
   ServicesUser servicesUser = ServicesUser();
   late Future kategoriDetailAbsensiKegiatan;
+  late Future kategoriDetailAnggotaPICAbsen;
 
   final _controllerJumlahHadir = TextEditingController();
 
@@ -2816,6 +2963,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
     // TODO: implement initState
     kategoriDetailAbsensiKegiatan =
         servicesUser.getAllProposalKegiatan("gms001");
+    kategoriDetailAnggotaPICAbsen = servicesUser.getPIC(_kodeKegiatanGabungan);
     super.initState();
   }
 
@@ -2950,10 +3098,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                             color: Colors.black.withOpacity(0.5),
                           ),
                         ),
-                        //width: deviceWidth / 2,
                         padding: const EdgeInsets.all(10),
                         child: FutureBuilder(
-                          future: kategoriDetailAbsensiKegiatan,
+                          future: kategoriDetailAnggotaPICAbsen,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               List snapData = snapshot.data! as List;
@@ -2971,7 +3118,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                     scrollDirection: Axis.vertical,
                                     controller: ScrollController(),
                                     physics: const ClampingScrollPhysics(),
-                                    itemCount: 5,
+                                    itemCount: snapData[1].length,
                                     itemBuilder: (context, index) {
                                       return Card(
                                         shape: RoundedRectangleBorder(
@@ -2984,8 +3131,11 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                         ),
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
-                                          title: const Text(
-                                            "Nama",
+                                          title: Text(
+                                            snapData[1][index]['kode_user'],
+                                          ),
+                                          subtitle: Text(
+                                            snapData[1][index]['peran'],
                                           ),
                                           trailing: ToggleSwitch(
                                             minWidth: 40,
@@ -3600,7 +3750,9 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                                       'kode_kategori_kegiatan'],
                                                   context)
                                               .whenComplete(() {
-                                            kategoriDetailPengeluaran = servicesUser.getKodeKegiatan(kodeGereja);
+                                            kategoriDetailPengeluaran =
+                                                servicesUser.getKodeKegiatan(
+                                                    kodeGereja);
                                             setState(() {});
                                           });
                                         },
@@ -3624,6 +3776,314 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class FormHistory extends StatefulWidget {
+  final PageController controllerPageForm;
+  const FormHistory({super.key, required this.controllerPageForm});
+
+  @override
+  State<FormHistory> createState() => _FormHistoryState();
+}
+
+class _FormHistoryState extends State<FormHistory> {
+  ServicesUser servicesUser = ServicesUser();
+
+  @override
+  void initState() {
+    _rowListForm.clear();
+    _totalPemasukan = 0;
+    _totalPengeluaran = 0;
+    _totalSaldo = 0;
+    _getTransaksi(kodeGereja);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  Future _getTransaksi(kodeGereja) async {
+    _rowListForm.clear();
+    _totalPemasukan = 0;
+    _totalPengeluaran = 0;
+    _totalSaldo = 0;
+    var response = await servicesUser.getTransaksi(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowTransaksi(
+            element['kode_transaksi'],
+            element['tanggal_transaksi'],
+            element['uraian_transaksi'],
+            element['jenis_transaksi'],
+            element['nominal']);
+        if (element['jenis_transaksi'] == "pemasukan") {
+          _totalPemasukan += element['nominal'] as int;
+        } else {
+          _totalPengeluaran += element['nominal'] as int;
+        }
+      }
+      _totalSaldo = _totalPemasukan - _totalPengeluaran;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _addRowTransaksi(kode, tanggal, deskripsi, jenis, nominal) {
+    _rowListForm.add(
+      DataRow(
+        cells: [
+          DataCell(
+            Text(
+              kode.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              tanggal.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              deskripsi.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pemasukan" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pengeluaran" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
+      child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          controller: ScrollController(),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            width: deviceWidth,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      onPressed: () {
+                        widget.controllerPageForm.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                    ),
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    Text(
+                      "Form Riwayat Kegiatan $_namaKegiatanRiwayat",
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                  ],
+                ),
+                const Divider(
+                  thickness: 1,
+                  height: 56,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: deviceWidth < 1280
+                                ? SingleChildScrollView(
+                                    physics: const ClampingScrollPhysics(),
+                                    controller: ScrollController(),
+                                    scrollDirection: Axis.horizontal,
+                                    child: DataTable(
+                                      border: TableBorder.all(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.black.withOpacity(0.5),
+                                        style: BorderStyle.solid,
+                                      ),
+                                      headingRowHeight: 70,
+                                      dataRowHeight: 56,
+                                      columns: [
+                                        DataColumn(
+                                          label: Text(
+                                            "Kode",
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Text(
+                                            "Tanggal",
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Text(
+                                            "Deskripsi",
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Text(
+                                            "Pemasukan",
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Text(
+                                            "Pengeluaran",
+                                            style: GoogleFonts.nunito(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      rows: List.generate(
+                                        _rowListForm.length,
+                                        (index) {
+                                          return DataRow(
+                                              color: MaterialStateColor
+                                                  .resolveWith(
+                                                (states) {
+                                                  return index % 2 == 1
+                                                      ? Colors.white
+                                                      : primaryColor
+                                                          .withOpacity(0.2);
+                                                },
+                                              ),
+                                              cells: _rowListForm[index].cells);
+                                        },
+                                      ),
+                                    ),
+                                  )
+                                : DataTable(
+                                    border: TableBorder.all(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.black.withOpacity(0.5),
+                                      style: BorderStyle.solid,
+                                    ),
+                                    headingRowHeight: 70,
+                                    dataRowHeight: 56,
+                                    columns: [
+                                      DataColumn(
+                                        label: Text(
+                                          "Kode",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "Tanggal",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "Deskripsi",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "Pemasukan",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "Pengeluaran",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: List.generate(
+                                      _rowListForm.length,
+                                      (index) {
+                                        return DataRow(
+                                            color:
+                                                MaterialStateColor.resolveWith(
+                                              (states) {
+                                                return index % 2 == 1
+                                                    ? Colors.white
+                                                    : primaryColor
+                                                        .withOpacity(0.2);
+                                              },
+                                            ),
+                                            cells: _rowListForm[index].cells);
+                                      },
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )),
     );
   }
 }

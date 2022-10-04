@@ -10,6 +10,7 @@ Color navButtonPrimary = const Color(0xff427980);
 Color navButtonPrimaryVariant = const Color(0xffffffff);
 
 Color buttonColor = const Color(0xff427980);
+Color cancelButtonColor = const Color(0xff000000);
 
 Color cardColor = const Color(0xffe2eff1);
 Color cardInfoColor = const Color(0xffccea77);

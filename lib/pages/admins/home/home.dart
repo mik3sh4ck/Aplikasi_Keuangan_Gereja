@@ -255,10 +255,10 @@ class NavigationSidebarX extends StatelessWidget {
           icon: Icons.event_note_rounded,
           label: 'Kegiatan',
         ),
-        SidebarXItem(
-          icon: Icons.inbox_rounded,
-          label: 'Donasi',
-        ),
+        // SidebarXItem(
+        //   icon: Icons.inbox_rounded,
+        //   label: 'Donasi',
+        // ),
         SidebarXItem(
           icon: Icons.settings,
           label: 'Pengaturan',
@@ -289,7 +289,7 @@ class NavigationScreen extends StatelessWidget {
             return AdminControllerKegiatanPage();
           // case 4:
           //   return AdminControllerDonasiPage();
-          case 5:
+          case 4:
             return AdminSettingPageController();
           default:
             return Text(
