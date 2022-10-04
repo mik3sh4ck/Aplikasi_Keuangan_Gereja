@@ -19,6 +19,10 @@ final List _kodeTransaksiAdded = List.empty(growable: true);
 final List _kodeTransaksi = List.empty(growable: true);
 final List _kodeRefKegiatan = List.empty(growable: true);
 final List _kodePerkiraanSingleKegiatan = List.empty(growable: true);
+
+final List<DataRow> _jurnalUmum = List.empty(growable: true);
+final List<DataRow> _bukuBesar = List.empty(growable: true);
+final List<DataRow> _neracaSaldo = List.empty(growable: true);
 final List<DataRow> _rowList = List.empty(growable: true);
 
 int _totalPemasukan = 0;
@@ -43,10 +47,15 @@ class _AdminControllerTransaksiPageState
     extends State<AdminControllerTransaksiPage> {
   final _controllerPageKodeKeuangan = PageController();
   final _controllerPageBuatTransaksi = PageController();
+  final _controllerPageLihatLaporan = PageController();
   @override
   void initState() {
     // TODO: implement initState
     _rowList.clear();
+    _jurnalUmum.clear();
+    _bukuBesar.clear();
+    _neracaSaldo.clear();
+
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
@@ -59,6 +68,7 @@ class _AdminControllerTransaksiPageState
     // TODO: implement dispose
     _controllerPageKodeKeuangan.dispose();
     _controllerPageBuatTransaksi.dispose();
+    _controllerPageLihatLaporan.dispose();
     super.dispose();
   }
 
@@ -72,9 +82,19 @@ class _AdminControllerTransaksiPageState
           controller: _controllerPageBuatTransaksi,
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            AdminTransaksiPage(
-              controllerPageKategori: _controllerPageKodeKeuangan,
-              controllerPageBuatTransaksi: _controllerPageBuatTransaksi,
+            PageView(
+              controller: _controllerPageLihatLaporan,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                AdminTransaksiPage(
+                  controllerPageKategori: _controllerPageKodeKeuangan,
+                  controllerPageBuatTransaksi: _controllerPageBuatTransaksi,
+                  controllerPageLihatLaporan: _controllerPageLihatLaporan,
+                ),
+                AdminLaporanKeuangan(
+                  controllerPageLihatLaporan: _controllerPageLihatLaporan,
+                ),
+              ],
             ),
             AdminBuatTransaksiPage(
               controllerPageBuatTransaksi: _controllerPageBuatTransaksi,
@@ -92,10 +112,12 @@ class _AdminControllerTransaksiPageState
 class AdminTransaksiPage extends StatefulWidget {
   final PageController controllerPageKategori;
   final PageController controllerPageBuatTransaksi;
+  final PageController controllerPageLihatLaporan;
   const AdminTransaksiPage(
       {Key? key,
       required this.controllerPageKategori,
-      required this.controllerPageBuatTransaksi})
+      required this.controllerPageBuatTransaksi,
+      required this.controllerPageLihatLaporan})
       : super(key: key);
 
   @override
@@ -138,6 +160,9 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   void initState() {
     // TODO: implement initState
     _rowList.clear();
+    _jurnalUmum.clear();
+    _bukuBesar.clear();
+    _neracaSaldo.clear();
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
@@ -842,6 +867,26 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 responsiveText("Transaksi", 32, FontWeight.w800, darkText),
                 Row(
                   children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () {
+                        widget.controllerPageLihatLaporan.animateToPage(1,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      child: Text(
+                        "Laporan Keuangan",
+                        style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
@@ -3898,7 +3943,17 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                             debugPrint(
                                 "${element[0]} - ${element[1]} - ${element[2]} - ${element[3]} - ${element[4]} - ${element[5]}");
 
-                                _postTransaksi(kodeGereja, element[0], element[1], element[2], element[3], element[4], element[6], element[5], context).whenComplete(
+                            _postTransaksi(
+                                    kodeGereja,
+                                    element[0],
+                                    element[1],
+                                    element[2],
+                                    element[3],
+                                    element[4],
+                                    element[6],
+                                    element[5],
+                                    context)
+                                .whenComplete(
                               () {
                                 ctr++;
                                 if (ctr == itemTransaksi.length) {
@@ -3922,8 +3977,6 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                 }
                               },
                             );
-
-                          
                           }
                         },
                         child: Text(
@@ -3935,6 +3988,319 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AdminLaporanKeuangan extends StatefulWidget {
+  final PageController controllerPageLihatLaporan;
+  const AdminLaporanKeuangan(
+      {super.key, required this.controllerPageLihatLaporan});
+
+  @override
+  State<AdminLaporanKeuangan> createState() => _AdminLaporanKeuanganState();
+}
+
+class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
+    with TickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _tabController = TabController(length: 3, vsync: this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  Future _getJurnalUmum() async {
+    _jurnalUmum.clear();
+  }
+
+  Future _getBukuBesar() async {
+    _bukuBesar.clear();
+  }
+
+  Future _getNeracaSaldo() async {
+    _neracaSaldo.clear();
+  }
+
+  void _addRowJurnalUmum(tanggal, deskripsi, jenis, nominal) {
+    _jurnalUmum.add(
+      DataRow(
+        cells: [
+          
+          DataCell(
+            Text(
+              tanggal.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              deskripsi.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pemasukan" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pengeluaran" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addRowBukuBesar(tanggal, deskripsi, jenis, nominal) {
+    _bukuBesar.add(
+      DataRow(
+        cells: [
+          
+          DataCell(
+            Text(
+              tanggal.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              deskripsi.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pemasukan" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pengeluaran" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              deskripsi.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addRowNeracaSaldo(tanggal, deskripsi, jenis, nominal) {
+    _neracaSaldo.add(
+      DataRow(
+        cells: [
+          
+          DataCell(
+            Text(
+              tanggal.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              deskripsi.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pemasukan" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              jenis == "pengeluaran" ? nominal.toString() : "-",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    widget.controllerPageLihatLaporan.animateToPage(0,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.ease);
+                  },
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                ),
+                const SizedBox(
+                  width: 25,
+                ),
+                responsiveText(
+                    "Laporan Keuangan", 26, FontWeight.w900, darkText),
+              ],
+            ),
+            const Divider(
+              height: 56,
+            ),
+            TabBar(
+              controller: _tabController,
+              labelColor: darkText,
+              indicatorColor: buttonColor,
+              labelStyle: GoogleFonts.nunito(
+                  color: lightText,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                  letterSpacing: 0.125),
+              tabs: const <Widget>[
+                Tab(
+                  text: "Jurnal Umum",
+                ),
+                Tab(
+                  text: "Buku Besar",
+                ),
+                Tab(
+                  text: "Neraca Saldo",
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 25,
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: DataTable(
+                        border: TableBorder.all(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.black.withOpacity(0.5),
+                          style: BorderStyle.solid,
+                        ),
+                        headingRowHeight: 70,
+                        dataRowHeight: 56,
+                        columns: [
+                          DataColumn(
+                            label: Text(
+                              "Tanggal",
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Keterangan",
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Debet",
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Kredit",
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                        rows: List.generate(
+                          _jurnalUmum.length,
+                          (index) {
+                            return DataRow(
+                                color: MaterialStateColor.resolveWith(
+                                  (states) {
+                                    return index % 2 == 1
+                                        ? Colors.white
+                                        : primaryColor.withOpacity(0.2);
+                                  },
+                                ),
+                                cells: _rowList[index].cells);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: Text("a"),
+                    ),
+                  ),
+                  ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      controller: ScrollController(),
+                      child: Text("a"),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
