@@ -1,10 +1,14 @@
 //ignore_for_file: todo
 
+import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
+import 'package:aplikasi_keuangan_gereja/widgets/loadingindicator.dart';
 import 'package:aplikasi_keuangan_gereja/widgets/responsivetext.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+
+import '../../../services/apiservices.dart';
 
 class AdminSettingPage extends StatefulWidget {
   final PageController controllerSettingPage;
@@ -182,6 +186,9 @@ class AdminAddRolePage extends StatefulWidget {
 }
 
 class _AdminAddRolePageState extends State<AdminAddRolePage> {
+  late Future kategoriListRole;
+  ServicesUser servicesUser = ServicesUser();
+
   List<String> roles = [
     "Ketua",
     "Admin",
@@ -191,6 +198,7 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
   @override
   void initState() {
     // TODO: implement initState
+    kategoriListRole = servicesUser.getRole(kodeGereja);
     super.initState();
   }
 
@@ -251,47 +259,82 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              controller: ScrollController(),
-                              physics: const ClampingScrollPhysics(),
-                              itemCount: roles.length,
-                              itemBuilder: (context, index) {
-                                return Card(
-                                  color: scaffoldBackgroundColor,
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: navButtonPrimary.withOpacity(0.5),
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: ListTile(
-                                    leading: Text(
-                                      roles[index],
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    trailing: ToggleSwitch(
-                                      minWidth: 40,
-                                      initialLabelIndex: 0,
-                                      cornerRadius: 10,
-                                      activeFgColor: Colors.white,
-                                      inactiveBgColor: surfaceColor,
-                                      inactiveFgColor: Colors.white,
-                                      totalSwitches: 2,
-                                      activeBgColors: [
-                                        [Colors.grey.withOpacity(0.5)],
-                                        [
-                                          correctColor.withOpacity(0.8),
-                                        ],
-                                      ],
-                                      onToggle: (index) {
-                                        debugPrint('switched to: $index');
-                                      },
-                                    ),
-                                  ),
-                                );
+                            child: FutureBuilder(
+                              future: kategoriListRole,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  List snapData = snapshot.data! as List;
+                                  if (snapData[0] != 404) {
+                                    return ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(
+                                        dragDevices: {
+                                          PointerDeviceKind.touch,
+                                          PointerDeviceKind.mouse,
+                                        },
+                                      ),
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: roles.length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            color: scaffoldBackgroundColor,
+                                            shape: RoundedRectangleBorder(
+                                              side: BorderSide(
+                                                color: navButtonPrimary
+                                                    .withOpacity(0.5),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: ListTile(
+                                              title: responsiveText(
+                                                  snapData[1][index]
+                                                      ['nama_role'],
+                                                  17,
+                                                  FontWeight.w700,
+                                                  darkText),
+                                              subtitle: responsiveText(
+                                                  snapData[1][index]
+                                                      ['kode_role'],
+                                                  15,
+                                                  FontWeight.w500,
+                                                  darkText),
+                                              trailing: ToggleSwitch(
+                                                minWidth: 40,
+                                                initialLabelIndex: 0,
+                                                cornerRadius: 10,
+                                                activeFgColor: Colors.white,
+                                                inactiveBgColor: surfaceColor,
+                                                inactiveFgColor: Colors.white,
+                                                totalSwitches: 2,
+                                                activeBgColors: [
+                                                  [
+                                                    Colors.grey.withOpacity(0.5)
+                                                  ],
+                                                  [
+                                                    correctColor
+                                                        .withOpacity(0.8),
+                                                  ],
+                                                ],
+                                                onToggle: (index) {
+                                                  debugPrint(
+                                                      'switched to: $index');
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  } else if (snapData[0] == 404) {
+                                    return noData();
+                                  }
+                                }
+                                return loadingIndicator();
                               },
                             ),
                           ),

@@ -141,10 +141,11 @@ class ServicesUser {
   }
 
   //TODO: get kode Perkiraan
-  Future getKodePerkiraanSingleKegiatan(kodeGereja, kodeKegiatan) async {
+  Future getKodePerkiraanSingleKegiatan(
+      kodeGereja, kodeKegiatan, kodeTransaksi) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}read-kode-perkiraan-single-kegiatan?kode_gereja=$kodeGereja&kode_kegiatan=$kodeKegiatan"),
+          "${_linkPath}read-kode-perkiraan-single-kegiatan?kode_gereja=$kodeGereja&kode_kegiatan=$kodeKegiatan&kode_transaksi=$kodeTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -325,6 +326,94 @@ class ServicesUser {
     }
   }
 
+  //TODO: Saldo Awal
+  Future getSaldoAwal(kodeGereja) async {
+    final response = await http.get(
+      Uri.parse("${_linkPath}saldo-awal?kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Laporan Buku Besar
+  Future getKodeBukuBesar(
+      kodeGereja, tanggal, kodeMaster, kodePerkiraan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}buku-besar?kode_gereja=$kodeGereja&tanggal=$tanggal&header_kode_perkiraan=$kodeMaster&kode_perkiraan=$kodePerkiraan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getItemBukuBesar(
+      kodeGereja, tanggal, kodeMaster, kodePerkiraan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}buku-besar?kode_gereja=$kodeGereja&tanggal=$tanggal&header_kode_perkiraan=$kodeMaster&kode_perkiraan=$kodePerkiraan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Chart Dashboard
+  Future getPemasukanChart(kodeGereja, tanggal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}chart-pemasukan?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getPengeluaranChart(kodeGereja, tanggal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}chart-pengeluaran?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getSaldoChart(kodeGereja, tanggal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}chart-saldo?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
   //TODO: Get Role
   Future getRole(kodeGereja) async {
     final response = await http.get(
@@ -412,10 +501,10 @@ class ServicesUser {
 
   //TODO: Input Item Kebutuhan
   Future inputItemKebutuhan(kodeItemProposalPerkiraan, kodeItemProposalKegiatan,
-      kodeProposalGereja, budgetKebutuhan) async {
+      kodeProposalGereja, budgetKebutuhan, kodeItemProposalMaster) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-item-proposal-kegiatan?kode_perkiraan=$kodeItemProposalPerkiraan&kode_kegiatan=$kodeItemProposalKegiatan&kode_gereja=$kodeProposalGereja&budget_kebutuhan=$budgetKebutuhan"),
+          "${_linkPath}input-item-proposal-kegiatan?kode_perkiraan=$kodeItemProposalPerkiraan&kode_kegiatan=$kodeItemProposalKegiatan&kode_gereja=$kodeProposalGereja&budget_kebutuhan=$budgetKebutuhan&header_kode_perkiraan=$kodeItemProposalMaster"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -553,10 +642,10 @@ class ServicesUser {
   }
 
   //TODO: Get kebutuhan kegiatan
-  Future getDetailKebutuhanKegiatan(kodeKeg, kodeGer, kodePer) async {
+  Future getDetailKebutuhanKegiatan(kodeKeg, kodeGer, kodePer, kodeMas) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}kebutuhan-kegiatan?kode_kegiatan=$kodeKeg&kode_gereja=$kodeGer&kode_perkiraan=$kodePer"),
+          "${_linkPath}kebutuhan-kegiatan?kode_kegiatan=$kodeKeg&kode_gereja=$kodeGer&kode_perkiraan=$kodePer&header_kode_perkiraan=$kodeMas"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -632,7 +721,8 @@ class ServicesUser {
   //TODO: Get detail dan form pemasukan Kegiatan
   Future getPemasukanDetail(kodeGerejaDetail, kodeKegiatanDetail) async {
     final response = await http.get(
-      Uri.parse("${_linkPath}pemasukan-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
+      Uri.parse(
+          "${_linkPath}pemasukan-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -647,7 +737,8 @@ class ServicesUser {
   //TODO: Get detail dan form pengeluaran Kegiatan
   Future getPengeluaranForm(kodeGerejaDetail, kodeKegiatanDetail) async {
     final response = await http.get(
-      Uri.parse("${_linkPath}read-all-pengeluaran-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
+      Uri.parse(
+          "${_linkPath}read-all-pengeluaran-kegiatan?kode_gereja=$kodeGerejaDetail&kode_kegiatan=$kodeKegiatanDetail"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -659,4 +750,18 @@ class ServicesUser {
     }
   }
 
+  //TODO: get kode Perkiraan
+  Future getKodePerkiraanSingleKegiatanBudgeting(kodeGereja, kodeMaster) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-kode-perkiraan-budgeting?header_kode_perkiraan=$kodeMaster&kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
 }

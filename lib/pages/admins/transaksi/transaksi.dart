@@ -1,17 +1,23 @@
 // ignore_for_file: todo
 
+import 'dart:typed_data';
+
 import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
 import 'package:aplikasi_keuangan_gereja/widgets/string_extension.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 final List _kodeMaster = List.empty(growable: true);
 final List _kodePerkiraan = List.empty(growable: true);
@@ -23,6 +29,7 @@ final List _kodePerkiraanSingleKegiatan = List.empty(growable: true);
 final List<DataRow> _jurnalUmum = List.empty(growable: true);
 final List<DataRow> _bukuBesar = List.empty(growable: true);
 final List<DataRow> _neracaSaldo = List.empty(growable: true);
+final List<DataRow> _saldoAwal = List.empty(growable: true);
 final List<DataRow> _rowList = List.empty(growable: true);
 
 int _totalPemasukan = 0;
@@ -48,10 +55,12 @@ class _AdminControllerTransaksiPageState
   final _controllerPageKodeKeuangan = PageController();
   final _controllerPageBuatTransaksi = PageController();
   final _controllerPageLihatLaporan = PageController();
+  final _controllerPageLihatSaldoAwal = PageController();
   @override
   void initState() {
     // TODO: implement initState
     _rowList.clear();
+    _saldoAwal.clear();
     _jurnalUmum.clear();
     _bukuBesar.clear();
     _neracaSaldo.clear();
@@ -69,6 +78,7 @@ class _AdminControllerTransaksiPageState
     _controllerPageKodeKeuangan.dispose();
     _controllerPageBuatTransaksi.dispose();
     _controllerPageLihatLaporan.dispose();
+    _controllerPageLihatSaldoAwal.dispose();
     super.dispose();
   }
 
@@ -91,8 +101,18 @@ class _AdminControllerTransaksiPageState
                   controllerPageBuatTransaksi: _controllerPageBuatTransaksi,
                   controllerPageLihatLaporan: _controllerPageLihatLaporan,
                 ),
-                AdminLaporanKeuangan(
-                  controllerPageLihatLaporan: _controllerPageLihatLaporan,
+                PageView(
+                  controller: _controllerPageLihatSaldoAwal,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    AdminLaporanKeuangan(
+                        controllerPageLihatLaporan: _controllerPageLihatLaporan,
+                        controllerPageLihatSaldoAwal:
+                            _controllerPageLihatSaldoAwal),
+                    AdminLihatSaldoAwal(
+                        controllerPageLihatSaldoAwal:
+                            _controllerPageLihatSaldoAwal)
+                  ],
                 ),
               ],
             ),
@@ -163,6 +183,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _jurnalUmum.clear();
     _bukuBesar.clear();
     _neracaSaldo.clear();
+    _saldoAwal.clear();
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
@@ -181,6 +202,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     });
 
     _getKodeTransaksiAdded(kodeGereja);
+    _getKodePerkiraan(kodeGereja, "", "");
     _getMasterKode(kodeGereja);
     _getTransaksi(kodeGereja);
 
@@ -216,11 +238,12 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     super.dispose();
   }
 
-  Future _getKodePerkiraan(kodeGereja, headerKodePerkiraan) async {
+  Future _getKodePerkiraan(kodeGereja, kodeKegiatan, kodeTransaksi) async {
     _kodePerkiraan.clear();
 
-    var response =
-        await servicesUser.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
+    var response = await servicesUser.getKodePerkiraanSingleKegiatan(
+        kodeGereja, kodeKegiatan, kodeTransaksi);
+
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
@@ -2926,7 +2949,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     _getMasterKode(kodeGereja);
     _getKodeTransaksi(kodeGereja);
     _getKodeRefKegiatan(kodeGereja);
-    _getKodePerkiraanSingleKegiatan(kodeGereja, "");
+    _getKodePerkiraanSingleKegiatan(kodeGereja, "", "");
 
     formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
     date = formattedDate;
@@ -3076,11 +3099,12 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     }
   }
 
-  Future _getKodePerkiraanSingleKegiatan(kodeGereja, kodeKegiatan) async {
+  Future _getKodePerkiraanSingleKegiatan(
+      kodeGereja, kodeKegiatan, kodeTransaksi) async {
     _kodePerkiraanSingleKegiatan.clear();
 
     var response = await servicesUser.getKodePerkiraanSingleKegiatan(
-        kodeGereja, kodeKegiatan);
+        kodeGereja, kodeKegiatan, kodeTransaksi);
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
@@ -3365,9 +3389,10 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                               "Pilih Kode Perkiraan";
                                           kodePerkiraan = "";
                                           _getKodePerkiraanSingleKegiatan(
-                                                  kodeGereja, "")
-                                              .whenComplete(
-                                                  () => setState(() {}));
+                                            kodeGereja,
+                                            "",
+                                            _splitStringKode(kodeTransaksi),
+                                          ).whenComplete(() => setState(() {}));
                                         } else {
                                           selectedKodePerkiraan =
                                               "Pilih Kode Perkiraan";
@@ -3381,8 +3406,10 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                           kodeRefKegiatan = _splitString(
                                               selectedKodeRefKegiatan);
                                           _getKodePerkiraanSingleKegiatan(
-                                                  kodeGereja, kodeRefKegiatan)
-                                              .whenComplete(() {
+                                            kodeGereja,
+                                            kodeRefKegiatan,
+                                            _splitStringKode(kodeTransaksi),
+                                          ).whenComplete(() {
                                             setState(() {});
                                           });
                                         }
@@ -3588,6 +3615,11 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                   debugPrint(date);
                                   debugPrint(_controllerNominal.text);
                                   debugPrint(_controllerKeterangan.text);
+                                  _getKodePerkiraanSingleKegiatan(
+                                    kodeGereja,
+                                    "",
+                                    _splitStringKode(kodeTransaksi),
+                                  ).whenComplete(() => setState(() {}));
 
                                   Navigator.pop(context);
                                 },
@@ -3999,8 +4031,11 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
 class AdminLaporanKeuangan extends StatefulWidget {
   final PageController controllerPageLihatLaporan;
+  final PageController controllerPageLihatSaldoAwal;
   const AdminLaporanKeuangan(
-      {super.key, required this.controllerPageLihatLaporan});
+      {super.key,
+      required this.controllerPageLihatLaporan,
+      required this.controllerPageLihatSaldoAwal});
 
   @override
   State<AdminLaporanKeuangan> createState() => _AdminLaporanKeuanganState();
@@ -4008,12 +4043,19 @@ class AdminLaporanKeuangan extends StatefulWidget {
 
 class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     with TickerProviderStateMixin {
+  ServicesUser servicesUser = ServicesUser();
   late TabController _tabController;
+
+  DateTime selectedMonth = DateTime.now();
+  String formattedMonth = "";
+  String month = "Month";
 
   @override
   void initState() {
     // TODO: implement initState
     _tabController = TabController(length: 3, vsync: this);
+    formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
+    month = formattedMonth;
     super.initState();
   }
 
@@ -4039,7 +4081,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     _jurnalUmum.add(
       DataRow(
         cells: [
-          
           DataCell(
             Text(
               tanggal.toString(),
@@ -4073,7 +4114,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     _bukuBesar.add(
       DataRow(
         cells: [
-          
           DataCell(
             Text(
               tanggal.toString(),
@@ -4113,7 +4153,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     _neracaSaldo.add(
       DataRow(
         cells: [
-          
           DataCell(
             Text(
               tanggal.toString(),
@@ -4143,6 +4182,548 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     );
   }
 
+  Future<void> selectMonth(context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      lastDate: DateTime(DateTime.now().year, 12, 31),
+      initialDate: selectedMonth,
+      builder: (context, child) {
+        return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: primaryColor, // header background color
+                onPrimary: lightText, // header text color
+                onSurface: darkText, // body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  primary: navButtonPrimary, // button text color
+                ),
+              ),
+            ),
+            child: child!);
+      },
+    );
+    if (picked != null && picked != selectedMonth) {
+      if (mounted) {
+        selectedMonth = picked;
+        formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
+        month = formattedMonth;
+        debugPrint("Selected Month $month");
+        setState(() {});
+      }
+    }
+  }
+
+  jurnalUmumView(dw, dh) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+        },
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    selectMonth(context);
+                  },
+                  child: Card(
+                    color: primaryColor,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          responsiveText(month, 14, FontWeight.w700, lightText),
+                          const IconButton(
+                            onPressed: null,
+                            icon: Icon(Icons.calendar_month),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  //TODO: search btn
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    primary: const Color(0xff960000),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AdminLaporanPreviewPDF()),
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: FaIcon(FontAwesomeIcons.solidFilePdf),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: DataTable(
+                    border: TableBorder.all(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.black.withOpacity(0.5),
+                      style: BorderStyle.solid,
+                    ),
+                    headingRowHeight: 70,
+                    dataRowHeight: 56,
+                    columns: [
+                      DataColumn(
+                        label: Text(
+                          "Tanggal",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          "Keterangan",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          "Debet",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          "Kredit",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                    rows: List.generate(
+                      _jurnalUmum.length,
+                      (index) {
+                        return DataRow(
+                            color: MaterialStateColor.resolveWith(
+                              (states) {
+                                return index % 2 == 1
+                                    ? Colors.white
+                                    : primaryColor.withOpacity(0.2);
+                              },
+                            ),
+                            cells: _rowList[index].cells);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bukuBesarView(dw, dh) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+        },
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    selectMonth(context);
+                  },
+                  child: Card(
+                    color: primaryColor,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          responsiveText(month, 14, FontWeight.w700, lightText),
+                          const IconButton(
+                            onPressed: null,
+                            icon: Icon(Icons.calendar_month),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  //TODO: search btn
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    primary: const Color(0xff960000),
+                  ),
+                  onPressed: () {},
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: FaIcon(FontAwesomeIcons.solidFilePdf),
+                  ),
+                ),
+              ],
+            ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  controller: ScrollController(),
+                  physics: const ClampingScrollPhysics(),
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 25,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Account Name"),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: dw < 1280
+                                    ? SingleChildScrollView(
+                                        physics: const ClampingScrollPhysics(),
+                                        controller: ScrollController(),
+                                        scrollDirection: Axis.horizontal,
+                                        child: DataTable(
+                                          border: TableBorder.all(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                            style: BorderStyle.solid,
+                                          ),
+                                          headingRowHeight: 70,
+                                          dataRowHeight: 56,
+                                          columns: [
+                                            DataColumn(
+                                              label: Text(
+                                                "Tanggal",
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Text(
+                                                "Keterangan",
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Text(
+                                                "Debet",
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Text(
+                                                "Kredit",
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Text(
+                                                "Saldo",
+                                                style: GoogleFonts.nunito(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                          rows: List.generate(
+                                            _bukuBesar.length,
+                                            (index) {
+                                              return DataRow(
+                                                  color: MaterialStateColor
+                                                      .resolveWith(
+                                                    (states) {
+                                                      return index % 2 == 1
+                                                          ? Colors.white
+                                                          : primaryColor
+                                                              .withOpacity(0.2);
+                                                    },
+                                                  ),
+                                                  cells: _rowList[index].cells);
+                                            },
+                                          ),
+                                        ),
+                                      )
+                                    : DataTable(
+                                        border: TableBorder.all(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.black.withOpacity(0.5),
+                                          style: BorderStyle.solid,
+                                        ),
+                                        headingRowHeight: 70,
+                                        dataRowHeight: 56,
+                                        columns: [
+                                          DataColumn(
+                                            label: Text(
+                                              "Tanggal",
+                                              style: GoogleFonts.nunito(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Text(
+                                              "Keterangan",
+                                              style: GoogleFonts.nunito(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Text(
+                                              "Debet",
+                                              style: GoogleFonts.nunito(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Text(
+                                              "Kredit",
+                                              style: GoogleFonts.nunito(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Text(
+                                              "Saldo",
+                                              style: GoogleFonts.nunito(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                        rows: List.generate(
+                                          _bukuBesar.length,
+                                          (index) {
+                                            return DataRow(
+                                                color: MaterialStateColor
+                                                    .resolveWith(
+                                                  (states) {
+                                                    return index % 2 == 1
+                                                        ? Colors.white
+                                                        : primaryColor
+                                                            .withOpacity(0.2);
+                                                  },
+                                                ),
+                                                cells: _rowList[index].cells);
+                                          },
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return Divider(
+                      color: dividerColor,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  neracaSaldoView(dw, dh) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+        },
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    selectMonth(context);
+                  },
+                  child: Card(
+                    color: primaryColor,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          responsiveText(month, 14, FontWeight.w700, lightText),
+                          const IconButton(
+                            onPressed: null,
+                            icon: Icon(Icons.calendar_month),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  //TODO: search btn
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    primary: const Color(0xff960000),
+                  ),
+                  onPressed: () {},
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: FaIcon(FontAwesomeIcons.solidFilePdf),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: DataTable(
+                    border: TableBorder.all(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.black.withOpacity(0.5),
+                      style: BorderStyle.solid,
+                    ),
+                    headingRowHeight: 70,
+                    dataRowHeight: 56,
+                    columns: [
+                      DataColumn(
+                        label: Text(
+                          "Kode",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          "Nama Kode",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          "Debet",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          "Kredit",
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                    rows: List.generate(
+                      _jurnalUmum.length,
+                      (index) {
+                        return DataRow(
+                            color: MaterialStateColor.resolveWith(
+                              (states) {
+                                return index % 2 == 1
+                                    ? Colors.white
+                                    : primaryColor.withOpacity(0.2);
+                              },
+                            ),
+                            cells: _rowList[index].cells);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -4154,33 +4735,67 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        widget.controllerPageLihatLaporan.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    ),
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    responsiveText(
+                        "Laporan Keuangan", 26, FontWeight.w900, darkText),
+                  ],
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   onPressed: () {
-                    widget.controllerPageLihatLaporan.animateToPage(0,
+                    widget.controllerPageLihatSaldoAwal.animateToPage(1,
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.ease);
                   },
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  child: Text(
+                    "Saldo Awal",
+                    style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w700, fontSize: 14),
+                  ),
                 ),
-                const SizedBox(
-                  width: 25,
-                ),
-                responsiveText(
-                    "Laporan Keuangan", 26, FontWeight.w900, darkText),
               ],
             ),
             const Divider(
               height: 56,
             ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  jurnalUmumView(deviceWidth, deviceHeight),
+                  bukuBesarView(deviceWidth, deviceHeight),
+                  neracaSaldoView(deviceWidth, deviceHeight),
+                ],
+              ),
+            ),
             TabBar(
               controller: _tabController,
+              isScrollable: true,
               labelColor: darkText,
               indicatorColor: buttonColor,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 16),
               labelStyle: GoogleFonts.nunito(
                   color: lightText,
                   fontWeight: FontWeight.w800,
-                  fontSize: 20,
+                  fontSize: 14,
                   letterSpacing: 0.125),
               tabs: const <Widget>[
                 Tab(
@@ -4194,110 +4809,193 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                 ),
               ],
             ),
-            const SizedBox(
-              height: 25,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AdminLihatSaldoAwal extends StatefulWidget {
+  final PageController controllerPageLihatSaldoAwal;
+  const AdminLihatSaldoAwal(
+      {super.key, required this.controllerPageLihatSaldoAwal});
+
+  @override
+  State<AdminLihatSaldoAwal> createState() => _AdminLihatSaldoAwalState();
+}
+
+class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
+  ServicesUser servicesUser = ServicesUser();
+  @override
+  void initState() {
+    // TODO: implement initState
+    _getSaldoAwal(kodeGereja);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  Future _getSaldoAwal(kodeGereja) async {
+    _saldoAwal.clear();
+    var response = await servicesUser.getSaldoAwal(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowSaldoAwal(
+          element['header_kode_perkiraan'],
+          element['kode_perkiraan'],
+          element['saldo_awal'],
+        );
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _addRowSaldoAwal(kodeHeader, kodePerkiraan, saldo) {
+    _saldoAwal.add(
+      DataRow(
+        cells: [
+          DataCell(
+            Text(
+              kodeHeader.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              kodePerkiraan.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              saldo.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        widget.controllerPageLihatSaldoAwal.animateToPage(0,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.ease);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    ),
+                    const SizedBox(
+                      width: 25,
+                    ),
+                    responsiveText("Saldo Awal", 26, FontWeight.w900, darkText),
+                  ],
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {},
+                  child: Text(
+                    "Update Saldo Awal",
+                    style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w700, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(
+              height: 56,
             ),
             Expanded(
-              child: TabBarView(
-                controller: _tabController,
+              child: Row(
                 children: [
-                  ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context).copyWith(
-                      dragDevices: {
-                        PointerDeviceKind.touch,
-                        PointerDeviceKind.mouse,
-                      },
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      controller: ScrollController(),
-                      child: DataTable(
-                        border: TableBorder.all(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.black.withOpacity(0.5),
-                          style: BorderStyle.solid,
-                        ),
-                        headingRowHeight: 70,
-                        dataRowHeight: 56,
-                        columns: [
-                          DataColumn(
-                            label: Text(
-                              "Tanggal",
-                              style: GoogleFonts.nunito(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ),
-                            ),
+                  Expanded(
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                        },
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        controller: ScrollController(),
+                        child: DataTable(
+                          border: TableBorder.all(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.black.withOpacity(0.5),
+                            style: BorderStyle.solid,
                           ),
-                          DataColumn(
-                            label: Text(
-                              "Keterangan",
-                              style: GoogleFonts.nunito(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              "Debet",
-                              style: GoogleFonts.nunito(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              "Kredit",
-                              style: GoogleFonts.nunito(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ],
-                        rows: List.generate(
-                          _jurnalUmum.length,
-                          (index) {
-                            return DataRow(
-                                color: MaterialStateColor.resolveWith(
-                                  (states) {
-                                    return index % 2 == 1
-                                        ? Colors.white
-                                        : primaryColor.withOpacity(0.2);
-                                  },
+                          headingRowHeight: 70,
+                          dataRowHeight: 56,
+                          columns: [
+                            DataColumn(
+                              label: Text(
+                                "Kode Master",
+                                style: GoogleFonts.nunito(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
                                 ),
-                                cells: _rowList[index].cells);
-                          },
+                              ),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                "Kode Perkiraan",
+                                style: GoogleFonts.nunito(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                "Saldo",
+                                style: GoogleFonts.nunito(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                          rows: List.generate(
+                            _saldoAwal.length,
+                            (index) {
+                              return DataRow(
+                                  color: MaterialStateColor.resolveWith(
+                                    (states) {
+                                      return index % 2 == 1
+                                          ? Colors.white
+                                          : primaryColor.withOpacity(0.2);
+                                    },
+                                  ),
+                                  cells: _saldoAwal[index].cells);
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context).copyWith(
-                      dragDevices: {
-                        PointerDeviceKind.touch,
-                        PointerDeviceKind.mouse,
-                      },
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      controller: ScrollController(),
-                      child: Text("a"),
-                    ),
-                  ),
-                  ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context).copyWith(
-                      dragDevices: {
-                        PointerDeviceKind.touch,
-                        PointerDeviceKind.mouse,
-                      },
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      controller: ScrollController(),
-                      child: Text("a"),
                     ),
                   ),
                 ],
@@ -4305,6 +5003,227 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class AdminLaporanPreviewPDF extends StatefulWidget {
+  const AdminLaporanPreviewPDF({super.key});
+
+  @override
+  State<AdminLaporanPreviewPDF> createState() => _AdminLaporanPreviewPDFState();
+}
+
+class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
+  Future<Uint8List> _generateJurnalUmum(PdfPageFormat format) async {
+    final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
+    final headingFont = await PdfGoogleFonts.nunitoBold();
+    final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
+    final regularFont = await PdfGoogleFonts.nunitoRegular();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: format.portrait,
+        build: (context) {
+          return [
+            pw.Container(
+              padding: const pw.EdgeInsets.all(0),
+              child: pw.Column(
+                children: [
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        "JURNAL UMUM",
+                        style: pw.TextStyle(
+                          font: boldHeadingFont,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        "Bulan A",
+                        style: pw.TextStyle(
+                          font: boldHeadingFont,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(
+                    height: 25,
+                  ),
+                  pw.Table(
+                    border: pw.TableBorder.all(
+                      style: pw.BorderStyle.solid,
+                      width: 1,
+                    ),
+                    children: [
+                      //TODO: Header Table
+                      pw.TableRow(
+                        children: [
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                "Kode",
+                                style: pw.TextStyle(
+                                  font: headingFont,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                "Uraian",
+                                style: pw.TextStyle(
+                                  font: headingFont,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                "Tanggal",
+                                style: pw.TextStyle(
+                                  font: headingFont,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                "Pemasukan",
+                                style: pw.TextStyle(
+                                  font: headingFont,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                "Pengeluaran",
+                                style: pw.TextStyle(
+                                  font: headingFont,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      //TODO: Data Pemasukan
+
+                      for (int i = 0; i < 10; i++)
+                        pw.TableRow(
+                          children: [
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                              children: [
+                                pw.Text(
+                                  "laporanKG[i].kode",
+                                  style: pw.TextStyle(
+                                    font: regularFont,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                              children: [
+                                pw.Text(
+                                  "laporanKG[i].uraian",
+                                  style: pw.TextStyle(
+                                    font: regularFont,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                              children: [
+                                pw.Text(
+                                  "laporanKG[i].tanggal",
+                                  style: pw.TextStyle(
+                                    font: regularFont,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                              children: [
+                                pw.Text(
+                                  "ioCheck(i) ? laporanKG[i].nominal : ",
+                                  style: pw.TextStyle(
+                                    font: regularFont,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              mainAxisAlignment: pw.MainAxisAlignment.center,
+                              children: [
+                                pw.Text(
+                                  "!ioCheck(i) ? laporanKG[i].nominal : ",
+                                  style: pw.TextStyle(
+                                    font: regularFont,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ];
+        },
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        ),
+      ),
+      body: PdfPreview(
+        initialPageFormat: PdfPageFormat.a4,
+        allowPrinting: true,
+        build: (format) => _generateJurnalUmum(format),
       ),
     );
   }

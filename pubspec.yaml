@@ -70,7 +70,7 @@ dependencies:
   image_picker_web: ^2.1.1
   file_picker: ^4.6.1
   syncfusion_flutter_charts: ^20.2.50
-
+  syncfusion_flutter_pdf: ^20.3.48
 
   # window_size:
   #   git:/
@@ -103,7 +103,6 @@ flutter:
     # - lib/assets/images
     # - lib/assets/lotties
 
-
     - lib/assets/images/loginbgimg.png
     - lib/assets/images/loginactivationheader.png
     - lib/assets/images/MobileHeader.png
@@ -117,6 +116,8 @@ flutter:
     - lib/assets/images/absen.png
     - lib/assets/images/createaktifitas.png
     - lib/assets/images/tangan.png
+    - lib/assets/images/Burung0.5.gif
+    - lib/assets/images/Burung0.3.gif
     - lib/assets/lotties/error_404.json
     - lib/assets/lotties/loading_animation.json
     - lib/assets/lotties/success.json
@@ -161,8 +162,8 @@ flutter_native_splash:
   # of your splash screen to a solid color.  Use background_image to set the background of your
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
-  color: "#f9ab27"
-  image: "lib/assets/images/splashscreen.png"
+  color: "#8cc1c8"
+  image: "lib/assets/images/Burung0.3.gif"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
   # the leading # character.

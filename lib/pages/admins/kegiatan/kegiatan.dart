@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:file_picker/file_picker.dart';
 
 import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
@@ -29,6 +28,8 @@ String _tempNamaPIC = "";
 String _tempKodeUserPIC = "";
 String _tempKodePerkiraan = "";
 String _tempNamaKodePerkiraan = "";
+String _tempKodeMaster = "";
+String _tempNamaKodeMaster = "";
 String _tempKodePenanggungjawab = "";
 String _tempkodekegiatangabungan = "";
 String _singleList = "0000000";
@@ -40,17 +41,22 @@ String _tempselesaikegiatan = "";
 String _presentase = "0%";
 String _totalreal = "";
 String _totalbudget = "";
+String _totalpemasukanreal = "";
 
 final List _user = [];
+final List _kodeMaster = [];
 final List _kodeKegiatanbuatList = [];
 final List _kodePerkiraan = [];
 final List _kodePerkiraanSingleKegiatan = [];
 final List _tanggalAbsen = [];
+final List _disimpen = [];
 
 final List<DataRow> _rowListForm = List.empty(growable: true);
 int _totalPemasukan = 0;
 int _totalPengeluaran = 0;
 int _totalSaldo = 0;
+
+bool cekKodeMaster = false;
 
 class AdminControllerKegiatanPage extends StatefulWidget {
   const AdminControllerKegiatanPage({Key? key}) : super(key: key);
@@ -252,7 +258,10 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                           const Duration(milliseconds: 250),
                                       curve: Curves.ease);
                             },
-                            icon: const Icon(Icons.history_rounded),
+                            icon: const Tooltip(
+                              message: "Riwayat Kegiatan",
+                              child: Icon(Icons.history_outlined),
+                            ),
                           ),
                           const SizedBox(
                             width: 15,
@@ -422,8 +431,11 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                                                     250),
                                                         curve: Curves.ease);
                                               },
-                                              child: const Icon(
-                                                  Icons.arrow_forward_rounded),
+                                              child: const Tooltip(
+                                                message: "Detail Kegiatan",
+                                                child: Icon(Icons
+                                                    .arrow_forward_rounded),
+                                              ),
                                             ),
                                           ),
                                         );
@@ -482,7 +494,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   final List _kodeAnggotaList = [];
 
   final List _kodeKegiatanList = [];
+  final List _kodeMasterList = [];
   final List _jenisKebutuhanList = [];
+  final List _jenisMasterList = [];
   final List _saldoList = [];
 
   bool _kategoriNotEmpty = false;
@@ -519,6 +533,19 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     }
   }
 
+  Future _getKodeMaster(kodeGereja) async {
+    var response = await servicesUserItem.getMasterKode(kodeGereja);
+    if (response[0] != 404) {
+      _kodeMaster.clear();
+      for (var element in response[1]) {
+        _kodeMaster.add(
+            "${element['header_kode_perkiraan']} - ${element['nama_header']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
   Future _getAllKodeKegiatanList(kodeGereja) async {
     var response = await servicesUserItem.getKodeKegiatan(kodeGereja);
     if (response[0] != 404) {
@@ -535,7 +562,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   Future _getKodePerkiraanSingleKegiatan(kodeGereja, kodeKegiatan) async {
     _kodePerkiraanSingleKegiatan.clear();
 
-    var response = await servicesUserItem.getKodePerkiraanSingleKegiatan(
+    var response = await servicesUserItem.getKodePerkiraanSingleKegiatanBudgeting(
         kodeGereja, kodeKegiatan);
     if (response[0] != 404) {
       for (var element in response[1]) {
@@ -592,7 +619,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     // TODO: implement initState
     _getAllUser(kodeGereja);
     _getAllKodeKegiatanList(kodeGereja);
-    _getKodePerkiraanSingleKegiatan(kodeGereja, "");
+    _getKodeMaster(kodeGereja);
     super.initState();
   }
 
@@ -789,12 +816,14 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
       kodeItemProposalKegiatan,
       kodeProposalGereja,
       budgetKebutuhan,
+      kodeItemProposalMaster,
       context) async {
     var response = await servicesUserItem.inputItemKebutuhan(
         kodeItemProposalPerkiraan,
         kodeItemProposalKegiatan,
         kodeProposalGereja,
-        budgetKebutuhan);
+        budgetKebutuhan,
+        kodeItemProposalMaster);
 
     if (response[0] != 404) {
       return true;
@@ -864,6 +893,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
 
   _showTambahDialogKebutuhan(dw, dh) {
     showDialog(
+      barrierDismissible: false,
       useRootNavigator: true,
       context: context,
       builder: (context) {
@@ -918,7 +948,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  responsiveText("Kode Jenis Kebutuhan", 16,
+                                  responsiveText("Kode Master", 16,
                                       FontWeight.w700, darkText),
                                   const SizedBox(
                                     height: 10,
@@ -952,23 +982,93 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                 _controllerDropdownFilterKodePerkiraan,
                                           ),
                                         ),
-                                        items: _kodePerkiraanSingleKegiatan,
+                                        items: _kodeMaster,
                                         onChanged: (val) {
                                           debugPrint(val);
                                           debugPrint(_splitString(val));
-                                          _tempKodePerkiraan =
+                                          _tempNamaKodeMaster =
                                               _splitStringAkhir(val);
-                                          _tempNamaKodePerkiraan =
-                                              _splitString(val);
+                                          _tempKodeMaster = _splitString(val);
                                           if (_kategoriNotEmpty == false) {
                                             _kategoriNotEmpty = true;
                                             if (mounted) {
                                               setState(() {});
                                             }
                                           }
+                                          cekKodeMaster = true;
+                                          _getKodePerkiraanSingleKegiatan(
+                                                  kodeGereja, _tempKodeMaster)
+                                              .whenComplete(
+                                                  () => setState(() {}));
                                         },
-                                        selectedItem: "Pilih Kode Perkiraan",
+                                        selectedItem: "Pilih Kode Master",
                                       ),
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: cekKodeMaster,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        responsiveText("Kode Jenis Kebutuhan",
+                                            16, FontWeight.w700, darkText),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        SizedBox(
+                                          child: Card(
+                                            color: surfaceColor,
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 10),
+                                            child: DropdownSearch<dynamic>(
+                                              popupProps: PopupProps.menu(
+                                                showSearchBox: true,
+                                                searchFieldProps:
+                                                    TextFieldProps(
+                                                  decoration: InputDecoration(
+                                                    border:
+                                                        const OutlineInputBorder(),
+                                                    hintText: "Cari Disini",
+                                                    suffixIcon: IconButton(
+                                                      onPressed: () {
+                                                        _controllerDropdownFilterKodePerkiraan
+                                                            .clear();
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.clear,
+                                                        color: Colors.black
+                                                            .withOpacity(0.5),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  controller:
+                                                      _controllerDropdownFilterKodePerkiraan,
+                                                ),
+                                              ),
+                                              items:
+                                                  _kodePerkiraanSingleKegiatan,
+                                              onChanged: (val) {
+                                                debugPrint(val);
+                                                debugPrint(_splitString(val));
+                                                _tempKodePerkiraan =
+                                                    _splitStringAkhir(val);
+                                                _tempNamaKodePerkiraan =
+                                                    _splitString(val);
+                                                if (_kategoriNotEmpty ==
+                                                    false) {
+                                                  _kategoriNotEmpty = true;
+                                                  if (mounted) {
+                                                    setState(() {});
+                                                  }
+                                                }
+                                              },
+                                              selectedItem:
+                                                  "Pilih Kode Perkiraan",
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   const SizedBox(
@@ -1001,6 +1101,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   _controllerJenisKebutuhan.clear();
                                   _controllerKodeJenisKebutuhan.clear();
                                   _controllerSaldo.clear();
+                                  cekKodeMaster = false;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Batal"),
@@ -1013,14 +1114,17 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   if (mounted) {
                                     setState(() {
                                       _kodeKegiatanList.add(_tempKodePerkiraan);
+                                      _kodeMasterList.add(_tempKodeMaster);
                                       _jenisKebutuhanList
                                           .add(_tempNamaKodePerkiraan);
+                                      _jenisMasterList.add(_tempNamaKodeMaster);
                                       _saldoList.add(_controllerSaldo.text);
                                     });
                                   }
                                   _controllerJenisKebutuhan.clear();
                                   _controllerKodeJenisKebutuhan.clear();
                                   _controllerSaldo.clear();
+                                  cekKodeMaster = false;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Tambah"),
@@ -1047,6 +1151,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
 
   _showTambahDialogAnggota(dw, dh) {
     showDialog(
+      barrierDismissible: false,
       useRootNavigator: true,
       context: context,
       builder: (context) {
@@ -1366,18 +1471,18 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         const SizedBox(
                           height: 15,
                         ),
-                        Container(
-                          constraints: BoxConstraints(maxWidth: 400),
-                          padding: EdgeInsets.all(30),
-                          alignment: Alignment.topLeft,
-                          child: ElevatedButton(
-                            child: Text('Pick File'),
-                            onPressed: () async {
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles();
-                            },
-                          ),
-                        ),
+                        // Container(
+                        //   constraints: BoxConstraints(maxWidth: 400),
+                        //   padding: EdgeInsets.all(30),
+                        //   alignment: Alignment.topLeft,
+                        //   child: ElevatedButton(
+                        //     child: Text('Pick File'),
+                        //     onPressed: () async {
+                        //       FilePickerResult? result =
+                        //           await FilePicker.platform.pickFiles();
+                        //     },
+                        //   ),
+                        // ),
                         responsiveText(
                             "Lokasi Kegiatan", 14, FontWeight.w700, darkText),
                         const SizedBox(
@@ -1659,16 +1764,20 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           ),
                                           subtitle: Text(_jabatanList[index]),
                                           trailing: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  _namaAnggotaList
-                                                      .removeAt(index);
-                                                  _jabatanList.removeAt(index);
-                                                  _kodeAnggotaList
-                                                      .removeAt(index);
-                                                });
-                                              },
-                                              icon: const Icon(Icons.close)),
+                                            onPressed: () {
+                                              setState(() {
+                                                _namaAnggotaList
+                                                    .removeAt(index);
+                                                _jabatanList.removeAt(index);
+                                                _kodeAnggotaList
+                                                    .removeAt(index);
+                                              });
+                                            },
+                                            icon: const Tooltip(
+                                              message: "Hapus Anggota",
+                                              child: Icon(Icons.close),
+                                            ),
+                                          ),
                                         ),
                                       );
                                     },
@@ -1794,7 +1903,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
                                           title: Text(
-                                            _jenisKebutuhanList[index],
+                                            _jenisMasterList[index] +
+                                                " - " +
+                                                _jenisKebutuhanList[index],
                                           ),
                                           subtitle: Text(
                                             CurrencyFormat.convertToIdr(
@@ -1802,16 +1913,23 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                 2),
                                           ),
                                           trailing: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  _kodeKegiatanList
-                                                      .removeAt(index);
-                                                  _jenisKebutuhanList
-                                                      .removeAt(index);
-                                                  _saldoList.removeAt(index);
-                                                });
-                                              },
-                                              icon: const Icon(Icons.close)),
+                                            onPressed: () {
+                                              setState(() {
+                                                _kodeKegiatanList
+                                                    .removeAt(index);
+                                                _jenisKebutuhanList
+                                                    .removeAt(index);
+                                                _kodeMasterList.removeAt(index);
+                                                _jenisMasterList
+                                                    .removeAt(index);
+                                                _saldoList.removeAt(index);
+                                              });
+                                            },
+                                            icon: const Tooltip(
+                                              message: "Hapus Kebutuhan",
+                                              child: Icon(Icons.close),
+                                            ),
+                                          ),
                                         ),
                                       );
                                     },
@@ -1871,6 +1989,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         _tempkodekegiatangabungan + _singleList,
                                         kodeGereja,
                                         _saldoList[i],
+                                        _kodeMasterList[i],
                                         context);
                                   }
 
@@ -2032,6 +2151,10 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
         ),
       ),
     );
+  }
+
+  disimpen(val) {
+    _disimpen.add(val);
   }
 
   @override
@@ -2237,7 +2360,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                     color: Colors.black.withOpacity(0.5),
                                   ),
                                 ),
-                                width: deviceWidth / 2 * 0.7,
+                                width: deviceWidth / 2 * 0.62,
                                 padding: const EdgeInsets.all(10),
                                 child: FutureBuilder(
                                   future: kategoriDetailItemProposalKegiatan,
@@ -2366,7 +2489,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                     color: Colors.black.withOpacity(0.5),
                                   ),
                                 ),
-                                width: deviceWidth / 2 * 0.7,
+                                width: deviceWidth / 2 * 0.62,
                                 padding: const EdgeInsets.all(10),
                                 child: FutureBuilder(
                                   future: kategoriDetailItemProposalKegiatan,
@@ -2449,19 +2572,28 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                                       width: 5,
                                                                     ),
                                                                     IconButton(
-                                                                        onPressed:
-                                                                            () {
-                                                                          _tempKodePerkiraan =
-                                                                              snapData[1][index]['kode_perkiraan'].toString();
-                                                                          _namaItemKebutuhan =
-                                                                              snapData[1][index]['jenis_kebutuhan'].toString();
-                                                                          widget.controllerDetailPengeluaranKebutuhan.animateToPage(
-                                                                              1,
-                                                                              duration: const Duration(milliseconds: 250),
-                                                                              curve: Curves.ease);
-                                                                        },
-                                                                        icon: const Icon(
-                                                                            Icons.arrow_forward_rounded)),
+                                                                      onPressed:
+                                                                          () {
+                                                                        _tempKodePerkiraan =
+                                                                            snapData[1][index]['kode_perkiraan'].toString();
+                                                                        _namaItemKebutuhan =
+                                                                            snapData[1][index]['jenis_kebutuhan'].toString();
+                                                                        _tempKodeMaster =
+                                                                            snapData[1][index]['header_kode_perkiraan'].toString();
+                                                                        widget.controllerDetailPengeluaranKebutuhan.animateToPage(
+                                                                            1,
+                                                                            duration:
+                                                                                const Duration(milliseconds: 250),
+                                                                            curve: Curves.ease);
+                                                                      },
+                                                                      icon:
+                                                                          const Tooltip(
+                                                                        message:
+                                                                            "Detail Kebutuhan",
+                                                                        child: Icon(
+                                                                            Icons.arrow_forward_outlined),
+                                                                      ),
+                                                                    ),
                                                                   ],
                                                                 ),
                                                               ],
@@ -2519,8 +2651,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                responsiveText(
-                                    "Persenan", 20, FontWeight.w700, darkText),
+                                responsiveText("Presentase", 20,
+                                    FontWeight.w700, darkText),
                                 const SizedBox(
                                   height: 10,
                                 ),
@@ -2606,7 +2738,8 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                                               ? Row(
                                                                                   children: [
                                                                                     responsiveText(snapData[1][index]['persentase_kebutuhan'].toString().length > 5 ? snapData[1][index]['persentase_kebutuhan'].toString().substring(0, 5) : snapData[1][index]['persentase_kebutuhan'].toString(), 15, FontWeight.normal, Colors.red),
-                                                                                    responsiveText("%", 15, FontWeight.normal, Colors.red)
+                                                                                    responsiveText("%", 15, FontWeight.normal, Colors.red),
+                                                                                    //disimpen(snapData[1][index]['jenis_kebutuhan'])
                                                                                   ],
                                                                                 )
                                                                               : Row(
@@ -2637,7 +2770,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                                               .start,
                                                       children: [
                                                         responsiveText(
-                                                            "Total Persenan",
+                                                            "Total Presentase",
                                                             16,
                                                             FontWeight.w600,
                                                             darkText),
@@ -2924,8 +3057,11 @@ class _HistoryKegiatanState extends State<HistoryKegiatan> {
                                                         milliseconds: 250),
                                                     curve: Curves.ease);
                                           },
-                                          child: const Icon(
-                                              Icons.format_list_bulleted_sharp),
+                                          child: const Tooltip(
+                                            message: "Form Riwayat Kegiatan",
+                                            child: Icon(Icons
+                                                .format_list_bulleted_outlined),
+                                          ),
                                         ),
                                       ),
                                     );
@@ -3080,8 +3216,10 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                                 milliseconds: 250),
                                             curve: Curves.ease);
                                   },
-                                  child:
-                                      const Icon(Icons.arrow_forward_rounded),
+                                  child: const Tooltip(
+                                    message: "Absensi Anggota Kegiatan",
+                                    child: Icon(Icons.arrow_forward_outlined),
+                                  ),
                                 ),
                               ),
                             );
@@ -3373,7 +3511,7 @@ class _DetailPengeluaranKebutuhanState
   void initState() {
     // TODO: implement initState
     kategoriDetailPengeluaran = servicesUser.getDetailKebutuhanKegiatan(
-        _kodeKegiatan, kodeGereja, _tempKodePerkiraan);
+        _kodeKegiatan, kodeGereja, _tempKodePerkiraan, _tempKodeMaster);
     super.initState();
   }
 
@@ -3643,8 +3781,49 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
     );
   }
 
+  responsiveTextFieldMax(deviceWidth, deviceHeight, controllerText, size) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: SizedBox(
+        width: deviceWidth * 0.5,
+        child: TextField(
+          controller: controllerText,
+          autofocus: false,
+          maxLength: size,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   _showTambahDialogKodeKegiatan(dw, dh) {
     showDialog(
+      barrierDismissible: false,
       useRootNavigator: true,
       context: context,
       builder: (context) {
@@ -3704,8 +3883,8 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerBuatKodeKegiatan),
+                                  responsiveTextFieldMax(
+                                      dw, dh, _controllerBuatKodeKegiatan, 5),
                                   const SizedBox(
                                     height: 15,
                                   ),
@@ -3734,6 +3913,8 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                   if (mounted) {
                                     setState(() {});
                                   }
+                                  _controllerBuatKodeKegiatan.clear();
+                                  _controllerBuatNamaKegiatan.clear();
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Batal"),
@@ -3746,15 +3927,19 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                   if (mounted) {
                                     setState(() {
                                       postKategoriKegiatan(
-                                          _controllerBuatKodeKegiatan.text,
-                                          _controllerBuatNamaKegiatan.text,
-                                          kodeGereja,
-                                          context);
-                                      _controllerBuatKodeKegiatan.clear();
-                                      _controllerBuatNamaKegiatan.clear();
+                                              _controllerBuatKodeKegiatan.text
+                                                  .toUpperCase(),
+                                              _controllerBuatNamaKegiatan.text
+                                                  .capitalize(),
+                                              kodeGereja,
+                                              context)
+                                          .then((value) {
+                                        _controllerBuatKodeKegiatan.clear();
+                                        _controllerBuatNamaKegiatan.clear();
+                                        Navigator.pop(context);
+                                      });
                                     });
                                   }
-                                  Navigator.pop(context);
                                 },
                                 child: const Text("Tambah"),
                               ),
@@ -3920,7 +4105,10 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                             setState(() {});
                                           });
                                         },
-                                        icon: const Icon(Icons.delete_forever),
+                                        icon: const Tooltip(
+                                          message: "Hapus Kode Kegiatan",
+                                          child: Icon(Icons.delete_forever),
+                                        ),
                                       ),
                                     ),
                                   );
@@ -3971,6 +4159,9 @@ class _FormHistoryState extends State<FormHistory> {
             kodeGereja + _kodeKegiatanHistory,
             _kodeKegiatanHistory,
             kodeGereja);
+    _getPresentase(
+            kodeGereja + _kodeKegiatanHistory, _kodeKegiatanHistory, kodeGereja)
+        .whenComplete(() => setState(() {}));
     super.initState();
   }
 
@@ -3978,6 +4169,51 @@ class _FormHistoryState extends State<FormHistory> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future _getPresentase(kodepregabungan, kodeprekeg, kodepregre) async {
+    var response = await servicesUser.getPersentase(
+        kodepregabungan, kodeprekeg, kodepregre);
+    if (response[0] != 404) {
+      _presentase = response[1]['presentase_global'].toString();
+      _totalreal = response[1]['total_pengeluaran'].toString();
+      _totalbudget = response[1]['total_budgeting'].toString();
+      _totalpemasukanreal = response[1]['total_pemasukan'].toString();
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  _cardInfo(title, nominal) {
+    return Expanded(
+      child: Card(
+        elevation: 3,
+        color: cardInfoColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+            color: navButtonPrimary.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              responsiveText(title, 16, FontWeight.w700, darkText),
+              Divider(
+                color: navButtonPrimary.withOpacity(0.5),
+                thickness: 1,
+                height: 10,
+              ),
+              responsiveText(CurrencyFormat.convertToIdr(nominal, 2), 16,
+                  FontWeight.w700, darkText),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future _getTransaksi(kodeGereja) async {
@@ -4068,7 +4304,6 @@ class _FormHistoryState extends State<FormHistory> {
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
-    final deviceHeight = MediaQuery.of(context).size.height;
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
           dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse}),
@@ -4291,13 +4526,39 @@ class _FormHistoryState extends State<FormHistory> {
                   ],
                 ),
               ),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _cardInfo(
+                    "Total Budget",
+                    int.parse(_totalbudget),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  _cardInfo(
+                    "Total Pengeluaran",
+                    int.parse(_totalreal),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  _cardInfo(
+                    "Total Pemasukan",
+                    int.parse(_totalpemasukanreal),
+                  ),
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 15, 5, 5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     responsiveText(
-                        "Persenan Item", 20, FontWeight.w700, darkText),
+                        "Presentase Item", 20, FontWeight.w700, darkText),
                     const SizedBox(
                       height: 10,
                     ),
@@ -4363,7 +4624,13 @@ class _FormHistoryState extends State<FormHistory> {
                                                         children: [
                                                           Text(
                                                             snapData[1][index][
-                                                                'jenis_kebutuhan'],
+                                                                    'jenis_kebutuhan'] +
+                                                                " " +
+                                                                "(" +
+                                                                snapData[1]
+                                                                        [index][
+                                                                    'kode_perkiraan'] +
+                                                                ")",
                                                           ),
                                                           Row(
                                                             children: [

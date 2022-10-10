@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, todo
 
 import 'package:animations/animations.dart';
+import 'package:aplikasi_keuangan_gereja/SplashScreen.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/home/home.dart';
 import 'package:aplikasi_keuangan_gereja/pages/auth/loginactivation.dart';
 import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
@@ -19,7 +20,7 @@ import 'globals.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive,
   //     overlays: [SystemUiOverlay.bottom]);
   SystemChrome.setSystemUIOverlayStyle(
@@ -161,7 +162,7 @@ void main() async {
             },
           ),
         ),
-        home: MyApp(),
+        home: SplashScreen(),
       ),
     ),
   );

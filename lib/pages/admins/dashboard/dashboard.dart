@@ -25,9 +25,9 @@ int _totalPengeluaran = 0;
 int _totalSaldo = 0;
 
 List _dataChart = List.empty(growable: true);
-List _dataPengeluaranChart = List.empty(growable: true);
-List _dataPemasukanChart = List.empty(growable: true);
-List _dataSaldoChart = List.empty(growable: true);
+List<TransactionData> _dataPengeluaranChart = List.empty(growable: true);
+List<TransactionData> _dataPemasukanChart = List.empty(growable: true);
+List<TransactionData> _dataSaldoChart = List.empty(growable: true);
 
 class AdminDashboardControllerPage extends StatefulWidget {
   const AdminDashboardControllerPage({Key? key}) : super(key: key);
@@ -45,8 +45,8 @@ class _AdminDashboardControllerPageState
     // TODO: implement initState
     _dataPemasukanChart.clear();
     _dataPengeluaranChart.clear();
-    _dataChart.clear();
     _dataSaldoChart.clear();
+    _dataChart.clear();
     super.initState();
   }
 
@@ -91,7 +91,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   void initState() {
     // TODO: implement initState
     getUserName(kodeUser);
-    _getTransaksi(kodeGereja);
+    _getPemasukanChart(
+        kodeGereja, "${DateTime.now().month}-${DateTime.now().year}");
+    _getPengeluaranChart(
+        kodeGereja, "${DateTime.now().month}-${DateTime.now().year}");
+    _getSaldoChart(
+        kodeGereja, "${DateTime.now().month}-${DateTime.now().year}");
     super.initState();
   }
 
@@ -189,114 +194,102 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     }
   }
 
-  Future _getTransaksi(kodeGereja) async {
-    _rowList.clear();
-    _totalPemasukan = 0;
-    _totalPengeluaran = 0;
-    _totalSaldo = 0;
+  convertBulan(val) {
+    if (val == "01") {
+      return "Jan";
+    } else if (val == "02") {
+      return "Feb";
+    } else if (val == "03") {
+      return "Mar";
+    } else if (val == "04") {
+      return "Apr";
+    } else if (val == "05") {
+      return "May";
+    } else if (val == "06") {
+      return "Jun";
+    } else if (val == "07") {
+      return "Jul";
+    } else if (val == "08") {
+      return "Aug";
+    } else if (val == "09") {
+      return "Sep";
+    } else if (val == "10") {
+      return "Okt";
+    } else if (val == "11") {
+      return "Nov";
+    } else {
+      return "Des";
+    }
+  }
 
-    final tempPemasukan = List.empty(growable: true);
-    final tempPengeluaran = List.empty(growable: true);
-    var response = await servicesUser.getTransaksi(kodeGereja);
+  Future _getPemasukanChart(kodeGereja, tanggal) async {
+    _dataPemasukanChart.clear();
+    var temp = List.empty(growable: true);
+    var response = await servicesUser.getPemasukanChart(kodeGereja, tanggal);
     if (response[0] != 404) {
       for (var element in response[1]) {
-        tempPemasukan.clear();
-        tempPengeluaran.clear();
-        if (element['jenis_transaksi'] == "pemasukan") {
-          tempPemasukan.add(getBulanForChart(element['tanggal_transaksi']));
-          tempPemasukan.add(element['nominal']);
-          _dataPemasukanChart.add(tempPemasukan.toList());
-        } else {
-          tempPengeluaran.add(getBulanForChart(element['tanggal_transaksi']));
-          tempPengeluaran.add(element['nominal']);
-          _dataPengeluaranChart.add(tempPemasukan.toList());
-        }
-        // debugPrint(element['kode_transaksi'].toString());
-        // debugPrint(element['tanggal_transaksi'].toString());
-        // debugPrint(element['uraian_transaksi'].toString());
-        // debugPrint(element['jenis_transaksi'].toString());
-        // debugPrint(element['nominal'].toString());
-        if (element['jenis_transaksi'] == "pemasukan") {
-          _totalPemasukan += element['nominal'] as int;
-        } else {
-          _totalPengeluaran += element['nominal'] as int;
-        }
-        debugPrint(_dataPemasukanChart.toString());
-        debugPrint(_dataPengeluaranChart.toString());
+        _dataPemasukanChart.add(
+          TransactionData(
+            convertBulan(element['bulan']),
+            double.parse(element['nominal'].toString()),
+          ),
+        );
+
+        temp.clear();
       }
-      _totalSaldo = _totalPemasukan - _totalPengeluaran;
       if (mounted) {
         setState(() {});
       }
     }
   }
 
-  generateListChart() {}
+  Future _getPengeluaranChart(kodeGereja, tanggal) async {
+    _dataPengeluaranChart.clear();
+    var temp = List.empty(growable: true);
+    var response = await servicesUser.getPengeluaranChart(kodeGereja, tanggal);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _dataPengeluaranChart.add(
+          TransactionData(
+            convertBulan(element['bulan']),
+            double.parse(element['nominal'].toString()),
+          ),
+        );
 
-  // loopDataChart(data, index) {
-  //   for (int i = 0; i < data.length; i++) {
-  //     return data[i][0];
-  //   }
-  // }
+        temp.clear();
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
 
-  // generateDataChart() {
-  //   return DChartLine(
-  //     data: [
-  //       {
-  //         'id': 'Line1',
-  //         'data': {
-  //           'domain': loopDataChart(_dataPemasukanChart, 0),
-  //           'measure': loopDataChart(_dataPemasukanChart, 1),
-  //         },
-  //       },
+  Future _getSaldoChart(kodeGereja, tanggal) async {
+    _dataSaldoChart.clear();
+    var temp = List.empty(growable: true);
+    var response = await servicesUser.getSaldoChart(kodeGereja, tanggal);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _dataSaldoChart.add(
+          TransactionData(
+            convertBulan(element['bulan']),
+            double.parse(element['nominal'].toString()),
+          ),
+        );
 
-  //       {
-  //         'id': 'Line2',
-  //         'data': {
-  //           'domain': loopDataChart(_dataPengeluaranChart, 0),
-  //           'measure': loopDataChart(_dataPengeluaranChart, 1),
-  //         },
-  //       },
-
-  //       // {
-  //       //   'id': 'Line2',
-  //       //   'data': [
-  //       //     {'domain': 0, 'measure': 10},
-  //       //     {'domain': 2, 'measure': 22},
-  //       //     {'domain': 3, 'measure': 3},
-  //       //     {'domain': 4, 'measure': 12},
-  //       //   ],
-  //       // },
-  //       // {
-  //       //   'id': 'Line3',
-  //       //   'data': [
-  //       //     {'domain': 0, 'measure': 11},
-  //       //     {'domain': 2, 'measure': 2},
-  //       //     {'domain': 3, 'measure': 1},
-  //       //     {'domain': 4, 'measure': 15},
-  //       //   ],
-  //       // },
-  //     ],
-  //     lineColor: (lineData, index, id) {
-  //       if (id == 'Line1') {
-  //         return Colors.yellow;
-  //       } else if (id == 'Line2') {
-  //         return Colors.blue;
-  //       } else if (id == 'Line3') {
-  //         return Colors.green;
-  //       } else {
-  //         return Colors.black;
-  //       }
-  //     },
-  //     includePoints: true,
-  //     includeArea: true,
-  //   );
-  // }
+        temp.clear();
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
+    print(_dataPemasukanChart);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
@@ -447,20 +440,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                             // Bind data source
                                             color: Colors.green,
                                             name: "Pemasukan",
-                                            dataSource: <TransactionData>[
-                                              TransactionData('Jan', 10000000),
-                                              TransactionData('Feb', 7500000),
-                                              TransactionData('Mar', 8250000),
-                                              TransactionData('Apr', 5480000),
-                                              TransactionData('May', 7650000),
-                                              TransactionData('Jun', 8250000),
-                                              TransactionData('Jul', 7000000),
-                                              TransactionData('Aug', 5500000),
-                                              TransactionData('Sep', 5800000),
-                                              TransactionData('Okt', 4270000),
-                                              TransactionData('Nov', 8250000),
-                                              TransactionData('Dec', 4250000),
-                                            ],
+                                            dataSource: _dataPemasukanChart,
                                             xValueMapper:
                                                 (TransactionData sales, _) =>
                                                     sales.year,
@@ -471,20 +451,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                             // Bind data source
                                             color: Colors.red,
                                             name: "Pengeluaran",
-                                            dataSource: <TransactionData>[
-                                              TransactionData('Jan', 5500000),
-                                              TransactionData('Feb', 2500000),
-                                              TransactionData('Mar', 4250000),
-                                              TransactionData('Apr', 3360000),
-                                              TransactionData('May', 6350000),
-                                              TransactionData('Jun', 2730000),
-                                              TransactionData('Jul', 5600000),
-                                              TransactionData('Aug', 3756000),
-                                              TransactionData('Sep', 4450000),
-                                              TransactionData('Okt', 3845000),
-                                              TransactionData('Nov', 4750000),
-                                              TransactionData('Dec', 6000000),
-                                            ],
+                                            dataSource: _dataPengeluaranChart,
                                             xValueMapper:
                                                 (TransactionData sales, _) =>
                                                     sales.year,
@@ -495,32 +462,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                             // Bind data source
                                             color: Colors.yellow,
                                             name: "Saldo",
-                                            dataSource: <TransactionData>[
-                                              TransactionData(
-                                                  'Jan', 10000000 - 5500000),
-                                              TransactionData(
-                                                  'Feb', 7500000 - 2500000),
-                                              TransactionData(
-                                                  'Mar', 8250000 - 4250000),
-                                              TransactionData(
-                                                  'Apr', 5480000 - 3360000),
-                                              TransactionData(
-                                                  'May', 7650000 - 6350000),
-                                              TransactionData(
-                                                  'Jun', 8250000 - 2730000),
-                                              TransactionData(
-                                                  'Jul', 7000000 - 5600000),
-                                              TransactionData(
-                                                  'Aug', 5500000 - 3756000),
-                                              TransactionData(
-                                                  'Sep', 5800000 - 4450000),
-                                              TransactionData(
-                                                  'Okt', 4270000 - 3845000),
-                                              TransactionData(
-                                                  'Nov', 8250000 - 4750000),
-                                              TransactionData(
-                                                  'Dec', 4250000 - 3000000),
-                                            ],
+                                            dataSource: _dataSaldoChart,
                                             xValueMapper:
                                                 (TransactionData sales, _) =>
                                                     sales.year,
