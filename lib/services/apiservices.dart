@@ -20,6 +20,47 @@ class ServicesUser {
     }
   }
 
+  //TODO: nambah user
+  Future createUser(kodeGereja, namaLengkapUser, emailUser, noTelpUser) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-user?kode_gereja=$kodeGereja&nama_lengkap_user=$namaLengkapUser&email_user=$emailUser&no_telp_user=$noTelpUser"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal edit data");
+    }
+  }
+
+  //TODO: Update Profile User
+  Future updateUserProfile(
+      kodeUser,
+      emailUser,
+      jenisKelamin,
+      tanggalUser,
+      noTelpUser,
+      alamatUser,
+      kemampuanUser,
+      namaLengkapUser,
+      fotoProfileUser) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}update-user-profile?kode_user=$kodeUser&email_user=$emailUser&jenis_kelamin_user=$jenisKelamin&tanggal_lahir_user=$tanggalUser&no_telp_user=$noTelpUser&alamat_user=$alamatUser&kemampuan_user=$kemampuanUser&nama_lengkap_user=$namaLengkapUser&foto_profile=$fotoProfileUser"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal edit data");
+    }
+  }
+
   //TODO: Get User
   Future getSingleUser(kodeuser) async {
     final response = await http.get(
@@ -341,11 +382,10 @@ class ServicesUser {
   }
 
   //TODO: Laporan Buku Besar
-  Future getKodeBukuBesar(
-      kodeGereja, tanggal, kodeMaster, kodePerkiraan) async {
+  Future getKodeBukuBesar(kodeGereja) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}buku-besar?kode_gereja=$kodeGereja&tanggal=$tanggal&header_kode_perkiraan=$kodeMaster&kode_perkiraan=$kodePerkiraan"),
+          "${_linkPath}read-kode-perkiraan-buku-besar?kode_gereja=$kodeGereja"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -361,6 +401,20 @@ class ServicesUser {
     final response = await http.get(
       Uri.parse(
           "${_linkPath}buku-besar?kode_gereja=$kodeGereja&tanggal=$tanggal&header_kode_perkiraan=$kodeMaster&kode_perkiraan=$kodePerkiraan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getNeracaSaldo(kodeGereja, tanggal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}neraca-saldo?kode_gereja=$kodeGereja&tanggal=$tanggal"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

@@ -185,6 +185,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
   }
 
   _showTambahDialogMember(dw, dh) {
+    ServicesUser servicesUser = ServicesUser();
     showDialog(
       useRootNavigator: true,
       context: context,
@@ -282,6 +283,9 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
+                                  _controllerNamaTambahMember.clear();
+                                  _controllerEmailTambahMember.clear();
+                                  _controllerTelpTambahMember.clear();
                                   if (mounted) {
                                     setState(() {});
                                   }
@@ -294,10 +298,24 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (mounted) {
-                                    setState(() {});
-                                  }
-                                  Navigator.pop(context);
+                                  servicesUser
+                                      .createUser(
+                                          kodeGereja,
+                                          _controllerNamaTambahMember.text,
+                                          _controllerEmailTambahMember.text,
+                                          _controllerTelpTambahMember.text)
+                                      .whenComplete(() {
+                                    _controllerNamaTambahMember.clear();
+                                    _controllerEmailTambahMember.clear();
+                                    _controllerTelpTambahMember.clear();
+                                    if (mounted) {
+                                      setState(() {});
+                                    }
+                                    listUser = servicesUser
+                                        .getAllUser(kodeGereja)
+                                        .whenComplete(
+                                            () => Navigator.pop(context));
+                                  });
                                 },
                                 child: const Text("Tambah"),
                               ),
@@ -316,7 +334,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
           },
         );
       },
-    );
+    ).whenComplete(() => setState(() {}));
   }
 
   @override

@@ -4046,6 +4046,9 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
   ServicesUser servicesUser = ServicesUser();
   late TabController _tabController;
 
+  late Future kodeBukuBesar;
+  late Future neracaSaldo;
+
   DateTime selectedMonth = DateTime.now();
   String formattedMonth = "";
   String month = "Month";
@@ -4056,6 +4059,8 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     _tabController = TabController(length: 3, vsync: this);
     formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
     month = formattedMonth;
+    kodeBukuBesar = servicesUser.getKodeBukuBesar(kodeGereja);
+    neracaSaldo = servicesUser.getNeracaSaldo(kodeGereja, month);
     super.initState();
   }
 
@@ -4063,123 +4068,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-  }
-
-  Future _getJurnalUmum() async {
-    _jurnalUmum.clear();
-  }
-
-  Future _getBukuBesar() async {
-    _bukuBesar.clear();
-  }
-
-  Future _getNeracaSaldo() async {
-    _neracaSaldo.clear();
-  }
-
-  void _addRowJurnalUmum(tanggal, deskripsi, jenis, nominal) {
-    _jurnalUmum.add(
-      DataRow(
-        cells: [
-          DataCell(
-            Text(
-              tanggal.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              deskripsi.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              jenis == "pemasukan" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              jenis == "pengeluaran" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _addRowBukuBesar(tanggal, deskripsi, jenis, nominal) {
-    _bukuBesar.add(
-      DataRow(
-        cells: [
-          DataCell(
-            Text(
-              tanggal.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              deskripsi.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              jenis == "pemasukan" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              jenis == "pengeluaran" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              deskripsi.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _addRowNeracaSaldo(tanggal, deskripsi, jenis, nominal) {
-    _neracaSaldo.add(
-      DataRow(
-        cells: [
-          DataCell(
-            Text(
-              tanggal.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              deskripsi.toString(),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              jenis == "pemasukan" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          DataCell(
-            Text(
-              jenis == "pengeluaran" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> selectMonth(context) async {
@@ -4403,191 +4291,294 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  controller: ScrollController(),
-                  physics: const ClampingScrollPhysics(),
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 25,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Account Name"),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: dw < 1280
-                                    ? SingleChildScrollView(
-                                        physics: const ClampingScrollPhysics(),
-                                        controller: ScrollController(),
-                                        scrollDirection: Axis.horizontal,
-                                        child: DataTable(
-                                          border: TableBorder.all(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                            style: BorderStyle.solid,
-                                          ),
-                                          headingRowHeight: 70,
-                                          dataRowHeight: 56,
-                                          columns: [
-                                            DataColumn(
-                                              label: Text(
-                                                "Tanggal",
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                            DataColumn(
-                                              label: Text(
-                                                "Keterangan",
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                            DataColumn(
-                                              label: Text(
-                                                "Debet",
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                            DataColumn(
-                                              label: Text(
-                                                "Kredit",
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                            DataColumn(
-                                              label: Text(
-                                                "Saldo",
-                                                style: GoogleFonts.nunito(
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                          rows: List.generate(
-                                            _bukuBesar.length,
-                                            (index) {
-                                              return DataRow(
-                                                  color: MaterialStateColor
-                                                      .resolveWith(
-                                                    (states) {
-                                                      return index % 2 == 1
-                                                          ? Colors.white
-                                                          : primaryColor
-                                                              .withOpacity(0.2);
-                                                    },
+                child: FutureBuilder(
+                  future: kodeBukuBesar,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List snapData = snapshot.data! as List;
+                      debugPrint(snapData.toString());
+                      debugPrint(snapData[1].length.toString());
+
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        controller: ScrollController(),
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: snapData[1].length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 25,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  snapData[1][index]['kode_perkiraan']
+                                      .toString(),
+                                  style: GoogleFonts.nunito(
+                                      color: darkText,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18,
+                                      letterSpacing: 0.125),
+                                ),
+                                const SizedBox(
+                                  height: 16,
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: FutureBuilder(
+                                        future: servicesUser.getItemBukuBesar(
+                                            kodeGereja,
+                                            month,
+                                            snapData[1][index]
+                                                ['header_kode_perkiraan'],
+                                            snapData[1][index]
+                                                ['kode_perkiraan']),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            List snapData =
+                                                snapshot.data! as List;
+                                            debugPrint(snapData.toString());
+                                            debugPrint(
+                                                snapData[1].length.toString());
+                                            return Column(
+                                              children: [
+                                                ListTile(
+                                                  title: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Tanggal",
+                                                          style: GoogleFonts
+                                                              .nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 2,
+                                                        child: Text(
+                                                          "Uraian",
+                                                          style: GoogleFonts
+                                                              .nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Debit",
+                                                          style: GoogleFonts
+                                                              .nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Kredit",
+                                                          style: GoogleFonts
+                                                              .nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Saldo",
+                                                          style: GoogleFonts
+                                                              .nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  cells: _rowList[index].cells);
-                                            },
-                                          ),
-                                        ),
-                                      )
-                                    : DataTable(
-                                        border: TableBorder.all(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Colors.black.withOpacity(0.5),
-                                          style: BorderStyle.solid,
-                                        ),
-                                        headingRowHeight: 70,
-                                        dataRowHeight: 56,
-                                        columns: [
-                                          DataColumn(
-                                            label: Text(
-                                              "Tanggal",
-                                              style: GoogleFonts.nunito(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              "Keterangan",
-                                              style: GoogleFonts.nunito(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              "Debet",
-                                              style: GoogleFonts.nunito(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              "Kredit",
-                                              style: GoogleFonts.nunito(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              "Saldo",
-                                              style: GoogleFonts.nunito(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                        rows: List.generate(
-                                          _bukuBesar.length,
-                                          (index) {
-                                            return DataRow(
-                                                color: MaterialStateColor
-                                                    .resolveWith(
-                                                  (states) {
-                                                    return index % 2 == 1
-                                                        ? Colors.white
-                                                        : primaryColor
-                                                            .withOpacity(0.2);
+                                                ),
+                                                Divider(color: lightText),
+                                                ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.vertical,
+                                                  controller:
+                                                      ScrollController(),
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
+                                                  itemCount: snapData[1].length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return ListTile(
+                                                      title: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          Expanded(
+                                                            child: Text(
+                                                              snapData[1][index]
+                                                                      [
+                                                                      'tanggal_transaksi']
+                                                                  .toString(),
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            flex: 2,
+                                                            child: Text(
+                                                              snapData[1][index]
+                                                                      [
+                                                                      'uraian_transaksi']
+                                                                  .toString(),
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            child: snapData[1][
+                                                                            index]
+                                                                        [
+                                                                        'jenis_transaksi'] ==
+                                                                    "pemasukan"
+                                                                ? Text(
+                                                                    snapData[1][index]
+                                                                            [
+                                                                            'nominal']
+                                                                        .abs()
+                                                                        .toString(),
+                                                                    style: GoogleFonts.nunito(
+                                                                        color:
+                                                                            darkText,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w600,
+                                                                        fontSize:
+                                                                            16,
+                                                                        letterSpacing:
+                                                                            0.125),
+                                                                  )
+                                                                : const Text(
+                                                                    ""),
+                                                          ),
+                                                          Expanded(
+                                                            child: snapData[1][
+                                                                            index]
+                                                                        [
+                                                                        'jenis_transaksi'] ==
+                                                                    "pengeluaran"
+                                                                ? Text(
+                                                                    snapData[1][index]
+                                                                            [
+                                                                            'nominal']
+                                                                        .abs()
+                                                                        .toString(),
+                                                                    style: GoogleFonts.nunito(
+                                                                        color:
+                                                                            darkText,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w600,
+                                                                        fontSize:
+                                                                            16,
+                                                                        letterSpacing:
+                                                                            0.125),
+                                                                  )
+                                                                : const Text(
+                                                                    ""),
+                                                          ),
+                                                          Expanded(
+                                                            child: Text(
+                                                              snapData[1][index]
+                                                                      ['saldo']
+                                                                  .abs()
+                                                                  .toString(),
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
                                                   },
                                                 ),
-                                                cells: _rowList[index].cells);
-                                          },
-                                        ),
+                                              ],
+                                            );
+                                          }
+                                          return loadingIndicator();
+                                        },
                                       ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider(
-                      color: dividerColor,
-                    );
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Divider(
+                            height: 32,
+                            color: dividerColor.withOpacity(0.5),
+                          );
+                        },
+                      );
+                    }
+                    return loadingIndicator();
                   },
                 ),
               ),
@@ -4610,7 +4601,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
         physics: const ClampingScrollPhysics(),
         controller: ScrollController(),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -4651,72 +4641,130 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                 ),
               ],
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: DataTable(
-                    border: TableBorder.all(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black.withOpacity(0.5),
-                      style: BorderStyle.solid,
-                    ),
-                    headingRowHeight: 70,
-                    dataRowHeight: 56,
-                    columns: [
-                      DataColumn(
-                        label: Text(
-                          "Kode",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Nama Kode",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Debet",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Kredit",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                    rows: List.generate(
-                      _jurnalUmum.length,
-                      (index) {
-                        return DataRow(
-                            color: MaterialStateColor.resolveWith(
-                              (states) {
-                                return index % 2 == 1
-                                    ? Colors.white
-                                    : primaryColor.withOpacity(0.2);
-                              },
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Kode",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
                             ),
-                            cells: _rowList[index].cells);
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Nama Kode",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              "Debit",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              "Kredit",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      height: 32,
+                      color: dividerColor.withOpacity(0.5),
+                    ),
+                    FutureBuilder(
+                      future: neracaSaldo,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          List snapData = snapshot.data! as List;
+                          debugPrint(snapData.toString());
+                          debugPrint(snapData[1].length.toString());
+
+                          return ListView.separated(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            controller: ScrollController(),
+                            physics: const ClampingScrollPhysics(),
+                            itemCount: snapData[1].length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        snapData[1][index]['kode_perkiraan'],
+                                        style: GoogleFonts.nunito(
+                                            color: darkText,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 16,
+                                            letterSpacing: 0.125),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        snapData[1][index]
+                                            ['header_kode_perkiraan'],
+                                        style: GoogleFonts.nunito(
+                                            color: darkText,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 16,
+                                            letterSpacing: 0.125),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(""),
+                                    ),
+                                    Expanded(
+                                      child: Text(""),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return Divider(
+                                height: 32,
+                                color: lightText.withOpacity(0.5),
+                              );
+                            },
+                          );
+                        }
+                        return loadingIndicator();
                       },
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
