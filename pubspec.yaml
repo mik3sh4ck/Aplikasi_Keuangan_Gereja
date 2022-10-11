@@ -71,6 +71,10 @@ dependencies:
   syncfusion_flutter_charts: ^20.2.50
   syncfusion_flutter_pdf: ^20.3.48
 
+  signature: ^5.2.1
+  numberpicker: ^2.1.1
+  flutter_colorpicker: ^1.0.3
+
   # window_size:
   #   git:/
   #     url: https://github.com/google/flutter-desktop-embedding
@@ -122,6 +126,7 @@ flutter:
     - lib/assets/lotties/success.json
     - lib/assets/lotties/no_data.json
     - lib/assets/lotties/search_not_found.json
+    - lib/assets/images/tanggals.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -562,8 +562,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   Future _getKodePerkiraanSingleKegiatan(kodeGereja, kodeKegiatan) async {
     _kodePerkiraanSingleKegiatan.clear();
 
-    var response = await servicesUserItem.getKodePerkiraanSingleKegiatanBudgeting(
-        kodeGereja, kodeKegiatan);
+    var response = await servicesUserItem
+        .getKodePerkiraanSingleKegiatanBudgeting(kodeGereja, kodeKegiatan);
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
@@ -1206,16 +1206,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  responsiveText(
-                                      "Jabatan", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerJabatanAnggota),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
                                   responsiveText("Nama Anggota", 16,
                                       FontWeight.w700, darkText),
                                   const SizedBox(
@@ -1267,10 +1257,18 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  responsiveText(
+                                      "Jabatan", 16, FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _controllerJabatanAnggota),
+                                  
                                 ],
-                              ),
-                              const SizedBox(
-                                height: 25,
                               ),
                             ],
                           ),
@@ -1315,6 +1313,117 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         ),
                         const SizedBox(
                           height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      return setState(() {});
+    });
+  }
+
+  _showTambahDialogKeteranganTanggal(dw, dh, text) {
+    showDialog(
+      barrierDismissible: false,
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw * 0.4,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw * 0.4,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    responsiveText(
+                                        "p", 26, FontWeight.w700, primaryColor),
+                                    responsiveText(
+                                        "Keterangan Pengisian Tanggal",
+                                        26,
+                                        FontWeight.w700,
+                                        darkText),
+                                    IconButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        icon: const Icon(Icons.close_outlined))
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  responsiveText(
+                                      text, 16, FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  const Tooltip(
+                                    message: "Gambar Contoh Pengisian Tanggal",
+                                    child: Image(
+                                      image: AssetImage(
+                                        'lib/assets/images/tanggals.png',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -1555,35 +1664,62 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 25),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(dateSampaiAcara),
-                                          IconButton(
-                                            onPressed: () {
-                                              selectDateSampaiAcara(context)
-                                                  .then(
-                                                (value) => setState(() {}),
-                                              );
-                                            },
-                                            icon: const Icon(
-                                                Icons.calendar_month),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Card(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                        ],
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 25),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(dateSampaiAcara),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    selectDateSampaiAcara(
+                                                            context)
+                                                        .then(
+                                                      (value) =>
+                                                          setState(() {}),
+                                                    );
+                                                  },
+                                                  icon: const Icon(
+                                                      Icons.calendar_month),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.all(12),
+                                          shape: const CircleBorder(),
+                                        ),
+                                        onPressed: () {
+                                          _showTambahDialogKeteranganTanggal(
+                                              deviceWidth,
+                                              deviceHeight,
+                                              "Pada pengisian tanggal untuk acara harus memiliki jangka waktu yang lebih panjang dibanding pengisian tanggal kegiatan. Seperti pada contoh dibawah ini.");
+                                        },
+                                        child: const Tooltip(
+                                          message:
+                                              "Keterangan Pengaturan Tanggal",
+                                          child: Icon(Icons.question_mark),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            )
+                            ),
                           ],
                         ),
                         const SizedBox(
@@ -1641,30 +1777,57 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 25),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(dateSampaiKegiatan),
-                                          IconButton(
-                                            onPressed: () {
-                                              selectDateSampai(context).then(
-                                                (value) => setState(() {}),
-                                              );
-                                            },
-                                            icon: const Icon(
-                                                Icons.calendar_month),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Card(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                        ],
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 25),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(dateSampaiKegiatan),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    selectDateSampai(context)
+                                                        .then(
+                                                      (value) =>
+                                                          setState(() {}),
+                                                    );
+                                                  },
+                                                  icon: const Icon(
+                                                      Icons.calendar_month),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.all(12),
+                                          shape: const CircleBorder(),
+                                        ),
+                                        onPressed: () {
+                                          _showTambahDialogKeteranganTanggal(
+                                              deviceWidth,
+                                              deviceHeight,
+                                              "Pada pengisian tanggal untuk kegiatan harus memiliki jangka waktu yang lebih pendek dibanding pengisian tanggal acara. Seperti pada contoh dibawah ini.");
+                                        },
+                                        child: const Tooltip(
+                                          message:
+                                              "Keterangan Pengaturan Tanggal",
+                                          child: Icon(Icons.question_mark),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -2360,7 +2523,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                     color: Colors.black.withOpacity(0.5),
                                   ),
                                 ),
-                                width: deviceWidth / 2 * 0.62,
+                                width: deviceWidth / 2 * 0.68,
                                 padding: const EdgeInsets.all(10),
                                 child: FutureBuilder(
                                   future: kategoriDetailItemProposalKegiatan,
@@ -2489,7 +2652,7 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                                     color: Colors.black.withOpacity(0.5),
                                   ),
                                 ),
-                                width: deviceWidth / 2 * 0.62,
+                                width: deviceWidth / 2 * 0.68,
                                 padding: const EdgeInsets.all(10),
                                 child: FutureBuilder(
                                   future: kategoriDetailItemProposalKegiatan,

@@ -10,6 +10,8 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../services/apiservices.dart';
 
+String _namaPages = "";
+
 class AdminSettingPage extends StatefulWidget {
   final PageController controllerSettingPage;
   const AdminSettingPage({Key? key, required this.controllerSettingPage})
@@ -103,16 +105,20 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                                         shape: const CircleBorder(),
                                       ),
                                       onPressed: () {
+                                        _namaPages = pages[index];
                                         widget.controllerSettingPage
                                             .animateToPage(1,
                                                 duration: const Duration(
                                                     milliseconds: 250),
-                                                curve: Curves.ease);
+                                                curve: Curves.ease)
+                                            .whenComplete(
+                                                () => setState(() {}));
+                                        print(_namaPages);
                                       },
-                                      child: Tooltip(
+                                      child: const Tooltip(
                                         message: "Details",
-                                        child: const Icon(
-                                            Icons.arrow_forward_rounded),
+                                        child:
+                                            Icon(Icons.arrow_forward_rounded),
                                       ),
                                     ),
                                   ),
@@ -189,12 +195,6 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
   late Future kategoriListRole;
   ServicesUser servicesUser = ServicesUser();
 
-  List<String> roles = [
-    "Ketua",
-    "Admin",
-    "Bendahara",
-    "Sekretaris",
-  ];
   @override
   void initState() {
     // TODO: implement initState
@@ -231,7 +231,8 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
                 const SizedBox(
                   width: 25,
                 ),
-                responsiveText("Detail Halaman", 26, FontWeight.w900, darkText),
+                responsiveText("Detail Halaman $_namaPages", 26,
+                    FontWeight.w900, darkText),
               ],
             ),
             const Divider(
@@ -278,7 +279,7 @@ class _AdminAddRolePageState extends State<AdminAddRolePage> {
                                         scrollDirection: Axis.vertical,
                                         controller: ScrollController(),
                                         physics: const ClampingScrollPhysics(),
-                                        itemCount: roles.length,
+                                        itemCount: snapData[1].length,
                                         itemBuilder: (context, index) {
                                           return Card(
                                             color: scaffoldBackgroundColor,
