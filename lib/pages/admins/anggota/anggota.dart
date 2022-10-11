@@ -185,6 +185,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
   }
 
   _showTambahDialogMember(dw, dh) {
+    ServicesUser servicesUser = ServicesUser();
     showDialog(
       useRootNavigator: true,
       context: context,
@@ -294,6 +295,11 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
+                                  servicesUser.CreateUser(
+                                      kodeGereja,
+                                      _controllerNamaTambahMember,
+                                      _controllerEmailTambahMember,
+                                      _controllerTelpTambahMember);
                                   if (mounted) {
                                     setState(() {});
                                   }

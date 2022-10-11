@@ -105,7 +105,8 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: InputDecoration(
             filled: true,
             fillColor: surfaceColor,
-            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(
@@ -141,7 +142,8 @@ class _ProfilePageState extends State<ProfilePage> {
             decoration: InputDecoration(
               filled: true,
               fillColor: surfaceColor,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: const BorderSide(
@@ -169,6 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    ServicesUser servicesUser = ServicesUser();
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -193,7 +196,8 @@ class _ProfilePageState extends State<ProfilePage> {
             top: 0,
             child: Image(
               width: deviceWidth,
-              image: const AssetImage("lib/assets/images/loginactivationheader.png"),
+              image: const AssetImage(
+                  "lib/assets/images/loginactivationheader.png"),
             ),
           ),
           Container(
@@ -247,7 +251,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Nama Lengkap",
                                   style: Theme.of(context).textTheme.headline6,
@@ -267,7 +272,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 10,
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Tanggal Lahir",
                                   style: Theme.of(context).textTheme.headline6,
@@ -289,8 +295,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Nama Lengkap",
                                       style:
@@ -316,8 +322,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Tanggal Lahir",
                                       style:
@@ -343,7 +349,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Jenis Kelamin",
                                   style: Theme.of(context).textTheme.headline6,
@@ -360,7 +367,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 10,
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Email",
                                   style: Theme.of(context).textTheme.headline6,
@@ -382,8 +390,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Jenis Kelamin",
                                       style:
@@ -406,8 +414,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Email",
                                       style:
@@ -433,7 +441,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "No Telepon",
                                   style: Theme.of(context).textTheme.headline6,
@@ -450,7 +459,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 10,
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Alamat",
                                   style: Theme.of(context).textTheme.headline6,
@@ -472,8 +482,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "No Telepon",
                                       style:
@@ -496,8 +506,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Alamat",
                                       style:
@@ -523,7 +533,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Peran",
                                   style: Theme.of(context).textTheme.headline6,
@@ -535,7 +546,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 10,
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Text(
                                   "Kemampuan",
                                   style: Theme.of(context).textTheme.headline6,
@@ -557,8 +569,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Peran",
                                       style:
@@ -576,8 +588,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Text(
                                       "Kemampuan",
                                       style:
@@ -642,6 +654,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () {
+                                          servicesUser.UpdateUserProfile(
+                                              kodeUser,
+                                              _controllerEmail.text,
+                                              _controllerJenisKelamin.text,
+                                              _controllerTTL.text,
+                                              _controllerNoTelp.text,
+                                              _controllerAlamat.text,
+                                              _controllerKemampuan.text,
+                                              _controllerNama.text,
+                                              "https://yt3.ggpht.com/Zi6DMbqTrk8jpNKnJgbw_NxGnggsKX1omQnPeHxrZTmrVmon7zfmg5Q4XbqsHO9AMidW49zCPw=s900-c-k-c0x00ffffff-no-rj");
                                           readOnly();
                                         },
                                         child: const Text("SIMPAN"),
