@@ -26,9 +26,10 @@ final List _kodeTransaksi = List.empty(growable: true);
 final List _kodeRefKegiatan = List.empty(growable: true);
 final List _kodePerkiraanSingleKegiatan = List.empty(growable: true);
 
-final List<DataRow> _jurnalUmum = List.empty(growable: true);
-final List<DataRow> _bukuBesar = List.empty(growable: true);
-final List<DataRow> _neracaSaldo = List.empty(growable: true);
+final List _dataNeraca = List.empty(growable: true);
+final List _dataBukuBesar = List.empty(growable: true);
+final List _dataJurnal = List.empty(growable: true);
+
 final List<DataRow> _saldoAwal = List.empty(growable: true);
 final List<DataRow> _rowList = List.empty(growable: true);
 
@@ -61,9 +62,6 @@ class _AdminControllerTransaksiPageState
     // TODO: implement initState
     _rowList.clear();
     _saldoAwal.clear();
-    _jurnalUmum.clear();
-    _bukuBesar.clear();
-    _neracaSaldo.clear();
 
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
@@ -180,9 +178,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   void initState() {
     // TODO: implement initState
     _rowList.clear();
-    _jurnalUmum.clear();
-    _bukuBesar.clear();
-    _neracaSaldo.clear();
     _saldoAwal.clear();
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
@@ -1330,6 +1325,8 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
 
 enum RadioJenisTransaksi { pemasukan, pengeluaran }
 
+enum RadioJenisMaster { pemasukan, pengeluaran }
+
 //TODO: buat Kategori
 class BuatKodeKeuanganPage extends StatefulWidget {
   final PageController controllerPageKategori;
@@ -1355,6 +1352,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   final _controllerKodeTransaksi = TextEditingController();
   final _controllerNamaKodeTransaksi = TextEditingController();
   String _status = "";
+  String _statusMaster = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -1528,9 +1526,18 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                             context)
                                         .then(
                                       (value) {
-                                        _controllerKodePerkiraan.clear();
-                                        _controllerNamaKodePerkiraan.clear();
-                                        Navigator.pop(context);
+                                        postSaldoAwal(
+                                                kodeGereja,
+                                                headerKodePerkiraan,
+                                                _controllerKodePerkiraan.text
+                                                    .toUpperCase(),
+                                                0,
+                                                context)
+                                            .then((value) {
+                                          _controllerKodePerkiraan.clear();
+                                          _controllerNamaKodePerkiraan.clear();
+                                          Navigator.pop(context);
+                                        });
                                       },
                                     );
                                   }
@@ -1552,7 +1559,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
           },
         );
       },
-    ).whenComplete(() {
+    ).then((value) {
       if (mounted) {
         kodePerkiraan = servicesUser
             .getKodePerkiraan(kodeGereja, headerKodePerkiraan)
@@ -1562,6 +1569,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   }
 
   _showBuatMasterKodeDialog(dw, dh) {
+    RadioJenisMaster? radio;
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1634,6 +1642,56 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                   ),
                                   responsiveTextField(
                                       dw, dh, _controllerNamaMasterKode, null),
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Radio(
+                                            value: RadioJenisMaster.pemasukan,
+                                            groupValue: radio,
+                                            activeColor: primaryColorVariant,
+                                            onChanged: (val) {
+                                              radio = val as RadioJenisMaster?;
+                                              if (mounted) {
+                                                setState(() {});
+                                                _statusMaster = "pemasukan";
+                                              }
+                                            },
+                                          ),
+                                          responsiveText("Pemasukan", 14,
+                                              FontWeight.w700, darkText),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        width: 25,
+                                      ),
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Radio(
+                                            value: RadioJenisMaster.pengeluaran,
+                                            groupValue: radio,
+                                            activeColor: primaryColorVariant,
+                                            onChanged: (val) {
+                                              radio = val as RadioJenisMaster?;
+                                              _statusMaster = "pengeluaran";
+
+                                              if (mounted) {
+                                                setState(() {});
+                                              }
+                                            },
+                                          ),
+                                          responsiveText("Pengeluaran", 14,
+                                              FontWeight.w700, darkText),
+                                        ],
+                                      )
+                                    ],
+                                  ),
                                 ],
                               ),
                               const SizedBox(
@@ -1652,6 +1710,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                   if (mounted) {
                                     _controllerMasterKode.clear();
                                     _controllerNamaMasterKode.clear();
+                                    _statusMaster = "";
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -1670,11 +1729,13 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                 .capitalize(),
                                             _controllerMasterKode.text
                                                 .toUpperCase(),
+                                            _statusMaster,
                                             context)
                                         .then(
                                       (value) {
                                         _controllerKodePerkiraan.clear();
                                         _controllerNamaKodePerkiraan.clear();
+                                        _statusMaster = "";
                                         Navigator.pop(context);
                                       },
                                     );
@@ -1912,10 +1973,10 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     });
   }
 
-  Future postMasterKode(
-      kodeGereja, namaMasterKode, masterKodePerkiraan, context) async {
+  Future postMasterKode(kodeGereja, namaMasterKode, masterKodePerkiraan,
+      statusKode, context) async {
     var response = await servicesUser.inputMasterKode(
-        kodeGereja, namaMasterKode, masterKodePerkiraan);
+        kodeGereja, namaMasterKode, masterKodePerkiraan, statusKode);
 
     if (response[0] != 404) {
       return true;
@@ -1947,6 +2008,22 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
       headerKodePerkiraan, context) async {
     var response = await servicesUser.inputKodePerkiraan(
         kodeGereja, namaKodePerkiraan, kodePerkiraan, headerKodePerkiraan);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future postSaldoAwal(
+      kodeGereja, headerKodePerkiraan, kodePerkiraan, saldo, context) async {
+    var response = await servicesUser.inputSaldoAwal(
+        kodeGereja, headerKodePerkiraan, kodePerkiraan, saldo);
 
     if (response[0] != 404) {
       return true;
@@ -4046,9 +4123,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
   ServicesUser servicesUser = ServicesUser();
   late TabController _tabController;
 
-  late Future kodeBukuBesar;
-  late Future neracaSaldo;
-
   DateTime selectedMonth = DateTime.now();
   String formattedMonth = "";
   String month = "Month";
@@ -4059,8 +4133,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     _tabController = TabController(length: 3, vsync: this);
     formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
     month = formattedMonth;
-    kodeBukuBesar = servicesUser.getKodeBukuBesar(kodeGereja);
-    neracaSaldo = servicesUser.getNeracaSaldo(kodeGereja, month);
     super.initState();
   }
 
@@ -4104,6 +4176,36 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     }
   }
 
+  Future _getJurnalData(kodeGereja, month) async {
+    _dataJurnal.clear();
+    var tempKode = List.empty(growable: true);
+    var tempData = List.empty(growable: true);
+    var responseKode =
+        await servicesUser.getKodeKegiatanJurnal(kodeGereja, month);
+    if (responseKode[0] != 404) {
+      for (var element in responseKode[1]) {
+        var responseData = await servicesUser.getJurnal(
+            kodeGereja, month, element['kode_kegiatan']);
+
+        for (var element in responseData[1]) {
+          tempData.add(element['kode_perkiraan']);
+          tempData.add(element['nama_kode_perkiraan']);
+          tempData.add(element['status']);
+          tempData.add(element['jurnal']);
+          tempData.add(element['nama_kegiatan']);
+          tempData.add(element['kode_kegiatan']);
+          tempKode.add(tempData.toList());
+          tempData.clear();
+        }
+        _dataJurnal.add(tempKode.toList());
+        tempKode.clear();
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+    debugPrint(_dataJurnal.toString());
+  }
+
   jurnalUmumView(dw, dh) {
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
@@ -4116,7 +4218,6 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
         physics: const ClampingScrollPhysics(),
         controller: ScrollController(),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -4150,10 +4251,20 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     primary: const Color(0xff960000),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AdminLaporanPreviewPDF()),
+                    _getJurnalData(kodeGereja, month).whenComplete(
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return AdminLaporanPreviewPDF(
+                                tipe: 0,
+                                month: month,
+                              );
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                   child: const Padding(
@@ -4163,77 +4274,315 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                 ),
               ],
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: DataTable(
-                    border: TableBorder.all(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black.withOpacity(0.5),
-                      style: BorderStyle.solid,
-                    ),
-                    headingRowHeight: 70,
-                    dataRowHeight: 56,
-                    columns: [
-                      DataColumn(
-                        label: Text(
-                          "Tanggal",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Keterangan",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Debet",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Kredit",
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                    rows: List.generate(
-                      _jurnalUmum.length,
-                      (index) {
-                        return DataRow(
-                            color: MaterialStateColor.resolveWith(
-                              (states) {
-                                return index % 2 == 1
-                                    ? Colors.white
-                                    : primaryColor.withOpacity(0.2);
-                              },
-                            ),
-                            cells: _rowList[index].cells);
-                      },
-                    ),
-                  ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: FutureBuilder(
+                  future: servicesUser.getKodeKegiatanJurnal(kodeGereja, month),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List snapData = snapshot.data! as List;
+                      debugPrint(snapData.toString());
+                      debugPrint(snapData[1].length.toString());
+
+                      if (snapData[0] != 404) {
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          controller: ScrollController(),
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: snapData[1].length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 25,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    snapData[1][index]['kode_kegiatan']
+                                        .toString(),
+                                    style: GoogleFonts.nunito(
+                                        color: darkText,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 18,
+                                        letterSpacing: 0.125),
+                                  ),
+                                  const SizedBox(
+                                    height: 16,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FutureBuilder(
+                                          future: servicesUser.getJurnal(
+                                              kodeGereja,
+                                              month,
+                                              snapData[1][index]
+                                                  ['kode_kegiatan']),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              List snapData =
+                                                  snapshot.data! as List;
+                                              debugPrint(snapData.toString());
+                                              debugPrint(snapData[1]
+                                                  .length
+                                                  .toString());
+                                              if (snapData[0] != 404) {
+                                                return Column(
+                                                  children: [
+                                                    ListTile(
+                                                      title: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          Expanded(
+                                                            child: Text(
+                                                              "Kode",
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Expanded(
+                                                            flex: 2,
+                                                            child: Text(
+                                                              "Uraian",
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Expanded(
+                                                            child: Text(
+                                                              "Debit",
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Expanded(
+                                                            child: Text(
+                                                              "Kredit",
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Divider(color: lightText),
+                                                    ListView.builder(
+                                                      shrinkWrap: true,
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      controller:
+                                                          ScrollController(),
+                                                      physics:
+                                                          const ClampingScrollPhysics(),
+                                                      itemCount:
+                                                          snapData[1].length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return ListTile(
+                                                          title: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceEvenly,
+                                                            children: [
+                                                              Expanded(
+                                                                child: Text(
+                                                                  snapData[1][index]
+                                                                          [
+                                                                          'kode_perkiraan']
+                                                                      .toString(),
+                                                                  style: GoogleFonts.nunito(
+                                                                      color:
+                                                                          darkText,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                      letterSpacing:
+                                                                          0.125),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                flex: 2,
+                                                                child: Text(
+                                                                  snapData[1][index]
+                                                                          [
+                                                                          'nama_kode_perkiraan']
+                                                                      .toString(),
+                                                                  style: GoogleFonts.nunito(
+                                                                      color:
+                                                                          darkText,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                      letterSpacing:
+                                                                          0.125),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                child: snapData[1][index]
+                                                                            [
+                                                                            'status'] ==
+                                                                        "pemasukan"
+                                                                    ? Text(
+                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['jurnal'].abs(),
+                                                                                2)
+                                                                            .toString(),
+                                                                        style: GoogleFonts.nunito(
+                                                                            color:
+                                                                                darkText,
+                                                                            fontWeight: FontWeight
+                                                                                .w600,
+                                                                            fontSize:
+                                                                                16,
+                                                                            letterSpacing:
+                                                                                0.125),
+                                                                      )
+                                                                    : const Text(
+                                                                        ""),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                child: snapData[1][index]
+                                                                            [
+                                                                            'status'] ==
+                                                                        "pengeluaran"
+                                                                    ? Text(
+                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['jurnal'].abs(),
+                                                                                2)
+                                                                            .toString(),
+                                                                        style: GoogleFonts.nunito(
+                                                                            color:
+                                                                                darkText,
+                                                                            fontWeight: FontWeight
+                                                                                .w600,
+                                                                            fontSize:
+                                                                                16,
+                                                                            letterSpacing:
+                                                                                0.125),
+                                                                      )
+                                                                    : const Text(
+                                                                        ""),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              } else if (snapData[0] == 404) {
+                                                return noData();
+                                              }
+                                            }
+                                            return loadingIndicator();
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return Divider(
+                              height: 32,
+                              color: dividerColor.withOpacity(0.5),
+                            );
+                          },
+                        );
+                      }
+                      if (snapData[0] == 404) {
+                        return noData();
+                      }
+                    }
+                    return loadingIndicator();
+                  },
                 ),
-              ],
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future _getBukuBesarData(kodeGereja, month) async {
+    _dataBukuBesar.clear();
+    var tempKode = List.empty(growable: true);
+    var tempData = List.empty(growable: true);
+    var responseKode = await servicesUser.getKodeBukuBesar(kodeGereja);
+    if (responseKode[0] != 404) {
+      for (var element in responseKode[1]) {
+        var responseData = await servicesUser.getItemBukuBesar(kodeGereja,
+            month, element['header_kode_perkiraan'], element['kode_perkiraan']);
+        if (responseData[0] != 404) {
+          for (var element in responseData[1]) {
+            tempData.add(element['tanggal_transaksi']);
+            tempData.add(element['uraian_transaksi']);
+            tempData.add(element['jenis_transaksi']);
+            tempData.add(element['nominal']);
+            tempData.add(element['saldo']);
+            tempData.add(element['kode_perkiraan']);
+            tempKode.add(tempData.toList());
+            tempData.clear();
+          }
+          _dataBukuBesar.add(tempKode.toList());
+          tempKode.clear();
+        } else {
+          throw "Gagal Mengambil Data";
+        }
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
   }
 
   bukuBesarView(dw, dh) {
@@ -4280,7 +4629,23 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     shape: const CircleBorder(),
                     primary: const Color(0xff960000),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    _getBukuBesarData(kodeGereja, month).whenComplete(
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return AdminLaporanPreviewPDF(
+                                tipe: 1,
+                                month: month,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
                     child: FaIcon(FontAwesomeIcons.solidFilePdf),
@@ -4292,157 +4657,63 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: FutureBuilder(
-                  future: kodeBukuBesar,
+                  future: servicesUser.getKodeBukuBesar(kodeGereja),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       List snapData = snapshot.data! as List;
                       debugPrint(snapData.toString());
                       debugPrint(snapData[1].length.toString());
 
-                      return ListView.separated(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        controller: ScrollController(),
-                        physics: const ClampingScrollPhysics(),
-                        itemCount: snapData[1].length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 25,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  snapData[1][index]['kode_perkiraan']
-                                      .toString(),
-                                  style: GoogleFonts.nunito(
-                                      color: darkText,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 18,
-                                      letterSpacing: 0.125),
-                                ),
-                                const SizedBox(
-                                  height: 16,
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: FutureBuilder(
-                                        future: servicesUser.getItemBukuBesar(
-                                            kodeGereja,
-                                            month,
-                                            snapData[1][index]
-                                                ['header_kode_perkiraan'],
-                                            snapData[1][index]
-                                                ['kode_perkiraan']),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData) {
-                                            List snapData =
-                                                snapshot.data! as List;
-                                            debugPrint(snapData.toString());
-                                            debugPrint(
-                                                snapData[1].length.toString());
-                                            return Column(
-                                              children: [
-                                                ListTile(
-                                                  title: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          "Tanggal",
-                                                          style: GoogleFonts
-                                                              .nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Text(
-                                                          "Uraian",
-                                                          style: GoogleFonts
-                                                              .nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          "Debit",
-                                                          style: GoogleFonts
-                                                              .nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          "Kredit",
-                                                          style: GoogleFonts
-                                                              .nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          "Saldo",
-                                                          style: GoogleFonts
-                                                              .nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Divider(color: lightText),
-                                                ListView.builder(
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  controller:
-                                                      ScrollController(),
-                                                  physics:
-                                                      const ClampingScrollPhysics(),
-                                                  itemCount: snapData[1].length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return ListTile(
+                      if (snapData[0] != 404) {
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          controller: ScrollController(),
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: snapData[1].length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 25,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    snapData[1][index]['kode_perkiraan']
+                                        .toString(),
+                                    style: GoogleFonts.nunito(
+                                        color: darkText,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 18,
+                                        letterSpacing: 0.125),
+                                  ),
+                                  const SizedBox(
+                                    height: 16,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FutureBuilder(
+                                          future: servicesUser.getItemBukuBesar(
+                                              kodeGereja,
+                                              month,
+                                              snapData[1][index]
+                                                  ['header_kode_perkiraan'],
+                                              snapData[1][index]
+                                                  ['kode_perkiraan']),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              List snapData =
+                                                  snapshot.data! as List;
+                                              debugPrint(snapData.toString());
+                                              debugPrint(snapData[1]
+                                                  .length
+                                                  .toString());
+                                              if (snapData[0] != 404) {
+                                                return Column(
+                                                  children: [
+                                                    ListTile(
                                                       title: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -4450,103 +4721,78 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                         children: [
                                                           Expanded(
                                                             child: Text(
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'tanggal_transaksi']
-                                                                  .toString(),
+                                                              "Tanggal",
                                                               style: GoogleFonts.nunito(
                                                                   color:
                                                                       darkText,
                                                                   fontWeight:
                                                                       FontWeight
-                                                                          .w600,
+                                                                          .w700,
                                                                   fontSize: 16,
                                                                   letterSpacing:
                                                                       0.125),
                                                             ),
                                                           ),
+                                                          const SizedBox(
+                                                              width: 5),
                                                           Expanded(
                                                             flex: 2,
                                                             child: Text(
-                                                              snapData[1][index]
-                                                                      [
-                                                                      'uraian_transaksi']
-                                                                  .toString(),
+                                                              "Uraian",
                                                               style: GoogleFonts.nunito(
                                                                   color:
                                                                       darkText,
                                                                   fontWeight:
                                                                       FontWeight
-                                                                          .w600,
+                                                                          .w700,
                                                                   fontSize: 16,
                                                                   letterSpacing:
                                                                       0.125),
                                                             ),
                                                           ),
-                                                          Expanded(
-                                                            child: snapData[1][
-                                                                            index]
-                                                                        [
-                                                                        'jenis_transaksi'] ==
-                                                                    "pemasukan"
-                                                                ? Text(
-                                                                    snapData[1][index]
-                                                                            [
-                                                                            'nominal']
-                                                                        .abs()
-                                                                        .toString(),
-                                                                    style: GoogleFonts.nunito(
-                                                                        color:
-                                                                            darkText,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w600,
-                                                                        fontSize:
-                                                                            16,
-                                                                        letterSpacing:
-                                                                            0.125),
-                                                                  )
-                                                                : const Text(
-                                                                    ""),
-                                                          ),
-                                                          Expanded(
-                                                            child: snapData[1][
-                                                                            index]
-                                                                        [
-                                                                        'jenis_transaksi'] ==
-                                                                    "pengeluaran"
-                                                                ? Text(
-                                                                    snapData[1][index]
-                                                                            [
-                                                                            'nominal']
-                                                                        .abs()
-                                                                        .toString(),
-                                                                    style: GoogleFonts.nunito(
-                                                                        color:
-                                                                            darkText,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w600,
-                                                                        fontSize:
-                                                                            16,
-                                                                        letterSpacing:
-                                                                            0.125),
-                                                                  )
-                                                                : const Text(
-                                                                    ""),
-                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
                                                           Expanded(
                                                             child: Text(
-                                                              snapData[1][index]
-                                                                      ['saldo']
-                                                                  .abs()
-                                                                  .toString(),
+                                                              "Debit",
                                                               style: GoogleFonts.nunito(
                                                                   color:
                                                                       darkText,
                                                                   fontWeight:
                                                                       FontWeight
-                                                                          .w600,
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Expanded(
+                                                            child: Text(
+                                                              "Kredit",
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      0.125),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Expanded(
+                                                            child: Text(
+                                                              "Saldo",
+                                                              style: GoogleFonts.nunito(
+                                                                  color:
+                                                                      darkText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
                                                                   fontSize: 16,
                                                                   letterSpacing:
                                                                       0.125),
@@ -4554,29 +4800,165 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                           ),
                                                         ],
                                                       ),
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          }
-                                          return loadingIndicator();
-                                        },
+                                                    ),
+                                                    Divider(color: lightText),
+                                                    ListView.builder(
+                                                      shrinkWrap: true,
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      controller:
+                                                          ScrollController(),
+                                                      physics:
+                                                          const ClampingScrollPhysics(),
+                                                      itemCount:
+                                                          snapData[1].length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return ListTile(
+                                                          title: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceEvenly,
+                                                            children: [
+                                                              Expanded(
+                                                                child: Text(
+                                                                  snapData[1][index]
+                                                                          [
+                                                                          'tanggal_transaksi']
+                                                                      .toString(),
+                                                                  style: GoogleFonts.nunito(
+                                                                      color:
+                                                                          darkText,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                      letterSpacing:
+                                                                          0.125),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                flex: 2,
+                                                                child: Text(
+                                                                  snapData[1][index]
+                                                                          [
+                                                                          'uraian_transaksi']
+                                                                      .toString(),
+                                                                  style: GoogleFonts.nunito(
+                                                                      color:
+                                                                          darkText,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                      letterSpacing:
+                                                                          0.125),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                child: snapData[1][index]
+                                                                            [
+                                                                            'jenis_transaksi'] ==
+                                                                        "pemasukan"
+                                                                    ? Text(
+                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['nominal'].abs(),
+                                                                                2)
+                                                                            .toString(),
+                                                                        style: GoogleFonts.nunito(
+                                                                            color:
+                                                                                darkText,
+                                                                            fontWeight: FontWeight
+                                                                                .w600,
+                                                                            fontSize:
+                                                                                16,
+                                                                            letterSpacing:
+                                                                                0.125),
+                                                                      )
+                                                                    : const Text(
+                                                                        ""),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                child: snapData[1][index]
+                                                                            [
+                                                                            'jenis_transaksi'] ==
+                                                                        "pengeluaran"
+                                                                    ? Text(
+                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['nominal'].abs(),
+                                                                                2)
+                                                                            .toString(),
+                                                                        style: GoogleFonts.nunito(
+                                                                            color:
+                                                                                darkText,
+                                                                            fontWeight: FontWeight
+                                                                                .w600,
+                                                                            fontSize:
+                                                                                16,
+                                                                            letterSpacing:
+                                                                                0.125),
+                                                                      )
+                                                                    : const Text(
+                                                                        ""),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                child: Text(
+                                                                  CurrencyFormat.convertToIdr(
+                                                                          snapData[1][index]['saldo']
+                                                                              .abs(),
+                                                                          2)
+                                                                      .toString(),
+                                                                  style: GoogleFonts.nunito(
+                                                                      color:
+                                                                          darkText,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                      letterSpacing:
+                                                                          0.125),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              } else {
+                                                return noData();
+                                              }
+                                            }
+                                            return loadingIndicator();
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return Divider(
-                            height: 32,
-                            color: dividerColor.withOpacity(0.5),
-                          );
-                        },
-                      );
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return Divider(
+                              height: 32,
+                              color: dividerColor.withOpacity(0.5),
+                            );
+                          },
+                        );
+                      } else {
+                        return noData();
+                      }
                     }
                     return loadingIndicator();
                   },
@@ -4587,6 +4969,25 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
         ),
       ),
     );
+  }
+
+  Future _getNeracaData(kodeGereja, month) async {
+    _dataNeraca.clear();
+    var temp = List.empty(growable: true);
+    var response = await servicesUser.getNeracaSaldo(kodeGereja, month);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        temp.add(element['nama_kode_perkiraan']);
+        temp.add(element['kode_perkiraan']);
+        temp.add(element['status']);
+        temp.add(element['saldo']);
+        _dataNeraca.add(temp.toList());
+        temp.clear();
+      }
+      debugPrint(_dataNeraca.toString());
+    } else {
+      throw "Gagal Mengambil Data";
+    }
   }
 
   neracaSaldoView(dw, dh) {
@@ -4633,7 +5034,21 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     shape: const CircleBorder(),
                     primary: const Color(0xff960000),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    _getNeracaData(kodeGereja, month).whenComplete(() {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return AdminLaporanPreviewPDF(
+                              tipe: 2,
+                              month: month,
+                            );
+                          },
+                        ),
+                      );
+                    });
+                  },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
                     child: FaIcon(FontAwesomeIcons.solidFilePdf),
@@ -4660,6 +5075,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                   letterSpacing: 0.125),
                             ),
                           ),
+                          const SizedBox(width: 5),
                           Expanded(
                             flex: 2,
                             child: Text(
@@ -4671,6 +5087,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                   letterSpacing: 0.125),
                             ),
                           ),
+                          const SizedBox(width: 5),
                           Expanded(
                             child: Text(
                               "Debit",
@@ -4681,6 +5098,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                   letterSpacing: 0.125),
                             ),
                           ),
+                          const SizedBox(width: 5),
                           Expanded(
                             child: Text(
                               "Kredit",
@@ -4699,65 +5117,102 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                       color: dividerColor.withOpacity(0.5),
                     ),
                     FutureBuilder(
-                      future: neracaSaldo,
+                      future: servicesUser.getNeracaSaldo(kodeGereja, month),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           List snapData = snapshot.data! as List;
                           debugPrint(snapData.toString());
                           debugPrint(snapData[1].length.toString());
 
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            controller: ScrollController(),
-                            physics: const ClampingScrollPhysics(),
-                            itemCount: snapData[1].length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        snapData[1][index]['kode_perkiraan'],
-                                        style: GoogleFonts.nunito(
-                                            color: darkText,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16,
-                                            letterSpacing: 0.125),
+                          if (snapData[0] != 404) {
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              controller: ScrollController(),
+                              physics: const ClampingScrollPhysics(),
+                              itemCount: snapData[1].length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          snapData[1][index]['kode_perkiraan'],
+                                          style: GoogleFonts.nunito(
+                                              color: darkText,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                              letterSpacing: 0.125),
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        snapData[1][index]
-                                            ['header_kode_perkiraan'],
-                                        style: GoogleFonts.nunito(
-                                            color: darkText,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16,
-                                            letterSpacing: 0.125),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          snapData[1][index]
+                                              ['nama_kode_perkiraan'],
+                                          style: GoogleFonts.nunito(
+                                              color: darkText,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                              letterSpacing: 0.125),
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: Text(""),
-                                    ),
-                                    Expanded(
-                                      child: Text(""),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return Divider(
-                                height: 32,
-                                color: lightText.withOpacity(0.5),
-                              );
-                            },
-                          );
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        child: snapData[1][index]['status'] ==
+                                                "pemasukan"
+                                            ? Text(
+                                                CurrencyFormat.convertToIdr(
+                                                        snapData[1][index]
+                                                                ['saldo']
+                                                            .abs(),
+                                                        2)
+                                                    .toString(),
+                                                style: GoogleFonts.nunito(
+                                                    color: darkText,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                    letterSpacing: 0.125),
+                                              )
+                                            : const Text(""),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        child: snapData[1][index]['status'] ==
+                                                "pengeluaran"
+                                            ? Text(
+                                                CurrencyFormat.convertToIdr(
+                                                        snapData[1][index]
+                                                                ['saldo']
+                                                            .abs(),
+                                                        2)
+                                                    .toString(),
+                                                style: GoogleFonts.nunito(
+                                                    color: darkText,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                    letterSpacing: 0.125),
+                                              )
+                                            : const Text(""),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return Divider(
+                                  height: 32,
+                                  color: lightText.withOpacity(0.5),
+                                );
+                              },
+                            );
+                          } else {
+                            return noData();
+                          }
                         }
                         return loadingIndicator();
                       },
@@ -4827,6 +5282,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   jurnalUmumView(deviceWidth, deviceHeight),
                   bukuBesarView(deviceWidth, deviceHeight),
@@ -4847,13 +5303,13 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                   letterSpacing: 0.125),
               tabs: const <Widget>[
                 Tab(
-                  text: "Jurnal Umum",
+                  text: "Jurnal",
                 ),
                 Tab(
                   text: "Buku Besar",
                 ),
                 Tab(
-                  text: "Neraca Saldo",
+                  text: "Neraca",
                 ),
               ],
             ),
@@ -5057,14 +5513,53 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
 }
 
 class AdminLaporanPreviewPDF extends StatefulWidget {
-  const AdminLaporanPreviewPDF({super.key});
+  final int tipe;
+  final String month;
+  const AdminLaporanPreviewPDF(
+      {super.key, required this.tipe, required this.month});
 
   @override
   State<AdminLaporanPreviewPDF> createState() => _AdminLaporanPreviewPDFState();
 }
 
 class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
-  Future<Uint8List> _generateJurnalUmum(PdfPageFormat format) async {
+  splitMonth(String val) {
+    var split = val.indexOf("-");
+    var month = val.substring(0, split);
+    var year = val.substring(split + 1, val.length);
+    return [month, year];
+  }
+
+  getMonth(String val) {
+    var dt = splitMonth(val);
+    if (dt[0] == "01") {
+      return "Januari ${dt[1]}";
+    } else if (dt[0] == "02") {
+      return "Febriari ${dt[1]}";
+    } else if (dt[0] == "03") {
+      return "Maret ${dt[1]}";
+    } else if (dt[0] == "04") {
+      return "April ${dt[1]}";
+    } else if (dt[0] == "05") {
+      return "Mei ${dt[1]}";
+    } else if (dt[0] == "06") {
+      return "Juni ${dt[1]}";
+    } else if (dt[0] == "07") {
+      return "Juli ${dt[1]}";
+    } else if (dt[0] == "08") {
+      return "Agustus ${dt[1]}";
+    } else if (dt[0] == "09") {
+      return "September ${dt[1]}";
+    } else if (dt[0] == "10") {
+      return "Oktober ${dt[1]}";
+    } else if (dt[0] == "11") {
+      return "November ${dt[1]}";
+    } else if (dt[0] == "12") {
+      return "Desember ${dt[1]}";
+    }
+  }
+
+  Future<Uint8List> _generateNeraca(PdfPageFormat format) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final headingFont = await PdfGoogleFonts.nunitoBold();
     final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
@@ -5075,179 +5570,204 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
         pageFormat: format.portrait,
         build: (context) {
           return [
-            pw.Container(
-              padding: const pw.EdgeInsets.all(0),
-              child: pw.Column(
-                children: [
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.center,
-                    children: [
-                      pw.Text(
-                        "JURNAL UMUM",
-                        style: pw.TextStyle(
-                          font: boldHeadingFont,
-                          fontSize: 20,
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  "LAPORAN KEUANGAN GEREJA $kodeGereja",
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  "NERACA SALDO",
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  getMonth(widget.month),
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            pw.Divider(
+              height: 56,
+            ),
+            pw.Table(
+              border: pw.TableBorder.all(
+                style: pw.BorderStyle.solid,
+                width: 1,
+              ),
+              children: [
+                //TODO: Header Table
+                pw.TableRow(
+                  children: [
+                    pw.Column(
+                      children: [
+                        pw.Text(
+                          "Kode",
+                          style: pw.TextStyle(
+                            font: headingFont,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.center,
-                    children: [
-                      pw.Text(
-                        "Bulan A",
-                        style: pw.TextStyle(
-                          font: boldHeadingFont,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  pw.SizedBox(
-                    height: 25,
-                  ),
-                  pw.Table(
-                    border: pw.TableBorder.all(
-                      style: pw.BorderStyle.solid,
-                      width: 1,
+                      ],
                     ),
+                    pw.Column(
+                      children: [
+                        pw.Text(
+                          "Nama Kode",
+                          style: pw.TextStyle(
+                            font: headingFont,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Text(
+                          "Debit",
+                          style: pw.TextStyle(
+                            font: headingFont,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      children: [
+                        pw.Text(
+                          "Kredit",
+                          style: pw.TextStyle(
+                            font: headingFont,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                //TODO: Data Pemasukan
+
+                for (int i = 0; i < _dataNeraca.length; i++)
+                  pw.TableRow(
                     children: [
-                      //TODO: Header Table
-                      pw.TableRow(
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
                         children: [
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                "Kode",
-                                style: pw.TextStyle(
-                                  font: headingFont,
-                                  fontSize: 14,
-                                ),
+                          pw.Padding(
+                            padding:
+                                const pw.EdgeInsets.symmetric(horizontal: 5),
+                            child: pw.Text(
+                              "${_dataNeraca[i][1]}",
+                              style: pw.TextStyle(
+                                font: regularFont,
+                                fontSize: 12,
                               ),
-                            ],
-                          ),
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                "Uraian",
-                                style: pw.TextStyle(
-                                  font: headingFont,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                "Tanggal",
-                                style: pw.TextStyle(
-                                  font: headingFont,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                "Pemasukan",
-                                style: pw.TextStyle(
-                                  font: headingFont,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                "Pengeluaran",
-                                style: pw.TextStyle(
-                                  font: headingFont,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                      //TODO: Data Pemasukan
-
-                      for (int i = 0; i < 10; i++)
-                        pw.TableRow(
-                          children: [
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.center,
-                              mainAxisAlignment: pw.MainAxisAlignment.center,
-                              children: [
-                                pw.Text(
-                                  "laporanKG[i].kode",
-                                  style: pw.TextStyle(
-                                    font: regularFont,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Padding(
+                            padding:
+                                const pw.EdgeInsets.symmetric(horizontal: 5),
+                            child: pw.Text(
+                              "${_dataNeraca[i][0]}",
+                              style: pw.TextStyle(
+                                font: regularFont,
+                                fontSize: 12,
+                              ),
                             ),
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.center,
-                              mainAxisAlignment: pw.MainAxisAlignment.center,
-                              children: [
-                                pw.Text(
-                                  "laporanKG[i].uraian",
-                                  style: pw.TextStyle(
-                                    font: regularFont,
-                                    fontSize: 12,
+                          )
+                        ],
+                      ),
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          _dataNeraca[i][2] == "pemasukan"
+                              ? pw.Padding(
+                                  padding: const pw.EdgeInsets.symmetric(
+                                      horizontal: 5),
+                                  child: pw.Text(
+                                    CurrencyFormat.convertToIdr(
+                                            _dataNeraca[i][3].abs(), 2)
+                                        .toString(),
+                                    style: pw.TextStyle(
+                                      font: regularFont,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.center,
-                              mainAxisAlignment: pw.MainAxisAlignment.center,
-                              children: [
-                                pw.Text(
-                                  "laporanKG[i].tanggal",
-                                  style: pw.TextStyle(
-                                    font: regularFont,
-                                    fontSize: 12,
+                                )
+                              : pw.Padding(
+                                  padding: const pw.EdgeInsets.symmetric(
+                                      horizontal: 5),
+                                  child: pw.Text(
+                                    "",
+                                    style: pw.TextStyle(
+                                      font: regularFont,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.center,
-                              mainAxisAlignment: pw.MainAxisAlignment.center,
-                              children: [
-                                pw.Text(
-                                  "ioCheck(i) ? laporanKG[i].nominal : ",
-                                  style: pw.TextStyle(
-                                    font: regularFont,
-                                    fontSize: 12,
+                                )
+                        ],
+                      ),
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          _dataNeraca[i][2] == "pengeluaran"
+                              ? pw.Padding(
+                                  padding: const pw.EdgeInsets.symmetric(
+                                      horizontal: 5),
+                                  child: pw.Text(
+                                    CurrencyFormat.convertToIdr(
+                                            _dataNeraca[i][3].abs(), 2)
+                                        .toString(),
+                                    style: pw.TextStyle(
+                                      font: regularFont,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.center,
-                              mainAxisAlignment: pw.MainAxisAlignment.center,
-                              children: [
-                                pw.Text(
-                                  "!ioCheck(i) ? laporanKG[i].nominal : ",
-                                  style: pw.TextStyle(
-                                    font: regularFont,
-                                    fontSize: 12,
+                                )
+                              : pw.Padding(
+                                  padding: const pw.EdgeInsets.symmetric(
+                                      horizontal: 5),
+                                  child: pw.Text(
+                                    "",
+                                    style: pw.TextStyle(
+                                      font: regularFont,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                )
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+              ],
             ),
           ];
         },
@@ -5255,6 +5775,557 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
     );
 
     return pdf.save();
+  }
+
+  Future<Uint8List> _generateBukuBesar(PdfPageFormat format) async {
+    final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
+    final headingFont = await PdfGoogleFonts.nunitoBold();
+    final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
+    final regularFont = await PdfGoogleFonts.nunitoRegular();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: format.portrait,
+        build: (context) {
+          return [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  "LAPORAN KEUANGAN GEREJA $kodeGereja",
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  "BUKU BESAR",
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  getMonth(widget.month),
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            pw.Divider(
+              height: 56,
+            ),
+            pw.ListView.separated(
+                itemBuilder: (context, index) {
+                  return pw.Column(
+                    children: [
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            "${_dataBukuBesar[index][0][5]}",
+                            style: pw.TextStyle(
+                              font: boldHeadingFont,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      pw.Table(
+                        border: pw.TableBorder.all(
+                          style: pw.BorderStyle.solid,
+                          width: 1,
+                        ),
+                        children: [
+                          //TODO: Header Table
+                          pw.TableRow(
+                            children: [
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Tanggal",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Uraian",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Debit",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Kredit",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Saldo",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          //TODO: Data Pemasukan
+
+                          for (int i = 0; i < _dataBukuBesar[index].length; i++)
+                            pw.TableRow(
+                              children: [
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: pw.Text(
+                                        "${_dataBukuBesar[index][i][0]}",
+                                        style: pw.TextStyle(
+                                          font: regularFont,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: pw.Text(
+                                        "${_dataBukuBesar[index][i][1]}",
+                                        style: pw.TextStyle(
+                                          font: regularFont,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    _dataBukuBesar[index][i][2] == "pemasukan"
+                                        ? pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              CurrencyFormat.convertToIdr(
+                                                      _dataBukuBesar[index][i]
+                                                              [3]
+                                                          .abs(),
+                                                      2)
+                                                  .toString(),
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                        : pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              "",
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    _dataBukuBesar[index][i][2] == "pengeluaran"
+                                        ? pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              CurrencyFormat.convertToIdr(
+                                                      _dataBukuBesar[index][i]
+                                                              [3]
+                                                          .abs(),
+                                                      2)
+                                                  .toString(),
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                        : pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              "",
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: pw.Text(
+                                        CurrencyFormat.convertToIdr(
+                                                _dataBukuBesar[index][i][4]
+                                                    .abs(),
+                                                2)
+                                            .toString(),
+                                        style: pw.TextStyle(
+                                          font: regularFont,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return pw.Divider(height: 56, color: PdfColors.grey200);
+                },
+                itemCount: _dataBukuBesar.length)
+          ];
+        },
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  Future<Uint8List> _generateJurnal(PdfPageFormat format) async {
+    final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
+    final headingFont = await PdfGoogleFonts.nunitoBold();
+    final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
+    final regularFont = await PdfGoogleFonts.nunitoRegular();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: format.portrait,
+        build: (context) {
+          return [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  "LAPORAN KEUANGAN GEREJA $kodeGereja",
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  "JURNAL",
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  getMonth(widget.month),
+                  style: pw.TextStyle(
+                    font: boldHeadingFont,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            pw.Divider(
+              height: 56,
+            ),
+            pw.ListView.separated(
+                itemBuilder: (context, index) {
+                  return pw.Column(
+                    children: [
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            "${_dataJurnal[index][0][5]}  ${_dataJurnal[index][0][4]}",
+                            style: pw.TextStyle(
+                              font: boldHeadingFont,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      pw.Table(
+                        border: pw.TableBorder.all(
+                          style: pw.BorderStyle.solid,
+                          width: 1,
+                        ),
+                        children: [
+                          //TODO: Header Table
+                          pw.TableRow(
+                            children: [
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Kode",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Uraian",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Debit",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Kredit",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          //TODO: Data Pemasukan
+
+                          for (int i = 0; i < _dataJurnal[index].length; i++)
+                            pw.TableRow(
+                              children: [
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: pw.Text(
+                                        "${_dataJurnal[index][i][0]}",
+                                        style: pw.TextStyle(
+                                          font: regularFont,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: pw.Text(
+                                        "${_dataJurnal[index][i][1]}",
+                                        style: pw.TextStyle(
+                                          font: regularFont,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    _dataJurnal[index][i][2] == "pemasukan"
+                                        ? pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              CurrencyFormat.convertToIdr(
+                                                      _dataJurnal[index][i][3]
+                                                          .abs(),
+                                                      2)
+                                                  .toString(),
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                        : pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              "",
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    _dataJurnal[index][i][2] == "pengeluaran"
+                                        ? pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              CurrencyFormat.convertToIdr(
+                                                      _dataJurnal[index][i][3]
+                                                          .abs(),
+                                                      2)
+                                                  .toString(),
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                        : pw.Padding(
+                                            padding:
+                                                const pw.EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                            child: pw.Text(
+                                              "",
+                                              style: pw.TextStyle(
+                                                font: regularFont,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                  ],
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return pw.Divider(height: 56, color: PdfColors.grey200);
+                },
+                itemCount: _dataJurnal.length)
+          ];
+        },
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  checkTipe(tipe, format) {
+    if (tipe == 0) {
+      return _generateJurnal(format);
+    } else if (tipe == 1) {
+      return _generateBukuBesar(format);
+    } else {
+      return _generateNeraca(format);
+    }
   }
 
   @override
@@ -5270,8 +6341,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
       ),
       body: PdfPreview(
         initialPageFormat: PdfPageFormat.a4,
-        allowPrinting: true,
-        build: (format) => _generateJurnalUmum(format),
+        build: (format) => checkTipe(widget.tipe, format),
       ),
     );
   }

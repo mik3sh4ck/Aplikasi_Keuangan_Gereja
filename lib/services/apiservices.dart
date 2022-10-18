@@ -121,10 +121,10 @@ class ServicesUser {
 
   //TODO: Input Master Kode Perkiraan
   Future inputMasterKode(
-      kodeGereja, namaMasterKode, masterKodePerkiraan) async {
+      kodeGereja, namaMasterKode, masterKodePerkiraan, statusKode) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-header-kode-perkiraan?kode_gereja=$kodeGereja&nama_header=$namaMasterKode&header_kode_perkiraan=$masterKodePerkiraan"),
+          "${_linkPath}input-header-kode-perkiraan?kode_gereja=$kodeGereja&nama_header=$namaMasterKode&header_kode_perkiraan=$masterKodePerkiraan&status=$statusKode"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -156,6 +156,21 @@ class ServicesUser {
     final response = await http.post(
       Uri.parse(
           "${_linkPath}input-kode-perkiraan?kode_perkiraan=$kodePerkiraan&nama_kode_perkiraan=$namaKodePerkiraan&kode_gereja=$kodeGereja&header_kode_perkiraan=$headerKodePerkiraan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal memasukan data");
+    }
+  }
+
+  Future inputSaldoAwal(
+      kodeGereja, headerKodePerkiraan, kodePerkiraan, saldo) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-saldo-awal?kode_gereja=$kodeGereja&header_kode_perkiraan=$headerKodePerkiraan&kode_perkiraan=$kodePerkiraan&saldo_awal=$saldo"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -415,6 +430,34 @@ class ServicesUser {
     final response = await http.get(
       Uri.parse(
           "${_linkPath}neraca-saldo?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getKodeKegiatanJurnal(kodeGereja, tanggal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-kode-kegiatan-jurnal?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getJurnal(kodeGereja, tanggal, kodeKegiatan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}jurnal?kode_gereja=$kodeGereja&tanggal=$tanggal&kode_kegiatan=$kodeKegiatan"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -818,4 +861,37 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
+  //TODO: get tanggal absen
+  Future getTanggalAbsen(kodeGereja, kodeKegiatan) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}tanggal-absen?kode_kegiatan=$kodeKegiatan&kode_gereja=$kodeGereja"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
 }
+
+
+// //Function di Flutter
+// Future<String?> uploadImage(file, id) async {
+//     String url = "http://keraton.crossnet.co.id:8080/upload?id=" + id;
+//     var request = http.MultipartRequest('POST', Uri.parse(url));
+//     request.files.add(await http.MultipartFile.fromPath('photo', file));
+//     var res = await request.send();
+//     return res.reasonPhrase;
+//   }
+
+// //Cara Panggil
+// var file = await picker.pickImage(source: ImageSource.gallery);
+// var res = await uploadImage(file!.path, global.id.toString());
+
+// //Update Foto --> Tinggal menumpuk dengan nama file yang sama otomatis akan ke overwrite
+// var file = await picker.pickImage(source: ImageSource.gallery);
+// var res = await uploadImage(file!.path, global.id.toString());

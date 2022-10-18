@@ -21,6 +21,7 @@ String _kodeKegiatan = "";
 String _kodeKegiatanGabungan = "";
 String _kodeItemKebutuhan = "";
 String _namaItemKebutuhan = "";
+String _tanggalAbsensi = "";
 
 String _kodeKegiatanHistory = "";
 
@@ -36,6 +37,8 @@ String _singleList = "0000000";
 String _tempmulaiacara = "";
 String _tempselesaiacara = "";
 String _tempmulaikegiatan = "";
+String _lokasiKegiatan = "";
+String _keteranganKegiatan = "";
 String _tempselesaikegiatan = "";
 
 String _presentase = "0%";
@@ -422,6 +425,11 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                                 _tempselesaikegiatan = snapData[
                                                         1][index][
                                                     'tanggal_kegiatan_selesai'];
+                                                _lokasiKegiatan = snapData[1]
+                                                    [index]['lokasi_kegiatan'];
+                                                _keteranganKegiatan =
+                                                    snapData[1][index]
+                                                        ['keterangan_kegiatan'];
                                                 widget
                                                     .controllerDetailPageKegiatan
                                                     .animateToPage(1,
@@ -1267,7 +1275,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   ),
                                   responsiveTextField(
                                       dw, dh, _controllerJabatanAnggota),
-                                  
                                 ],
                               ),
                             ],
@@ -2377,13 +2384,59 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                   thickness: 1,
                   height: 56,
                 ),
-                responsiveText(
-                    "Periode Kegiatan : $_tempmulaikegiatan sampai $_tempselesaikegiatan",
-                    18,
-                    FontWeight.w600,
-                    darkText),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      color: navButtonPrimary,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    responsiveText(
+                        "Periode Kegiatan : $_tempmulaikegiatan sampai $_tempselesaikegiatan",
+                        18,
+                        FontWeight.w600,
+                        darkText),
+                  ],
+                ),
                 const SizedBox(
                   height: 10,
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.location_on_rounded, color: navButtonPrimary),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    responsiveText("Lokasi Kegiatan : $_lokasiKegiatan", 18,
+                        FontWeight.w600, darkText),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.description_outlined, color: navButtonPrimary),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    responsiveText(
+                        "Keterangan Kegiatan :", 18, FontWeight.w600, darkText),
+                    Tooltip(
+                        message: _keteranganKegiatan,
+                        child: responsiveText(
+                            _keteranganKegiatan.length > 24
+                                ? '${_keteranganKegiatan.substring(0, 24)}...'
+                                : _keteranganKegiatan,
+                            18,
+                            FontWeight.w600,
+                            darkText)),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -3272,7 +3325,8 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
   @override
   void initState() {
     // TODO: implement initState
-    kategoriAbsensiKegiatan = servicesUser.getAllProposalKegiatan("gms001");
+    kategoriAbsensiKegiatan =
+        servicesUser.getTanggalAbsen(kodeGereja, _kodeKegiatan);
     super.initState();
   }
 
@@ -3308,6 +3362,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
               padding: const EdgeInsets.all(16),
               width: deviceWidth,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -3323,7 +3378,7 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                         width: 25,
                       ),
                       Text(
-                        "Absensi Kegiatan",
+                        "Absensi Kegiatan $_namaKegiatan",
                         style: Theme.of(context).textTheme.headline5,
                       ),
                     ],
@@ -3333,63 +3388,111 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                     height: 56,
                   ),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
+                      Icon(
+                        Icons.calendar_today,
+                        color: navButtonPrimary,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      responsiveText(
+                          "Periode Acara : $_tempmulaiacara sampai $_tempselesaiacara",
+                          18,
+                          FontWeight.w600,
+                          darkText),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: navButtonPrimary.withOpacity(0.4),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Container(
                         width: deviceWidth / 2,
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          border: Border.all(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                        ),
-                        //width: deviceWidth / 2,
-                        padding: const EdgeInsets.all(10),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          controller: ScrollController(),
-                          physics: const ClampingScrollPhysics(),
-                          itemCount: 5,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: navButtonPrimary.withOpacity(0.4),
-                                ),
-                              ),
-                              color: scaffoldBackgroundColor,
-                              child: ListTile(
-                                title: Text(
-                                  _tempmulaiacara,
-                                ),
-                                trailing: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.all(12),
-                                    shape: const CircleBorder(),
+                        child: FutureBuilder(
+                          future: kategoriAbsensiKegiatan,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List snapData = snapshot.data! as List;
+                              if (snapData[0] != 404) {
+                                return ScrollConfiguration(
+                                  behavior:
+                                      ScrollConfiguration.of(context).copyWith(
+                                    dragDevices: {
+                                      PointerDeviceKind.touch,
+                                      PointerDeviceKind.mouse,
+                                    },
                                   ),
-                                  onPressed: () {
-                                    widget.controllerPageDetailAbsensiKegiatan
-                                        .animateToPage(1,
-                                            duration: const Duration(
-                                                milliseconds: 250),
-                                            curve: Curves.ease);
-                                  },
-                                  child: const Tooltip(
-                                    message: "Absensi Anggota Kegiatan",
-                                    child: Icon(Icons.arrow_forward_outlined),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.vertical,
+                                    controller: ScrollController(),
+                                    physics: const ClampingScrollPhysics(),
+                                    itemCount: snapData[1].length,
+                                    itemBuilder: (context, index) {
+                                      return Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          side: BorderSide(
+                                            color: navButtonPrimary
+                                                .withOpacity(0.4),
+                                          ),
+                                        ),
+                                        color: scaffoldBackgroundColor,
+                                        child: ListTile(
+                                          title: responsiveText(
+                                              snapData[1][index]
+                                                  ['tanggal_absen'],
+                                              17,
+                                              FontWeight.w600,
+                                              darkText),
+                                          trailing: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.all(12),
+                                              shape: CircleBorder(),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _tanggalAbsensi = snapData[1]
+                                                    [index]['tanggal_absen'];
+                                              });
+                                              widget
+                                                  .controllerPageDetailAbsensiKegiatan
+                                                  .animateToPage(1,
+                                                      duration: const Duration(
+                                                          milliseconds: 250),
+                                                      curve: Curves.ease);
+                                            },
+                                            child: Tooltip(
+                                              message:
+                                                  "Absensi Tanggal ${snapData[1][index]['tanggal_absen']}",
+                                              child: const Icon(
+                                                  Icons.arrow_forward_outlined),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ),
-                              ),
-                            );
+                                );
+                              } else if (snapData[0] == 404) {
+                                return noData();
+                              }
+                            }
+                            return loadingIndicator();
                           },
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -3425,6 +3528,12 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
     kategoriDetailAbsensiKegiatan =
         servicesUser.getAllProposalKegiatan("gms001");
     kategoriDetailAnggotaPICAbsen = servicesUser.getPIC(_kodeKegiatanGabungan);
+    widget.controllerPageDetailAbsensiKegiatan.addListener(() {
+      debugPrint("Refreshed");
+      if (mounted) {
+        setState(() {});
+      }
+    });
     super.initState();
   }
 
@@ -3515,7 +3624,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                         width: 25,
                       ),
                       Text(
-                        "Detail Absensi Kegiatan",
+                        "Detail Absensi Kegiatan Tanggal $_tanggalAbsensi",
                         style: Theme.of(context).textTheme.headline5,
                       ),
                     ],
