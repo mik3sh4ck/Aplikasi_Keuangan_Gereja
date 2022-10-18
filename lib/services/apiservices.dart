@@ -876,6 +876,21 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
+  //TODO: get user absensi
+  Future getUserAbsen(kodeGereja, kodeKegiatan, tanggals) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}user-absensi?kode_kegiatan=$kodeKegiatan&kode_gereja=$kodeGereja&tanggal=$tanggals"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
 }
 
 

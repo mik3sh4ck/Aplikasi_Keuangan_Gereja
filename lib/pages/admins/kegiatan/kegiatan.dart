@@ -3526,7 +3526,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
   void initState() {
     // TODO: implement initState
     kategoriDetailAbsensiKegiatan =
-        servicesUser.getAllProposalKegiatan("gms001");
+        servicesUser.getUserAbsen(kodeGereja, _kodeKegiatan, _tanggalAbsensi);
     kategoriDetailAnggotaPICAbsen = servicesUser.getPIC(_kodeKegiatanGabungan);
     widget.controllerPageDetailAbsensiKegiatan.addListener(() {
       debugPrint("Refreshed");
@@ -3731,7 +3731,61 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                   ),
                                 );
                               } else if (snapData[0] == 404) {
-                                return noData();
+                                return ScrollConfiguration(
+                                  behavior:
+                                      ScrollConfiguration.of(context).copyWith(
+                                    dragDevices: {
+                                      PointerDeviceKind.touch,
+                                      PointerDeviceKind.mouse,
+                                    },
+                                  ),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.vertical,
+                                    controller: ScrollController(),
+                                    physics: const ClampingScrollPhysics(),
+                                    itemCount: snapData[1].length,
+                                    itemBuilder: (context, index) {
+                                      return Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          side: BorderSide(
+                                            color: navButtonPrimary
+                                                .withOpacity(0.4),
+                                          ),
+                                        ),
+                                        color: scaffoldBackgroundColor,
+                                        child: ListTile(
+                                          title: Text(
+                                            snapData[1][index]['kode_user'],
+                                          ),
+                                          subtitle: Text(
+                                            snapData[1][index]['peran'],
+                                          ),
+                                          trailing: ToggleSwitch(
+                                            minWidth: 40,
+                                            initialLabelIndex: 1,
+                                            cornerRadius: 10,
+                                            activeFgColor: Colors.white,
+                                            inactiveBgColor: surfaceColor,
+                                            inactiveFgColor: Colors.white,
+                                            totalSwitches: 2,
+                                            activeBgColors: [
+                                              [errorColor.withOpacity(0.5)],
+                                              [
+                                                correctColor.withOpacity(0.8),
+                                              ],
+                                            ],
+                                            onToggle: (index) {
+                                              debugPrint('switched to: $index');
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
                               }
                             }
 
