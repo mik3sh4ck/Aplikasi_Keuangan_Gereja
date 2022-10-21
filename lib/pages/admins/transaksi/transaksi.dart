@@ -8,11 +8,14 @@ import 'package:aplikasi_keuangan_gereja/widgets/string_extension.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:signature/signature.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
@@ -21,6 +24,10 @@ import 'package:pdf/widgets.dart' as pw;
 
 final List _kodeMaster = List.empty(growable: true);
 final List _kodePerkiraan = List.empty(growable: true);
+
+final List _kodeMasterSA = List.empty(growable: true);
+final List _kodePerkiraanSA = List.empty(growable: true);
+
 final List _kodeTransaksiAdded = List.empty(growable: true);
 final List _kodeTransaksi = List.empty(growable: true);
 final List _kodeRefKegiatan = List.empty(growable: true);
@@ -1537,6 +1544,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                           _controllerKodePerkiraan.clear();
                                           _controllerNamaKodePerkiraan.clear();
                                           Navigator.pop(context);
+                                          Navigator.pop(context);
                                         });
                                       },
                                     );
@@ -1989,9 +1997,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     }
   }
 
-  Future deleteMasterKode(kodeGereja, kodePerkiraan, context) async {
-    var response =
-        await servicesUser.deleteKodePerkiraan(kodeGereja, kodePerkiraan);
+  Future deleteMasterKode(kodeGereja, kodeMaster, context) async {
+    var response = await servicesUser.deleteKodeMaster(kodeGereja, kodeMaster);
 
     if (response[0] != 404) {
       return true;
@@ -2082,7 +2089,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     }
   }
 
-  confirmDialogDelKode(dw, dh, kode, type) {
+  confirmDialogDelKode(dw, dh, kode, type, headerKodePerkiraan) {
     showDialog(
       barrierDismissible: false,
       useRootNavigator: true,
@@ -2160,15 +2167,24 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                           .getKodeTransaksi(kodeGereja);
                                       setState(() {});
                                     });
-                                  } else {
-                                    // deleteKodePerkiraan(
-                                    //         kodeGereja, kode, context)
-                                    //     .whenComplete(() {
-                                    //   Navigator.pop(context);
-                                    //   kodePerkiraan = servicesUser
-                                    //       .getKodePerkiraan(kodeGereja);
-                                    //   setState(() {});
-                                    // });
+                                  } else if (type == 1) {
+                                    deleteMasterKode(kodeGereja, kode, context)
+                                        .whenComplete(() {
+                                      Navigator.pop(context);
+                                      kodeMaster = servicesUser
+                                          .getMasterKode(kodeGereja);
+                                      setState(() {});
+                                    });
+                                  } else if (type == 2) {
+                                    deleteKodePerkiraan(
+                                            kodeGereja, kode, context)
+                                        .whenComplete(() {
+                                      Navigator.pop(context);
+                                      kodePerkiraan =
+                                          servicesUser.getKodePerkiraan(
+                                              kodeGereja, headerKodePerkiraan);
+                                      setState(() {});
+                                    });
                                   }
                                 },
                                 child: const Text("Hapus"),
@@ -2309,7 +2325,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                           dh,
                                                           snapData[1][index][
                                                               'kode_perkiraan'],
-                                                          1);
+                                                          2,
+                                                          headerKodePerkiraan);
                                                     },
                                                     icon: const Icon(
                                                         Icons.delete_rounded),
@@ -2492,7 +2509,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                               index]
                                                                           [
                                                                           'kode_transaksi'],
-                                                                      0);
+                                                                      0,
+                                                                      "");
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -2619,7 +2637,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                               index]
                                                                           [
                                                                           'header_kode_perkiraan'],
-                                                                      1);
+                                                                      1,
+                                                                      "");
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -2778,7 +2797,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                               index]
                                                                           [
                                                                           'kode_transaksi'],
-                                                                      0);
+                                                                      0,
+                                                                      "");
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -2904,7 +2924,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                                               index]
                                                                           [
                                                                           'header_kode_perkiraan'],
-                                                                      1);
+                                                                      1,
+                                                                      "");
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -4127,12 +4148,26 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
   String formattedMonth = "";
   String month = "Month";
 
+  late SignatureController controller;
+  int _currentValue = 5;
+  Color pickerColor = darkText;
+  Color currentColor = darkText;
+
+  Uint8List? exportedImage;
+
+  String nama = "User";
+
   @override
   void initState() {
     // TODO: implement initState
+    getUserName(kodeUser);
     _tabController = TabController(length: 3, vsync: this);
     formattedMonth = DateFormat('MM-yyyy').format(selectedMonth);
     month = formattedMonth;
+    controller = SignatureController(
+        penStrokeWidth: 5,
+        penColor: currentColor,
+        exportBackgroundColor: Colors.transparent);
     super.initState();
   }
 
@@ -4140,6 +4175,14 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future getUserName(userStatus) async {
+    var response = await servicesUser.getSingleUser(userStatus);
+    nama = response[1]['nama_lengkap_user'].toString();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> selectMonth(context) async {
@@ -4206,6 +4249,358 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     debugPrint(_dataJurnal.toString());
   }
 
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+  }
+
+  Future showPicker() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Pilih Warna Garis'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: pickerColor,
+            onColorChanged: changeColor,
+          ),
+          // Use Material color picker:
+          //
+          // child: MaterialPicker(
+          //     pickerColor: pickerColor, onColorChanged: changeColor),
+          //
+          // Use Block color picker:
+          //
+          // child: BlockPicker(
+          //   pickerColor: currentColor,
+          //   onColorChanged: changeColor,
+          // ),
+          //
+          // child: MultipleChoiceBlockPicker(
+          //   pickerColors: currentColors,
+          //   onColorsChanged: changeColors,
+          // ),
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                currentColor = pickerColor;
+                Navigator.of(context).pop();
+                controller = SignatureController(
+                  penStrokeWidth: double.parse(_currentValue.toString()),
+                  penColor: currentColor,
+                );
+                setState(() {});
+              }),
+        ],
+      ),
+      context: context,
+    ).whenComplete(() {
+      setState(() {});
+    });
+  }
+
+  showAsign(dw, dh, tipe) {
+    showDialog(
+      barrierDismissible: false,
+      useRootNavigator: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 25, horizontal: 25),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  controller.clear();
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(
+                                    Icons.arrow_back_ios_new_rounded),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              responsiveText("Tanda Tangan", 26,
+                                  FontWeight.w900, darkText),
+                              const Spacer(),
+                            ],
+                          ),
+                          const Divider(
+                            thickness: 1,
+                            height: 56,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              responsiveText(
+                                  "Warna Garis", 16, FontWeight.w600, darkText),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showPicker();
+                                    controller = SignatureController(
+                                      penStrokeWidth: double.parse(
+                                          _currentValue.toString()),
+                                      penColor: currentColor,
+                                    );
+                                  });
+                                },
+                                icon: const Icon(Icons.color_lens),
+                              ),
+                            ],
+                          ),
+                          Center(
+                            child: Container(
+                              height: 300,
+                              width: dw,
+                              child: Signature(
+                                backgroundColor: primaryColor,
+                                controller: controller,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          responsiveText(
+                              "Ketebalan Garis", 16, FontWeight.w600, darkText),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 15.0,
+                                  vertical: 15.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFFFFF),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 15.0,
+                                ),
+                                alignment: Alignment.center,
+                                height: 40,
+                              ),
+                              Positioned(
+                                  child: Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(50),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade300,
+                                      blurRadius: 15.0,
+                                      spreadRadius: 1.0,
+                                      offset: const Offset(
+                                        0.0,
+                                        0.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                              Container(
+                                alignment: Alignment.center,
+                                child: NumberPicker(
+                                  axis: Axis.horizontal,
+                                  itemHeight: 45,
+                                  itemWidth: 45.0,
+                                  step: 1,
+                                  selectedTextStyle: const TextStyle(
+                                    fontSize: 20.0,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textStyle: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12.0,
+                                  ),
+                                  itemCount: 7,
+                                  value: _currentValue,
+                                  minValue: 1,
+                                  maxValue: 10,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _currentValue = v;
+                                    });
+                                    controller = SignatureController(
+                                      penStrokeWidth: double.parse(
+                                          _currentValue.toString()),
+                                      penColor: currentColor,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    controller.clear();
+                                  },
+                                  child: Text(
+                                    "Hapus",
+                                    style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    // exportedImage =
+                                    //     await controller.toPngBytes();
+                                    //API
+                                    if (controller.isNotEmpty) {
+                                      exportSignature(tipe);
+
+                                      controller.clear();
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Text(
+                                    "Lanjutkan",
+                                    style: GoogleFonts.nunito(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      setState(() {});
+    });
+  }
+
+  exportSignature(int tipe) async {
+    final exportController = SignatureController(
+      penStrokeWidth: 2,
+      penColor: Colors.black,
+      exportBackgroundColor: Colors.white,
+      points: controller.points,
+    );
+
+    exportController.toPngBytes().then((value) {
+      if (tipe == 0) {
+        _getJurnalData(kodeGereja, month).whenComplete(
+          () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return AdminLaporanPreviewPDF(
+                    tipe: tipe,
+                    month: month,
+                    signature: value as Uint8List,
+                    nama: nama,
+                  );
+                },
+              ),
+            );
+          },
+        );
+      } else if (tipe == 1) {
+        _getBukuBesarData(kodeGereja, month).whenComplete(
+          () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return AdminLaporanPreviewPDF(
+                    tipe: tipe,
+                    month: month,
+                    signature: value as Uint8List,
+                    nama: nama,
+                  );
+                },
+              ),
+            );
+          },
+        );
+      } else {
+        _getNeracaData(kodeGereja, month).whenComplete(() {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return AdminLaporanPreviewPDF(
+                  tipe: tipe,
+                  month: month,
+                  signature: value as Uint8List,
+                  nama: nama,
+                );
+              },
+            ),
+          );
+        });
+      }
+    });
+    exportController.dispose();
+  }
+
   jurnalUmumView(dw, dh) {
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
@@ -4251,21 +4646,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     primary: const Color(0xff960000),
                   ),
                   onPressed: () {
-                    _getJurnalData(kodeGereja, month).whenComplete(
-                      () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return AdminLaporanPreviewPDF(
-                                tipe: 0,
-                                month: month,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    );
+                    showAsign(dw, dh, 0);
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -4630,21 +5011,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     primary: const Color(0xff960000),
                   ),
                   onPressed: () {
-                    _getBukuBesarData(kodeGereja, month).whenComplete(
-                      () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return AdminLaporanPreviewPDF(
-                                tipe: 1,
-                                month: month,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    );
+                    showAsign(dw, dh, 1);
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -5035,19 +5402,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     primary: const Color(0xff960000),
                   ),
                   onPressed: () {
-                    _getNeracaData(kodeGereja, month).whenComplete(() {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return AdminLaporanPreviewPDF(
-                              tipe: 2,
-                              month: month,
-                            );
-                          },
-                        ),
-                      );
-                    });
+                    showAsign(dw, dh, 2);
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -5320,6 +5675,35 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
   }
 }
 
+class SignaturePreviewPage extends StatelessWidget {
+  final Uint8List signature;
+
+  const SignaturePreviewPage({
+    Key? key,
+    required this.signature,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          leading: const CloseButton(),
+          title: const Text('Store Signature'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.done),
+              onPressed: () {},
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: Center(
+          child: Image.memory(signature, width: double.infinity),
+        ),
+      );
+}
+
 class AdminLihatSaldoAwal extends StatefulWidget {
   final PageController controllerPageLihatSaldoAwal;
   const AdminLihatSaldoAwal(
@@ -5331,16 +5715,27 @@ class AdminLihatSaldoAwal extends StatefulWidget {
 
 class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
   ServicesUser servicesUser = ServicesUser();
+
+  final _saldoController = TextEditingController();
+  final _controllerDropdownFilter = TextEditingController();
+
+  String kodeMasterSaldoAwal = "";
+  String kodePerkiraanSaldoAwal = "";
   @override
   void initState() {
     // TODO: implement initState
     _getSaldoAwal(kodeGereja);
+    _getMasterKode(kodeGereja);
+    kodeMasterSaldoAwal = "";
+    kodePerkiraanSaldoAwal = "";
     super.initState();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
+    _saldoController.dispose();
+    _controllerDropdownFilter.dispose();
     super.dispose();
   }
 
@@ -5388,8 +5783,347 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
     );
   }
 
+  responsiveTextField(deviceWidth, deviceHeight, controllerText, mLength) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: TextField(
+        maxLength: mLength,
+        controller: controllerText,
+        autofocus: false,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: surfaceColor,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: Colors.transparent,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: Colors.transparent,
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future updateSaldoAwal(
+      kodeGereja, headerKodePerkiraan, kodePerkiraan, saldo, context) async {
+    var response = await servicesUser.updateSaldoAwal(
+        kodeGereja, headerKodePerkiraan, kodePerkiraan, saldo);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future _getMasterKode(kodeGereja) async {
+    _kodeMasterSA.clear();
+
+    var response = await servicesUser.getMasterKode(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(element.toString());
+        _kodeMasterSA.add(
+            "${element['header_kode_perkiraan']} - ${element['nama_header']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  Future _getKodePerkiraan(kodeGereja, headerKodePerkiraan) async {
+    _kodePerkiraanSA.clear();
+
+    var response =
+        await servicesUser.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(element.toString());
+        _kodePerkiraanSA.add(
+            "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  _splitString(val) {
+    var value = val.toString();
+    var split = value.indexOf(" ");
+    var temp = value.substring(0, split);
+    return temp;
+  }
+
+  _buatKodeGabungan(val) {
+    var temp = kodeGereja + _splitString(val);
+    return temp;
+  }
+
+  _showUpdateSaldoAwalDialog(dw, dh) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  controller: ScrollController(),
+                  child: SizedBox(
+                    width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: dw < 800 ? dw * 0.8 : dw * 0.4,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              responsiveText("Update Saldo Awal", 26,
+                                  FontWeight.w700, lightText),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  responsiveText("Kode Master", 16,
+                                      FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Card(
+                                    color: primaryColor,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: DropdownSearch<dynamic>(
+                                      popupProps: PopupProps.menu(
+                                        showSearchBox: true,
+                                        searchFieldProps: TextFieldProps(
+                                          decoration: InputDecoration(
+                                            border: const OutlineInputBorder(),
+                                            hintText: "Kode Master",
+                                            suffixIcon: IconButton(
+                                              onPressed: () {
+                                                _controllerDropdownFilter
+                                                    .clear();
+                                              },
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.black
+                                                    .withOpacity(0.5),
+                                              ),
+                                            ),
+                                          ),
+                                          controller: _controllerDropdownFilter,
+                                        ),
+                                      ),
+                                      items: _kodeMasterSA,
+                                      onChanged: (val) {
+                                        debugPrint(val);
+                                        debugPrint(_splitString(val));
+                                        kodeMasterSaldoAwal = _splitString(val);
+                                        debugPrint(_buatKodeGabungan(val));
+
+                                        _getKodePerkiraan(
+                                                kodeGereja, kodeMasterSaldoAwal)
+                                            .whenComplete(
+                                                () => setState(() {}));
+                                      },
+                                      selectedItem: "pilih Kode Master",
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Visibility(
+                                    visible: kodeMasterSaldoAwal != ""
+                                        ? true
+                                        : false,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        responsiveText("Kode Perkiraan", 16,
+                                            FontWeight.w700, darkText),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Card(
+                                          color: primaryColor,
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          child: DropdownSearch<dynamic>(
+                                            popupProps: PopupProps.menu(
+                                              showSearchBox: true,
+                                              searchFieldProps: TextFieldProps(
+                                                decoration: InputDecoration(
+                                                  border:
+                                                      const OutlineInputBorder(),
+                                                  hintText: "Kode Perkiraan",
+                                                  suffixIcon: IconButton(
+                                                    onPressed: () {
+                                                      _controllerDropdownFilter
+                                                          .clear();
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.clear,
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
+                                                    ),
+                                                  ),
+                                                ),
+                                                controller:
+                                                    _controllerDropdownFilter,
+                                              ),
+                                            ),
+                                            items: _kodePerkiraanSA,
+                                            onChanged: (val) {
+                                              debugPrint(val);
+                                              debugPrint(_splitString(val));
+                                              kodePerkiraanSaldoAwal =
+                                                  _splitString(val);
+
+                                              debugPrint(
+                                                  _buatKodeGabungan(val));
+                                              setState(() {});
+                                            },
+                                            selectedItem:
+                                                "pilih Kode Perkiraan",
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  responsiveText(
+                                      "Saldo", 16, FontWeight.w700, darkText),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  responsiveTextField(
+                                      dw, dh, _saldoController, null),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    kodeMasterSaldoAwal = "";
+                                    kodePerkiraanSaldoAwal = "";
+                                    _saldoController.clear();
+                                    setState(() {});
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Batal"),
+                              ),
+                              const SizedBox(
+                                width: 25,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (mounted) {
+                                    updateSaldoAwal(
+                                            kodeGereja,
+                                            kodeMasterSaldoAwal,
+                                            kodePerkiraanSaldoAwal,
+                                            _saldoController.text,
+                                            context)
+                                        .then((value) {
+                                      kodeMasterSaldoAwal = "";
+                                      kodePerkiraanSaldoAwal = "";
+                                      _saldoController.clear();
+                                      Navigator.pop(context);
+                                    });
+                                  }
+                                },
+                                child: const Text("Simpan"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {
+      if (mounted) {
+        _getSaldoAwal(kodeGereja).whenComplete(() => setState(() {}));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
@@ -5421,7 +6155,9 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    _showUpdateSaldoAwalDialog(deviceWidth, deviceHeight);
+                  },
                   child: Text(
                     "Update Saldo Awal",
                     style: GoogleFonts.nunito(
@@ -5515,14 +6251,34 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
 class AdminLaporanPreviewPDF extends StatefulWidget {
   final int tipe;
   final String month;
+  final Uint8List signature;
+  final String nama;
   const AdminLaporanPreviewPDF(
-      {super.key, required this.tipe, required this.month});
+      {super.key,
+      required this.tipe,
+      required this.month,
+      required this.signature,
+      required this.nama});
 
   @override
   State<AdminLaporanPreviewPDF> createState() => _AdminLaporanPreviewPDFState();
 }
 
 class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
+  ServicesUser servicesUser = ServicesUser();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   splitMonth(String val) {
     var split = val.indexOf("-");
     var month = val.substring(0, split);
@@ -5564,6 +6320,8 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
     final headingFont = await PdfGoogleFonts.nunitoBold();
     final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
     final regularFont = await PdfGoogleFonts.nunitoRegular();
+
+    final image = pw.MemoryImage(widget.signature);
 
     pdf.addPage(
       pw.MultiPage(
@@ -5614,6 +6372,12 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                 style: pw.BorderStyle.solid,
                 width: 1,
               ),
+              columnWidths: {
+                0: const pw.FixedColumnWidth(80),
+                1: const pw.FlexColumnWidth(2),
+                2: const pw.FractionColumnWidth(.3),
+                3: const pw.FractionColumnWidth(.3),
+              },
               children: [
                 //TODO: Header Table
                 pw.TableRow(
@@ -5769,6 +6533,51 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                   ),
               ],
             ),
+            pw.SizedBox(
+              height: 56,
+            ),
+            pw.Container(
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Container(),
+                  ),
+                  pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.end,
+                    children: [
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text("Penanggung Jawab, "),
+                        ],
+                      ),
+                      pw.SizedBox(
+                        height: 5,
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: pw.Image(image),
+                          ),
+                        ],
+                      ),
+                      pw.SizedBox(
+                        height: 5,
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text(widget.nama),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ];
         },
       ),
@@ -5782,6 +6591,8 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
     final headingFont = await PdfGoogleFonts.nunitoBold();
     final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
     final regularFont = await PdfGoogleFonts.nunitoRegular();
+
+    final image = pw.MemoryImage(widget.signature);
 
     pdf.addPage(
       pw.MultiPage(
@@ -5848,6 +6659,13 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                           style: pw.BorderStyle.solid,
                           width: 1,
                         ),
+                        columnWidths: {
+                          0: const pw.FixedColumnWidth(80),
+                          1: const pw.FlexColumnWidth(3),
+                          2: const pw.FractionColumnWidth(.2),
+                          3: const pw.FractionColumnWidth(.2),
+                          4: const pw.FractionColumnWidth(.2),
+                        },
                         children: [
                           //TODO: Header Table
                           pw.TableRow(
@@ -6056,7 +6874,52 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                 separatorBuilder: (context, index) {
                   return pw.Divider(height: 56, color: PdfColors.grey200);
                 },
-                itemCount: _dataBukuBesar.length)
+                itemCount: _dataBukuBesar.length),
+            pw.SizedBox(
+              height: 56,
+            ),
+            pw.Container(
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Container(),
+                  ),
+                  pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.end,
+                    children: [
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text("Penanggung Jawab, "),
+                        ],
+                      ),
+                      pw.SizedBox(
+                        height: 5,
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: pw.Image(image),
+                          ),
+                        ],
+                      ),
+                      pw.SizedBox(
+                        height: 5,
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text(widget.nama),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ];
         },
       ),
@@ -6070,6 +6933,8 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
     final headingFont = await PdfGoogleFonts.nunitoBold();
     final boldHeadingFont = await PdfGoogleFonts.nunitoExtraBold();
     final regularFont = await PdfGoogleFonts.nunitoRegular();
+
+    final image = pw.MemoryImage(widget.signature);
 
     pdf.addPage(
       pw.MultiPage(
@@ -6136,6 +7001,12 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                           style: pw.BorderStyle.solid,
                           width: 1,
                         ),
+                        columnWidths: {
+                          0: const pw.FixedColumnWidth(80),
+                          1: const pw.FlexColumnWidth(2),
+                          2: const pw.FractionColumnWidth(.3),
+                          3: const pw.FractionColumnWidth(.3),
+                        },
                         children: [
                           //TODO: Header Table
                           pw.TableRow(
@@ -6309,7 +7180,52 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                 separatorBuilder: (context, index) {
                   return pw.Divider(height: 56, color: PdfColors.grey200);
                 },
-                itemCount: _dataJurnal.length)
+                itemCount: _dataJurnal.length),
+            pw.SizedBox(
+              height: 56,
+            ),
+            pw.Container(
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Container(),
+                  ),
+                  pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.end,
+                    children: [
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text("Penanggung Jawab, "),
+                        ],
+                      ),
+                      pw.SizedBox(
+                        height: 10,
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: pw.Image(image),
+                          ),
+                        ],
+                      ),
+                      pw.SizedBox(
+                        height: 10,
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.center,
+                        children: [
+                          pw.Text(widget.nama),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ];
         },
       ),

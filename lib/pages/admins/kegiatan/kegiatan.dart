@@ -34,6 +34,8 @@ String _tempNamaKodeMaster = "";
 String _tempKodePenanggungjawab = "";
 String _tempkodekegiatangabungan = "";
 String _singleList = "0000000";
+String _masukAkalNominal = "";
+String _harianNominal = "";
 String _tempmulaiacara = "";
 String _tempselesaiacara = "";
 String _tempmulaikegiatan = "";
@@ -51,7 +53,6 @@ final List _kodeMaster = [];
 final List _kodeKegiatanbuatList = [];
 final List _kodePerkiraan = [];
 final List _kodePerkiraanSingleKegiatan = [];
-final List _tanggalAbsen = [];
 final List _disimpen = [];
 
 final List<DataRow> _rowListForm = List.empty(growable: true);
@@ -608,6 +609,16 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     }
   }
 
+  Future _getMasukAkal(kodeMaster, kodeGereja, kodePerkiraan) async {
+    var response = await servicesUserItem.getMasukAkal(
+        kodeMaster, kodeGereja, kodePerkiraan);
+    if (response[0] != 404) {
+      _masukAkalNominal = response[1]['budget_kebutuhan_per_hari'].toString();
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
   _splitString(val) {
     var value = val.toString();
     var split = value.indexOf(" ");
@@ -1118,22 +1129,224 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                 width: 25,
                               ),
                               ElevatedButton(
-                                onPressed: () {
-                                  if (mounted) {
-                                    setState(() {
-                                      _kodeKegiatanList.add(_tempKodePerkiraan);
-                                      _kodeMasterList.add(_tempKodeMaster);
-                                      _jenisKebutuhanList
-                                          .add(_tempNamaKodePerkiraan);
-                                      _jenisMasterList.add(_tempNamaKodeMaster);
-                                      _saldoList.add(_controllerSaldo.text);
-                                    });
+                                onPressed: () async {
+                                  final differenceDate = selectedDateSampaiAcara
+                                      .difference(selectedDateDariAcara)
+                                      .inDays;
+                                  print(differenceDate);
+                                  await _getMasukAkal(_tempKodeMaster,
+                                          kodeGereja, _tempKodePerkiraan)
+                                      .whenComplete(() => setState(() {}));
+                                  _harianNominal =
+                                      (int.parse(_controllerSaldo.text) /
+                                              differenceDate)
+                                          .toString();
+
+                                  if (int.parse(_harianNominal) >
+                                      int.parse(_masukAkalNominal)) {
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      useRootNavigator: true,
+                                      context: context,
+                                      builder: (context) {
+                                        return StatefulBuilder(
+                                          builder: (context, setState) {
+                                            return Dialog(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: ScrollConfiguration(
+                                                behavior:
+                                                    ScrollConfiguration.of(
+                                                            context)
+                                                        .copyWith(
+                                                  dragDevices: {
+                                                    PointerDeviceKind.touch,
+                                                    PointerDeviceKind.mouse,
+                                                  },
+                                                ),
+                                                child: SingleChildScrollView(
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
+                                                  controller:
+                                                      ScrollController(),
+                                                  child: SizedBox(
+                                                    width: dw * 0.4,
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          width: dw * 0.4,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: primaryColor,
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                    .only(
+                                                              topLeft: Radius
+                                                                  .circular(10),
+                                                              topRight: Radius
+                                                                  .circular(10),
+                                                            ),
+                                                          ),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              const SizedBox(
+                                                                height: 16,
+                                                              ),
+                                                              responsiveText(
+                                                                  "Peringatan",
+                                                                  26,
+                                                                  FontWeight
+                                                                      .w700,
+                                                                  darkText),
+                                                              const SizedBox(
+                                                                height: 16,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(16),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  // responsiveText(
+                                                                  //     "Nominal budget melebihi perkiraan. Apakah anda yakin untuk melanjutkan penambahan ${_tempNamaKodePerkiraan} dengan nominal ${CurrencyFormat.convertToIdr(int.parse(_controllerSaldo.text), 2)} ?",
+                                                                  //     16,
+                                                                  //     FontWeight
+                                                                  //         .w700,
+                                                                  //     darkText),
+                                                                  Text(
+                                                                    "Nominal budget melebihi perkiraan. Apakah anda yakin untuk melanjutkan penambahan ${_tempNamaKodePerkiraan} dengan nominal ${CurrencyFormat.convertToIdr(int.parse(_controllerSaldo.text), 2)} ?",
+                                                                    style: GoogleFonts
+                                                                        .nunito(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 10,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(16),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child:
+                                                                    const Text(
+                                                                        "Batal"),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 25,
+                                                              ),
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  if (mounted) {
+                                                                    setState(
+                                                                        () {
+                                                                      _kodeKegiatanList
+                                                                          .add(
+                                                                              _tempKodePerkiraan);
+                                                                      _kodeMasterList
+                                                                          .add(
+                                                                              _tempKodeMaster);
+                                                                      _jenisKebutuhanList
+                                                                          .add(
+                                                                              _tempNamaKodePerkiraan);
+                                                                      _jenisMasterList
+                                                                          .add(
+                                                                              _tempNamaKodeMaster);
+                                                                      _saldoList.add(
+                                                                          _controllerSaldo
+                                                                              .text);
+                                                                    });
+                                                                  }
+                                                                  _controllerJenisKebutuhan
+                                                                      .clear();
+                                                                  _controllerKodeJenisKebutuhan
+                                                                      .clear();
+                                                                  _controllerSaldo
+                                                                      .clear();
+                                                                  cekKodeMaster =
+                                                                      false;
+
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child: const Text(
+                                                                    "Lanjutkan"),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 25,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    );
+                                  } else {
+                                    if (mounted) {
+                                      setState(() {
+                                        _kodeKegiatanList
+                                            .add(_tempKodePerkiraan);
+                                        _kodeMasterList.add(_tempKodeMaster);
+                                        _jenisKebutuhanList
+                                            .add(_tempNamaKodePerkiraan);
+                                        _jenisMasterList
+                                            .add(_tempNamaKodeMaster);
+                                        _saldoList.add(_controllerSaldo.text);
+                                      });
+                                    }
+                                    _controllerJenisKebutuhan.clear();
+                                    _controllerKodeJenisKebutuhan.clear();
+                                    _controllerSaldo.clear();
+                                    cekKodeMaster = false;
+
+                                    Navigator.pop(context);
                                   }
-                                  _controllerJenisKebutuhan.clear();
-                                  _controllerKodeJenisKebutuhan.clear();
-                                  _controllerSaldo.clear();
-                                  cekKodeMaster = false;
-                                  Navigator.pop(context);
                                 },
                                 child: const Text("Tambah"),
                               ),
@@ -2019,8 +2232,11 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  _showTambahDialogKebutuhan(
-                                      deviceWidth, deviceHeight);
+                                  if (dateDariAcara != "Date" &&
+                                      dateSampaiAcara != "Date") {
+                                    _showTambahDialogKebutuhan(
+                                        deviceWidth, deviceHeight);
+                                  }
                                 },
                                 child: Wrap(
                                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -3461,16 +3677,20 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                               shape: CircleBorder(),
                                             ),
                                             onPressed: () {
-                                              setState(() {
-                                                _tanggalAbsensi = snapData[1]
+                                              _tanggalAbsensi = snapData[1]
                                                     [index]['tanggal_absen'];
+                                                    
+                                                widget
+                                                    .controllerPageDetailAbsensiKegiatan
+                                                    .animateToPage(1,
+                                                        duration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    250),
+                                                        curve: Curves.ease);
+                                              setState(() {
+                                                
                                               });
-                                              widget
-                                                  .controllerPageDetailAbsensiKegiatan
-                                                  .animateToPage(1,
-                                                      duration: const Duration(
-                                                          milliseconds: 250),
-                                                      curve: Curves.ease);
                                             },
                                             child: Tooltip(
                                               message:
@@ -3520,6 +3740,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
   late Future kategoriDetailAbsensiKegiatan;
   late Future kategoriDetailAnggotaPICAbsen;
 
+  final List _kodeUserList = [];
+  final List _statusUserAbsensiList = [];
+
   final _controllerJumlahHadir = TextEditingController();
 
   @override
@@ -3527,7 +3750,6 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
     // TODO: implement initState
     kategoriDetailAbsensiKegiatan =
         servicesUser.getUserAbsen(kodeGereja, _kodeKegiatan, _tanggalAbsensi);
-    kategoriDetailAnggotaPICAbsen = servicesUser.getPIC(_kodeKegiatanGabungan);
     widget.controllerPageDetailAbsensiKegiatan.addListener(() {
       debugPrint("Refreshed");
       if (mounted) {
@@ -3541,6 +3763,21 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future _updateAbsensi(kodeGereja, kodeKegiatan, tanggalAbsen, kodeUser,
+      statusUserAbsensi, context) async {
+    var response = await servicesUser.updateUserAbsensi(
+        kodeGereja, kodeKegiatan, tanggalAbsen, kodeUser, statusUserAbsensi);
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
   }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
@@ -3670,7 +3907,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                         ),
                         padding: const EdgeInsets.all(10),
                         child: FutureBuilder(
-                          future: kategoriDetailAnggotaPICAbsen,
+                          future: kategoriDetailAbsensiKegiatan,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               List snapData = snapshot.data! as List;
@@ -3704,12 +3941,10 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                           title: Text(
                                             snapData[1][index]['kode_user'],
                                           ),
-                                          subtitle: Text(
-                                            snapData[1][index]['peran'],
-                                          ),
                                           trailing: ToggleSwitch(
                                             minWidth: 40,
-                                            initialLabelIndex: 0,
+                                            initialLabelIndex: snapData[1]
+                                                [index]['status_user_absensi'],
                                             cornerRadius: 10,
                                             activeFgColor: Colors.white,
                                             inactiveBgColor: surfaceColor,
@@ -3721,8 +3956,15 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                                 correctColor.withOpacity(0.8),
                                               ],
                                             ],
-                                            onToggle: (index) {
-                                              debugPrint('switched to: $index');
+                                            onToggle: (indextoggle) {
+                                              // debugPrint('switched to: $indextoggle');
+                                              // debugPrint('User to: ' +
+                                              //     snapData[1][index]
+                                              //         ['kode_user']);
+                                              _kodeUserList.add(snapData[1]
+                                                  [index]['kode_user']);
+                                              _statusUserAbsensiList
+                                                  .add(indextoggle);
                                             },
                                           ),
                                         ),
@@ -3731,64 +3973,9 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                   ),
                                 );
                               } else if (snapData[0] == 404) {
-                                return ScrollConfiguration(
-                                  behavior:
-                                      ScrollConfiguration.of(context).copyWith(
-                                    dragDevices: {
-                                      PointerDeviceKind.touch,
-                                      PointerDeviceKind.mouse,
-                                    },
-                                  ),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.vertical,
-                                    controller: ScrollController(),
-                                    physics: const ClampingScrollPhysics(),
-                                    itemCount: snapData[1].length,
-                                    itemBuilder: (context, index) {
-                                      return Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          side: BorderSide(
-                                            color: navButtonPrimary
-                                                .withOpacity(0.4),
-                                          ),
-                                        ),
-                                        color: scaffoldBackgroundColor,
-                                        child: ListTile(
-                                          title: Text(
-                                            snapData[1][index]['kode_user'],
-                                          ),
-                                          subtitle: Text(
-                                            snapData[1][index]['peran'],
-                                          ),
-                                          trailing: ToggleSwitch(
-                                            minWidth: 40,
-                                            initialLabelIndex: 1,
-                                            cornerRadius: 10,
-                                            activeFgColor: Colors.white,
-                                            inactiveBgColor: surfaceColor,
-                                            inactiveFgColor: Colors.white,
-                                            totalSwitches: 2,
-                                            activeBgColors: [
-                                              [errorColor.withOpacity(0.5)],
-                                              [
-                                                correctColor.withOpacity(0.8),
-                                              ],
-                                            ],
-                                            onToggle: (index) {
-                                              debugPrint('switched to: $index');
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                );
+                                return noData();
                               }
                             }
-
                             return loadingIndicator();
                           },
                         ),
@@ -3802,7 +3989,30 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          for (int i = 0; i < _kodeUserList.length; i++) {
+                            print(_kodeUserList);
+                            print(_statusUserAbsensiList);
+                            _updateAbsensi(
+                                    kodeGereja,
+                                    _kodeKegiatan,
+                                    _tanggalAbsensi,
+                                    _kodeUserList[i],
+                                    _statusUserAbsensiList[i],
+                                    context)
+                                .whenComplete(() {
+                              kategoriDetailAbsensiKegiatan =
+                                  servicesUser.getUserAbsen(kodeGereja,
+                                      _kodeKegiatan, _tanggalAbsensi);
+                            });
+                          }
+                          _kodeUserList.clear();
+                          _statusUserAbsensiList.clear();
+                          widget.controllerPageDetailAbsensiKegiatan
+                              .animateToPage(0,
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.ease);
+                        },
                         child: const Text("Simpan"),
                       ),
                     ],

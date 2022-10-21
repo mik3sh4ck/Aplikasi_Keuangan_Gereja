@@ -135,6 +135,21 @@ class ServicesUser {
     }
   }
 
+  //TODO: Delete Kode Master
+  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan) async {
+    final response = await http.delete(
+      Uri.parse(
+          "${_linkPath}delete-kode-perkiraan?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraan"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal menghapus data");
+    }
+  }
+
   //TODO: get kode Perkiraan
   Future getKodePerkiraan(kodeGereja, headerKodePerkiraan) async {
     final response = await http.get(
@@ -181,11 +196,26 @@ class ServicesUser {
     }
   }
 
+  Future updateSaldoAwal(
+      kodeGereja, headerKodePerkiraan, kodePerkiraan, saldo) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}update-saldo-awal?kode_gereja=$kodeGereja&header_kode_perkiraan=$headerKodePerkiraan&kode_perkiraan=$kodePerkiraan&saldo_awal=$saldo"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal memasukan data");
+    }
+  }
+
   //TODO: Delete Kode Perkiraan
-  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan) async {
+  Future deleteKodeMaster(kodeGereja, kodeMaster) async {
     final response = await http.delete(
       Uri.parse(
-          "${_linkPath}delete-kode-perkiraan?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraan"),
+          "${_linkPath}http://cfin.crossnet.co.id:1323/input-header-kode-perkiraan?kode_gereja=$kodeGereja&header_kode_perkiraan=$kodeMaster"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -882,6 +912,37 @@ class ServicesUser {
     final response = await http.get(
       Uri.parse(
           "${_linkPath}user-absensi?kode_kegiatan=$kodeKegiatan&kode_gereja=$kodeGereja&tanggal=$tanggals"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: update user absens
+  Future updateUserAbsensi(kodeGereja, kodeKegiatan, tanggalAbsen, kodeUser,
+      statusUserAbsensi) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}input-user-absensi?kode_gereja=$kodeGereja&kode_kegiatan=$kodeKegiatan&tanggal_absensi=$tanggalAbsen&kode_user=$kodeUser&status_user_absensi=$statusUserAbsensi"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengupdate data");
+    }
+  }
+
+  //TODO: get masuk akal
+  Future getMasukAkal(kodeMasterAkal, kodeGerejaAkal, kodePerkiraanAkal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}masuk-akal?header_kode_perkiraan=$kodeMasterAkal&kode_gereja=$kodeGerejaAkal&kode_perkiraan=$kodePerkiraanAkal"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

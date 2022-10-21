@@ -756,6 +756,16 @@ class _AdminRolePageState extends State<AdminRolePage> {
     super.dispose();
   }
 
+  // Future getRole(kodeGereja) async {
+  //   var response = await servicesUser.getRole(kodeGereja);
+  //   if (response[0] != 404) {
+  //     for (var element in response[1]) {
+  //       roleList.add(element['nama_role']);
+  //       kodeRoleList.add(element['kode_role']);
+  //     }
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -875,7 +885,7 @@ class _AdminRolePageState extends State<AdminRolePage> {
                                                     BorderRadius.circular(10),
                                               ),
                                               child: ExpansionTile(
-                                                initiallyExpanded: true,
+                                                initiallyExpanded: false,
                                                 expandedCrossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 expandedAlignment:
@@ -887,7 +897,9 @@ class _AdminRolePageState extends State<AdminRolePage> {
                                                 collapsedTextColor: darkText,
                                                 collapsedIconColor:
                                                     navButtonPrimary,
-                                                title: const Text("Hello"),
+                                                title: Text(snapData[1][index]
+                                                        ['nama_role']
+                                                    .toString()),
                                                 children: [
                                                   Divider(
                                                     height: 0,
@@ -896,30 +908,6 @@ class _AdminRolePageState extends State<AdminRolePage> {
                                                   ),
                                                   Row(
                                                     children: [
-                                                      Expanded(
-                                                        child: ListView.builder(
-                                                          shrinkWrap: true,
-                                                          scrollDirection:
-                                                              Axis.vertical,
-                                                          controller:
-                                                              ScrollController(),
-                                                          physics:
-                                                              const ClampingScrollPhysics(),
-                                                          itemCount: 5,
-                                                          itemBuilder:
-                                                              (BuildContext
-                                                                      context,
-                                                                  int index) {
-                                                            return ListTile(
-                                                              title: Text(
-                                                                  "Detail $index"),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        width: 25,
-                                                      ),
                                                       Expanded(
                                                         child: ListView.builder(
                                                           shrinkWrap: true,
@@ -1025,6 +1013,7 @@ class AdminBuatRole extends StatefulWidget {
 class _AdminBuatRoleState extends State<AdminBuatRole> {
   ServicesUser servicesUser = ServicesUser();
   final _controllerNamaRole = TextEditingController();
+
   final List _roleList = [
     ['Baca', false],
     ['Input', false],
@@ -1032,9 +1021,19 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
     ['Sunting', false],
     ['Unduh', false],
   ];
+
+  final List _tempRole = [0, 0, 0, 0, 0];
+  String idPriv = "";
+
   @override
   void initState() {
     // TODO: implement initState
+    widget.controllerPageBuatRole.addListener(() {
+      debugPrint("Refreshed");
+      if (mounted) {
+        setState(() {});
+      }
+    });
     super.initState();
   }
 
@@ -1043,6 +1042,21 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
     // TODO: implement dispose
     _controllerNamaRole.dispose();
     super.dispose();
+  }
+
+  Future postRole(kodeGereja, idPrevilage, namaRole, context) async {
+    var response =
+        await servicesUser.inputRole(kodeGereja, idPrevilage, namaRole);
+
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
   }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
@@ -1085,6 +1099,20 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
         ),
       ),
     );
+  }
+
+  buatIdprivilege(namaRole, context) {
+    for (int i = 0; i < _tempRole.length; i++) {
+      if (_tempRole[i] != 0) {
+        idPriv += "/${_tempRole[i]}/";
+      }
+    }
+    postRole(kodeGereja, idPriv, namaRole, context).whenComplete(() {
+      widget.controllerPageBuatRole.animateToPage(0,
+          duration: const Duration(milliseconds: 250), curve: Curves.ease);
+    });
+
+    debugPrint(idPriv);
   }
 
   @override
@@ -1209,6 +1237,13 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                                               _roleList[index][1] = e;
                                               setState(() {});
                                               debugPrint(e.toString());
+
+                                              if (e == true) {
+                                                _tempRole[index] = index + 1;
+                                              } else {
+                                                _tempRole[index] = 0;
+                                              }
+                                              debugPrint(_tempRole.toString());
                                             },
                                           );
                                         },
@@ -1216,102 +1251,102 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                                     ),
                                   ],
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    responsiveText("Kategori", 16,
-                                        FontWeight.w700, darkText),
-                                    const SizedBox(
-                                      height: 16,
-                                    ),
-                                    SizedBox(
-                                      width: deviceWidth < 800
-                                          ? deviceWidth * 0.44
-                                          : deviceWidth * 0.22,
-                                      child: FutureBuilder(
-                                        builder: (context, snapshot) {
-                                          if (snapshot.hasData) {
-                                            List snapData =
-                                                snapshot.data! as List;
-                                            if (snapData[0] != 404) {
-                                              return ScrollConfiguration(
-                                                behavior:
-                                                    ScrollConfiguration.of(
-                                                            context)
-                                                        .copyWith(
-                                                  dragDevices: {
-                                                    PointerDeviceKind.touch,
-                                                    PointerDeviceKind.mouse,
-                                                  },
-                                                ),
-                                                child: ListView.builder(
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  controller:
-                                                      ScrollController(),
-                                                  physics:
-                                                      const ClampingScrollPhysics(),
-                                                  itemCount: _roleList.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return CheckboxListTile(
-                                                      checkboxShape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
-                                                      ),
-                                                      contentPadding:
-                                                          const EdgeInsets.all(
-                                                              0),
-                                                      title: Card(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          side: BorderSide(
-                                                            color:
-                                                                navButtonPrimary
-                                                                    .withOpacity(
-                                                                        0.5),
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(30),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      16,
-                                                                  vertical: 10),
-                                                          child: Text(
-                                                            _roleList[index][0],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      value: _roleList[index]
-                                                          [1],
-                                                      onChanged: (e) {
-                                                        _roleList[index][1] = e;
-                                                        setState(() {});
-                                                        debugPrint(
-                                                            e.toString());
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              );
-                                            }
-                                          }
-                                          return FittedBox(
-                                            child: loadingIndicator(),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                // Column(
+                                //   crossAxisAlignment: CrossAxisAlignment.start,
+                                //   children: [
+                                //     responsiveText("Kategori", 16,
+                                //         FontWeight.w700, darkText),
+                                //     const SizedBox(
+                                //       height: 16,
+                                //     ),
+                                //     SizedBox(
+                                //       width: deviceWidth < 800
+                                //           ? deviceWidth * 0.44
+                                //           : deviceWidth * 0.22,
+                                //       child: FutureBuilder(
+                                //         builder: (context, snapshot) {
+                                //           if (snapshot.hasData) {
+                                //             List snapData =
+                                //                 snapshot.data! as List;
+                                //             if (snapData[0] != 404) {
+                                //               return ScrollConfiguration(
+                                //                 behavior:
+                                //                     ScrollConfiguration.of(
+                                //                             context)
+                                //                         .copyWith(
+                                //                   dragDevices: {
+                                //                     PointerDeviceKind.touch,
+                                //                     PointerDeviceKind.mouse,
+                                //                   },
+                                //                 ),
+                                //                 child: ListView.builder(
+                                //                   shrinkWrap: true,
+                                //                   scrollDirection:
+                                //                       Axis.vertical,
+                                //                   controller:
+                                //                       ScrollController(),
+                                //                   physics:
+                                //                       const ClampingScrollPhysics(),
+                                //                   itemCount: _roleList.length,
+                                //                   itemBuilder:
+                                //                       (context, index) {
+                                //                     return CheckboxListTile(
+                                //                       checkboxShape:
+                                //                           RoundedRectangleBorder(
+                                //                         borderRadius:
+                                //                             BorderRadius
+                                //                                 .circular(5),
+                                //                       ),
+                                //                       contentPadding:
+                                //                           const EdgeInsets.all(
+                                //                               0),
+                                //                       title: Card(
+                                //                         shape:
+                                //                             RoundedRectangleBorder(
+                                //                           side: BorderSide(
+                                //                             color:
+                                //                                 navButtonPrimary
+                                //                                     .withOpacity(
+                                //                                         0.5),
+                                //                           ),
+                                //                           borderRadius:
+                                //                               BorderRadius
+                                //                                   .circular(30),
+                                //                         ),
+                                //                         child: Padding(
+                                //                           padding:
+                                //                               const EdgeInsets
+                                //                                       .symmetric(
+                                //                                   horizontal:
+                                //                                       16,
+                                //                                   vertical: 10),
+                                //                           child: Text(
+                                //                             _roleList[index][0],
+                                //                           ),
+                                //                         ),
+                                //                       ),
+                                //                       value: _roleList[index]
+                                //                           [1],
+                                //                       onChanged: (e) {
+                                //                         _roleList[index][1] = e;
+                                //                         setState(() {});
+                                //                         debugPrint(
+                                //                             e.toString());
+                                //                       },
+                                //                     );
+                                //                   },
+                                //                 ),
+                                //               );
+                                //             }
+                                //           }
+                                //           return FittedBox(
+                                //             child: loadingIndicator(),
+                                //           );
+                                //         },
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
                               ],
                             ),
                           ),
@@ -1319,7 +1354,10 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                             height: 25,
                           ),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              buatIdprivilege(
+                                  _controllerNamaRole.text, context);
+                            },
                             child: const Text("BUAT"),
                           ),
                         ],
