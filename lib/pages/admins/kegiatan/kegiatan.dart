@@ -651,8 +651,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateDariKegiatan,
-      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
-      lastDate: DateTime(DateTime.now().year, 12, 31),
+      firstDate: selectedDateDariAcara,
+      lastDate: selectedDateSampaiAcara,
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
@@ -688,8 +688,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateSampaiKegiatan,
-      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
-      lastDate: DateTime(DateTime.now().year, 12, 31),
+      firstDate: selectedDateDariKegiatan,
+      lastDate: selectedDateSampaiAcara,
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
@@ -762,7 +762,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateSampaiAcara,
-      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
+      firstDate: selectedDateDariAcara,
       lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
         return Theme(
@@ -952,7 +952,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                 height: 16,
                               ),
                               responsiveText("Tambah Kebutuhan", 26,
-                                  FontWeight.w700, darkText),
+                                  FontWeight.w700, lightText),
                               const SizedBox(
                                 height: 16,
                               ),
@@ -1412,7 +1412,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                 height: 16,
                               ),
                               responsiveText("Tambah Anggota", 26,
-                                  FontWeight.w700, darkText),
+                                  FontWeight.w700, lightText),
                               const SizedBox(
                                 height: 16,
                               ),
@@ -1601,12 +1601,15 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         "Keterangan Pengisian Tanggal",
                                         26,
                                         FontWeight.w700,
-                                        darkText),
+                                        lightText),
                                     IconButton(
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
-                                        icon: const Icon(Icons.close_outlined))
+                                        icon: Icon(
+                                          Icons.close_outlined,
+                                          color: lightText,
+                                        ))
                                   ],
                                 ),
                               ),
@@ -1800,18 +1803,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                         const SizedBox(
                           height: 15,
                         ),
-                        // Container(
-                        //   constraints: BoxConstraints(maxWidth: 400),
-                        //   padding: EdgeInsets.all(30),
-                        //   alignment: Alignment.topLeft,
-                        //   child: ElevatedButton(
-                        //     child: Text('Pick File'),
-                        //     onPressed: () async {
-                        //       FilePickerResult? result =
-                        //           await FilePicker.platform.pickFiles();
-                        //     },
-                        //   ),
-                        // ),
                         responsiveText(
                             "Lokasi Kegiatan", 14, FontWeight.w700, darkText),
                         const SizedBox(
@@ -1863,8 +1854,10 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                 (value) => setState(() {}),
                                               );
                                             },
-                                            icon: const Icon(
-                                                Icons.calendar_month),
+                                            icon: const Tooltip(
+                                              message: "Tanggal Acara Mulai",
+                                              child: Icon(Icons.calendar_month),
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -1903,15 +1896,22 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                 Text(dateSampaiAcara),
                                                 IconButton(
                                                   onPressed: () {
-                                                    selectDateSampaiAcara(
-                                                            context)
-                                                        .then(
-                                                      (value) =>
-                                                          setState(() {}),
-                                                    );
+                                                    if (dateDariAcara !=
+                                                        "Date") {
+                                                      selectDateSampaiAcara(
+                                                              context)
+                                                          .then(
+                                                        (value) =>
+                                                            setState(() {}),
+                                                      );
+                                                    }
                                                   },
-                                                  icon: const Icon(
-                                                      Icons.calendar_month),
+                                                  icon: const Tooltip(
+                                                    message:
+                                                        "Tanggal Acara Selesai",
+                                                    child: Icon(
+                                                        Icons.calendar_month),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -1972,12 +1972,19 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           Text(dateDariKegiatan),
                                           IconButton(
                                             onPressed: () {
-                                              selectDateDari(context).then(
-                                                (value) => setState(() {}),
-                                              );
+                                              if (dateDariAcara != "Date" &&
+                                                  dateSampaiAcara != "Date") {
+                                                selectDateDari(context).then(
+                                                  (value) => setState(() {}),
+                                                );
+                                              }
                                             },
-                                            icon: const Icon(
-                                                Icons.calendar_month),
+                                            icon: const Tooltip(
+                                                    message:
+                                                        "Tanggal Kegiatan Mulai",
+                                                    child:  Icon(
+                                                        Icons.calendar_month),
+                                                  ),
                                           ),
                                         ],
                                       ),
@@ -2016,14 +2023,25 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                 Text(dateSampaiKegiatan),
                                                 IconButton(
                                                   onPressed: () {
-                                                    selectDateSampai(context)
-                                                        .then(
-                                                      (value) =>
-                                                          setState(() {}),
-                                                    );
+                                                    if (dateDariAcara !=
+                                                            "Date" &&
+                                                        dateSampaiAcara !=
+                                                            "Date" &&
+                                                        dateDariKegiatan !=
+                                                            "Date") {
+                                                      selectDateSampai(context)
+                                                          .then(
+                                                        (value) =>
+                                                            setState(() {}),
+                                                      );
+                                                    }
                                                   },
-                                                  icon: const Icon(
-                                                      Icons.calendar_month),
+                                                  icon: const Tooltip(
+                                                    message:
+                                                        "Tanggal Kegiatan Selesai",
+                                                    child:  Icon(
+                                                        Icons.calendar_month),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -2350,12 +2368,12 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                   postProposalKegiatan(
                                       _tempkodekegiatangabungan + _singleList,
                                       kodeGereja,
-                                      _controllerNamaKegiatan.text,
+                                      _controllerNamaKegiatan.text.capitalize(),
                                       _tempKodePenanggungjawab,
                                       dateDariAcara,
                                       dateSampaiAcara,
-                                      _controllerLokasi.text,
-                                      _controllerKeteranganKegiatan.text,
+                                      _controllerLokasi.text.capitalize(),
+                                      _controllerKeteranganKegiatan.text.capitalize(),
                                       dateDariKegiatan,
                                       dateSampaiKegiatan,
                                       context);
@@ -3671,26 +3689,26 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                               17,
                                               FontWeight.w600,
                                               darkText),
-                                          trailing: ElevatedButton(
+                                          trailing: 
+                                          ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               padding: EdgeInsets.all(12),
                                               shape: CircleBorder(),
                                             ),
                                             onPressed: () {
-                                              _tanggalAbsensi = snapData[1]
-                                                    [index]['tanggal_absen'];
-                                                    
-                                                widget
-                                                    .controllerPageDetailAbsensiKegiatan
-                                                    .animateToPage(1,
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    250),
-                                                        curve: Curves.ease);
-                                              setState(() {
-                                                
-                                              });
+                                              print(snapData[1][index]['tanggal_absen']);
+                                              print(DateTime.now());
+                                              if(snapData[1][index]['tanggal_absen'].toString() == DateTime.now().day.toString()+"-"+DateTime.now().month.toString()+"-"+DateTime.now().year.toString()){
+                                                _tanggalAbsensi = snapData[1]
+                                                  [index]['tanggal_absen'];
+                                              widget
+                                                  .controllerPageDetailAbsensiKegiatan
+                                                  .animateToPage(1,
+                                                      duration: const Duration(
+                                                          milliseconds: 250),
+                                                      curve: Curves.ease);
+                                              setState(() {});
+                                              }
                                             },
                                             child: Tooltip(
                                               message:
@@ -4399,7 +4417,7 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                 height: 16,
                               ),
                               responsiveText("Tambah Kode Kegiatan", 26,
-                                  FontWeight.w700, darkText),
+                                  FontWeight.w700, lightText),
                               const SizedBox(
                                 height: 16,
                               ),

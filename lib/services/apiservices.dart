@@ -555,6 +555,21 @@ class ServicesUser {
     }
   }
 
+  //TODO: Get Detail Role
+  Future getDetailRole(kodeGereja, kodeRole) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-previlage-role?kode_gereja=$kodeGereja&kode_role=$kodeRole"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
   //TODO: Input Role
   Future inputRole(kodeGereja, idPrivilege, namaRole) async {
     final response = await http.post(
@@ -567,6 +582,36 @@ class ServicesUser {
       return [jsonRespStatus, jsonRespMessage];
     } else {
       throw Exception("Gagal mengambil data");
+    }
+  }
+
+  //TODO: Update Role
+  Future updateRole(kodeGereja, idPrivilege, kodeRole, namaRole) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}update-role?kode_gereja=$kodeGereja&id_pevilage=$idPrivilege&kode_role=$kodeRole&nama_role=$namaRole"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengupdate data");
+    }
+  }
+
+  //TODO: update assign role
+  Future updateAssignRole(kodeGerejaass, kodeRoleass, kodeUserass) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}asaign-role?kode_gereja=$kodeGerejaass&kode_user=$kodeUserass&kode_role=$kodeRoleass"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengupdate data");
     }
   }
 

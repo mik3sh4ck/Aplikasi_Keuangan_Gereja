@@ -4534,8 +4534,8 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
 
   exportSignature(int tipe) async {
     final exportController = SignatureController(
-      penStrokeWidth: 2,
-      penColor: Colors.black,
+      penStrokeWidth: double.parse(_currentValue.toString()),
+      penColor: currentColor,
       exportBackgroundColor: Colors.white,
       points: controller.points,
     );
@@ -7257,6 +7257,9 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
       ),
       body: PdfPreview(
         initialPageFormat: PdfPageFormat.a4,
+        allowPrinting: false,
+        pdfFileName: "Laporan_Keuangan_Gereja.pdf",
+        dynamicLayout: false,
         build: (format) => checkTipe(widget.tipe, format),
       ),
     );
