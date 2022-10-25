@@ -290,7 +290,7 @@ class NavigationScreen extends StatelessWidget {
           // case 4:
           //   return AdminControllerDonasiPage();
           case 4:
-            return AdminSettingPageController();
+            return AdminSettingPage();
           default:
             return Text(
               "Halaman Tidak Tersedia",

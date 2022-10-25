@@ -7,16 +7,13 @@ import 'package:aplikasi_keuangan_gereja/widgets/responsivetext.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../services/apiservices.dart';
 
 String _namaPages = "";
 
 class AdminSettingPage extends StatefulWidget {
-  final PageController controllerSettingPage;
-  const AdminSettingPage({Key? key, required this.controllerSettingPage})
-      : super(key: key);
+  const AdminSettingPage({Key? key}) : super(key: key);
 
   @override
   State<AdminSettingPage> createState() => _AdminSettingPageState();
@@ -36,6 +33,10 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
   late Future kategoriTampilRolePage;
   ServicesUser servicesUser = ServicesUser();
 
+  final List _settingRoleList = List.empty(growable: true);
+  final List _settingEnabledList = List.empty(growable: true);
+  final List _tempRole = List.empty(growable: true);
+  String _roleList = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -48,6 +49,53 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future getallrole(kodeGereja, namaPagePop) async {
+    _settingRoleList.clear();
+    List temp = List.empty(growable: true);
+    debugPrint("============================================================");
+
+    var response = await servicesUser.getRole(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        temp.add(element['nama_role'].toString());
+        temp.add(element['kode_role'].toString());
+        temp.add(false);
+        _settingRoleList.add(temp.toList());
+        temp.clear();
+      }
+      debugPrint(_settingRoleList.toString());
+    }
+
+    debugPrint("============================================================");
+    response = await servicesUser.getPageRole(kodeGereja, namaPagePop);
+    if (response[0] != 0) {
+      for (var element in response[1]) {
+        for (int i = 0; i < _settingRoleList.length; i++) {
+          if (_settingRoleList[i][1] == element['role_user']) {
+            _settingRoleList[i][2] = true;
+          }
+        }
+        debugPrint(element.toString());
+      }
+    }
+
+    debugPrint("============================================================");
+    debugPrint(_settingRoleList.toString());
+  }
+
+  buatListRole(namaPagePop, context) async {
+    _roleList = "";
+    for (int i = 0; i < _settingRoleList.length; i++) {
+      if (_settingRoleList[i][2] == true) {
+        _roleList += "/${_settingRoleList[i][1]}/";
+      }
+    }
+
+    await servicesUser
+        .inputUpdatePageRole(kodeGereja, namaPagePop, _roleList)
+        .whenComplete(() => Navigator.pop(context));
   }
 
   _showTambahRolePage(dw, dh, namaPagePop) {
@@ -101,82 +149,42 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                         ),
                         Container(
                           padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  FutureBuilder(
-                                    future: kategoriListRoles,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        List snapData = snapshot.data! as List;
-                                        if (snapData[0] != 404) {
-                                          return ScrollConfiguration(
-                                            behavior:
-                                                ScrollConfiguration.of(context)
-                                                    .copyWith(
-                                              dragDevices: {
-                                                PointerDeviceKind.touch,
-                                                PointerDeviceKind.mouse,
-                                              },
-                                            ),
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.vertical,
-                                              controller: ScrollController(),
-                                              physics:
-                                                  const ClampingScrollPhysics(),
-                                              itemCount: snapData[1].length,
-                                              itemBuilder: (context, index) {
-                                                return CheckboxListTile(
-                                                  checkboxShape:
-                                                      RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                  ),
-                                                  contentPadding:
-                                                      const EdgeInsets.all(0),
-                                                  title: Card(
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                        color: navButtonPrimary
-                                                            .withOpacity(0.5),
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
-                                                    ),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          horizontal: 16,
-                                                          vertical: 10),
-                                                      child: Text(
-                                                        snapData[1][index]
-                                                            ['nama_role'],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  value: false,
-                                                  onChanged: (e) {},
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        } else if (snapData[0] == 404) {
-                                          return noData();
-                                        }
-                                      }
-                                      return loadingIndicator();
-                                    },
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            controller: ScrollController(),
+                            physics: const ClampingScrollPhysics(),
+                            itemCount: _settingRoleList.length,
+                            itemBuilder: (context, index) {
+                              return CheckboxListTile(
+                                checkboxShape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                contentPadding: const EdgeInsets.all(0),
+                                title: Card(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: navButtonPrimary.withOpacity(0.5),
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                ],
-                              ),
-                            ],
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 10),
+                                    child: Text(
+                                      _settingRoleList[index][0],
+                                    ),
+                                  ),
+                                ),
+                                value: _settingRoleList[index][2],
+                                onChanged: (e) {
+                                  _settingRoleList[index][2] = e;
+                                  setState(() {});
+                                  debugPrint("====================");
+                                  debugPrint(_settingRoleList.toString());
+                                },
+                              );
+                            },
                           ),
                         ),
                         Padding(
@@ -198,8 +206,9 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (mounted) {}
-                                  Navigator.pop(context);
+                                  if (mounted) {
+                                    buatListRole(namaPagePop, context);
+                                  }
                                 },
                                 child: const Text("Tambah"),
                               ),
@@ -278,8 +287,11 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                               Text(pages[index]),
                               TextButton(
                                 onPressed: () {
-                                  _showTambahRolePage(
-                                      deviceWidth, deviceHeight, pages[index]);
+                                  getallrole(kodeGereja, pages[index])
+                                      .whenComplete(() {
+                                    _showTambahRolePage(deviceWidth,
+                                        deviceHeight, pages[index]);
+                                  });
                                 },
                                 child: Text(
                                   "Beri Role",
@@ -344,219 +356,6 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                         ),
                       );
                     },
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AdminSettingPageController extends StatefulWidget {
-  const AdminSettingPageController({Key? key}) : super(key: key);
-
-  @override
-  State<AdminSettingPageController> createState() =>
-      _AdminSettingPageControllerState();
-}
-
-class _AdminSettingPageControllerState
-    extends State<AdminSettingPageController> {
-  final _controllerPageSettings = PageController();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _controllerPageSettings.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PageView(
-      controller: _controllerPageSettings,
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        AdminSettingPage(
-          controllerSettingPage: _controllerPageSettings,
-        ),
-        AdminAddRolePage(
-          controllerAddRolePade: _controllerPageSettings,
-        ),
-      ],
-    );
-  }
-}
-
-class AdminAddRolePage extends StatefulWidget {
-  final PageController controllerAddRolePade;
-  const AdminAddRolePage({Key? key, required this.controllerAddRolePade})
-      : super(key: key);
-
-  @override
-  State<AdminAddRolePage> createState() => _AdminAddRolePageState();
-}
-
-class _AdminAddRolePageState extends State<AdminAddRolePage> {
-  late Future kategoriListRole;
-  ServicesUser servicesUser = ServicesUser();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    kategoriListRole = servicesUser.getRole(kodeGereja);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Tooltip(
-                  message: "Back",
-                  child: IconButton(
-                    onPressed: () {
-                      widget.controllerAddRolePade.animateToPage(0,
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.ease);
-                    },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  ),
-                ),
-                const SizedBox(
-                  width: 25,
-                ),
-                responsiveText("Detail Halaman $_namaPages", 26,
-                    FontWeight.w900, darkText),
-              ],
-            ),
-            const Divider(
-              height: 56,
-            ),
-            Expanded(
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                  },
-                ),
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: navButtonPrimary.withOpacity(0.5),
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: FutureBuilder(
-                              future: kategoriListRole,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  List snapData = snapshot.data! as List;
-                                  if (snapData[0] != 404) {
-                                    return ScrollConfiguration(
-                                      behavior: ScrollConfiguration.of(context)
-                                          .copyWith(
-                                        dragDevices: {
-                                          PointerDeviceKind.touch,
-                                          PointerDeviceKind.mouse,
-                                        },
-                                      ),
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.vertical,
-                                        controller: ScrollController(),
-                                        physics: const ClampingScrollPhysics(),
-                                        itemCount: snapData[1].length,
-                                        itemBuilder: (context, index) {
-                                          return Card(
-                                            color: scaffoldBackgroundColor,
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                color: navButtonPrimary
-                                                    .withOpacity(0.5),
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: ListTile(
-                                              title: responsiveText(
-                                                  snapData[1][index]
-                                                      ['nama_role'],
-                                                  17,
-                                                  FontWeight.w700,
-                                                  darkText),
-                                              subtitle: responsiveText(
-                                                  snapData[1][index]
-                                                      ['kode_role'],
-                                                  15,
-                                                  FontWeight.w500,
-                                                  darkText),
-                                              trailing: ToggleSwitch(
-                                                minWidth: 40,
-                                                initialLabelIndex: 0,
-                                                cornerRadius: 10,
-                                                activeFgColor: Colors.white,
-                                                inactiveBgColor: surfaceColor,
-                                                inactiveFgColor: Colors.white,
-                                                totalSwitches: 2,
-                                                activeBgColors: [
-                                                  [
-                                                    Colors.grey.withOpacity(0.5)
-                                                  ],
-                                                  [
-                                                    correctColor
-                                                        .withOpacity(0.8),
-                                                  ],
-                                                ],
-                                                onToggle: (index) {
-                                                  debugPrint(
-                                                      'switched to: $index');
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  } else if (snapData[0] == 404) {
-                                    return noData();
-                                  }
-                                }
-                                return loadingIndicator();
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),

@@ -1044,6 +1044,21 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
+  //TODO: Input Page Role
+  Future inputUpdatePageRole(kodeGereja, namaPage, rolePage) async {
+    final response = await http.post(
+      Uri.parse(
+          "${_linkPath}input-page-role?kode_gereja=$kodeGereja&page_name=$namaPage&role_user=$rolePage"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
 }
 
 
