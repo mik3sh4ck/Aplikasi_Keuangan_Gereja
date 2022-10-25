@@ -4,6 +4,8 @@ import 'package:aplikasi_keuangan_gereja/globals.dart';
 import 'package:aplikasi_keuangan_gereja/main.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/apiservices.dart';
@@ -617,11 +619,49 @@ class _ActivationPageState extends State<ActivationPage> {
       otp = getDataOtp[1]['otp'];
       print(otp);
       showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                title: Text('otp'),
-                content: Text('OTP: $otp'),
-              ));
+        barrierDismissible: false,
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Kode OTP'),
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          content: otp != null
+              ? TextButton(
+                  onPressed: () async {
+                    await Clipboard.setData(
+                      ClipboardData(text: "$otp"),
+                    ).whenComplete(() => Navigator.pop(context));
+                    // copied successfully
+                  },
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '$otp',
+                          style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.w700, fontSize: 16),
+                        ),
+                      ),
+                      const Icon(Icons.copy_rounded)
+                    ],
+                  ),
+                )
+              : Text(
+                  'Masukkan Nomor Telpon',
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+        ),
+      );
       return otp;
     }
 
@@ -722,13 +762,6 @@ class _ActivationPageState extends State<ActivationPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                                  title: Text('Dialog Title'),
-                                                  content: Text(
-                                                      'This is my content'),
-                                                ));
                                         sendOtp(_controllerNotelp.text);
                                       },
                                       child: const Text("KIRIM"),
@@ -893,12 +926,22 @@ class _ActivationPageState extends State<ActivationPage> {
                                         if (_controllerOtp.text == otp) {
                                           if (_controllerPassword.text ==
                                               _controllerConfirmPassword.text) {
-                                            serviceUser.aktivasiAkun(
-                                                _controllerUsername.text,
-                                                _controllerNotelp.text,
-                                                encryptPassword(
-                                                    _controllerPassword.text),
-                                                _controllerOtp.text);
+                                            serviceUser
+                                                .aktivasiAkun(
+                                                    _controllerUsername.text,
+                                                    _controllerNotelp.text,
+                                                    encryptPassword(
+                                                        _controllerPassword
+                                                            .text),
+                                                    _controllerOtp.text)
+                                                .whenComplete(() {
+                                              widget
+                                                  .controllerPageLoginActivation
+                                                  .animateToPage(0,
+                                                      duration: const Duration(
+                                                          milliseconds: 700),
+                                                      curve: Curves.easeOut);
+                                            });
                                           }
                                         }
                                       },
@@ -919,12 +962,22 @@ class _ActivationPageState extends State<ActivationPage> {
                                         onPressed: () {
                                           print(_controllerOtp.text);
                                           if (_controllerOtp.text == otp) {
-                                            serviceUser.aktivasiAkun(
-                                                _controllerUsername.text,
-                                                _controllerNotelp.text,
-                                                encryptPassword(
-                                                    _controllerPassword.text),
-                                                _controllerOtp.text);
+                                            serviceUser
+                                                .aktivasiAkun(
+                                                    _controllerUsername.text,
+                                                    _controllerNotelp.text,
+                                                    encryptPassword(
+                                                        _controllerPassword
+                                                            .text),
+                                                    _controllerOtp.text)
+                                                .whenComplete(() {
+                                              widget
+                                                  .controllerPageLoginActivation
+                                                  .animateToPage(0,
+                                                      duration: const Duration(
+                                                          milliseconds: 700),
+                                                      curve: Curves.easeOut);
+                                            });
                                           }
                                         },
                                         child: const Text("AKTIVASI"),
