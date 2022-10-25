@@ -13,6 +13,11 @@ import 'package:encrypt/encrypt.dart' as ecpt;
 import 'dart:convert';
 import 'package:crypt/crypt.dart';
 
+encryptPassword(password) {
+  final encrypted = Crypt.sha256(password, salt: 'abcdefghijklmnop');
+  return encrypted;
+}
+
 class LoginActivationController extends StatefulWidget {
   const LoginActivationController({Key? key}) : super(key: key);
 
@@ -334,8 +339,10 @@ class _LoginPageState extends State<LoginPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        getAuth(_controllerUsername.text,
-                                                _controllerPassword.text)
+                                        getAuth(
+                                                _controllerUsername.text,
+                                                encryptPassword(
+                                                    _controllerPassword.text))
                                             .then((value) {
                                           if (value) {
                                             context
@@ -458,6 +465,7 @@ class ActivationPage extends StatefulWidget {
 }
 
 class _ActivationPageState extends State<ActivationPage> {
+  final serviceUser = new ServicesUser();
   final _controllerUsername = TextEditingController();
   final _controllerNotelp = TextEditingController();
   final _controllerOtp = TextEditingController();
@@ -601,9 +609,28 @@ class _ActivationPageState extends State<ActivationPage> {
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    encryptPassword(password) {
-      final encrypted = Crypt.sha256(password, salt: 'abcdefghijklmnop');
-      return encrypted;
+
+    var otp;
+
+    Future sendOtp(noHp) async {
+      var getDataOtp = await serviceUser.createOTP(noHp);
+      otp = getDataOtp[1]['otp'];
+      print(otp);
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: Text('otp'),
+                content: Text('OTP: $otp'),
+              ));
+      return otp;
+    }
+
+    Future AktivasiAkun(userName, noTelp, kataSandi, kodeOtp) async {
+      var getDataAktivasiAkun =
+          await serviceUser.aktivasiAkun(userName, noTelp, kataSandi, kodeOtp);
+      var responAktivasi = getDataAktivasiAkun[0];
+      print(responAktivasi);
+      return responAktivasi;
     }
 
     return Scaffold(
@@ -694,7 +721,16 @@ class _ActivationPageState extends State<ActivationPage> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (_) => AlertDialog(
+                                                  title: Text('Dialog Title'),
+                                                  content: Text(
+                                                      'This is my content'),
+                                                ));
+                                        sendOtp(_controllerNotelp.text);
+                                      },
                                       child: const Text("KIRIM"),
                                     ),
                                   ],
@@ -739,7 +775,9 @@ class _ActivationPageState extends State<ActivationPage> {
                                       height: 10,
                                     ),
                                     ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        sendOtp(_controllerNotelp.text);
+                                      },
                                       child: const Text("KIRIM"),
                                     ),
                                   ],
@@ -852,8 +890,17 @@ class _ActivationPageState extends State<ActivationPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        print(encryptPassword(
-                                            _controllerPassword));
+                                        if (_controllerOtp.text == otp) {
+                                          if (_controllerPassword.text ==
+                                              _controllerConfirmPassword.text) {
+                                            serviceUser.aktivasiAkun(
+                                                _controllerUsername.text,
+                                                _controllerNotelp.text,
+                                                encryptPassword(
+                                                    _controllerPassword.text),
+                                                _controllerOtp.text);
+                                          }
+                                        }
                                       },
                                       child: const Text("AKTIVASI"),
                                     ),
@@ -870,8 +917,15 @@ class _ActivationPageState extends State<ActivationPage> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () {
-                                          print(encryptPassword(
-                                              _controllerPassword.text));
+                                          print(_controllerOtp.text);
+                                          if (_controllerOtp.text == otp) {
+                                            serviceUser.aktivasiAkun(
+                                                _controllerUsername.text,
+                                                _controllerNotelp.text,
+                                                encryptPassword(
+                                                    _controllerPassword.text),
+                                                _controllerOtp.text);
+                                          }
                                         },
                                         child: const Text("AKTIVASI"),
                                       ),

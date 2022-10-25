@@ -104,6 +104,38 @@ class ServicesUser {
     }
   }
 
+  //TODO: Aktivasi OTP
+  Future createOTP(noTelpUser) async {
+    final response = await http.post(
+      Uri.parse("${_linkPath}generate-otp?no_telp=$noTelpUser"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+//TODO: Aktivasi AKun
+  Future aktivasiAkun(userName, noTelp, kataSandi, kodeOtp) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}aktivasi-akun?nama_pengguna=$userName&no_telp=$noTelp&kata_sandi=$kataSandi&otp=$kodeOtp"),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal Mengupdate data");
+    }
+  }
+
   //TODO: get Master kode Perkiraan
   Future getMasterKode(kodeGereja) async {
     final response = await http.get(
