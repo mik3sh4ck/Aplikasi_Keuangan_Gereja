@@ -337,8 +337,9 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                                               itemCount: snapData[1].length,
                                               itemBuilder: (context, index) {
                                                 return ListTile(
-                                                    title: Text(
-                                                        "${snapData[1][index]['role_user']}"));
+                                                  title: Text(
+                                                      "${snapData[1][index]['nama_role']}"),
+                                                );
                                               },
                                             ),
                                           );

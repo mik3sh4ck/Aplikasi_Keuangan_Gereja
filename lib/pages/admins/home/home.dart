@@ -280,7 +280,9 @@ class NavigationScreen extends StatelessWidget {
       builder: (context, child) {
         switch (controller.selectedIndex) {
           case 0:
-            return AdminDashboardControllerPage();
+            return "a" == "a"
+                ? AdminDashboardControllerPage()
+                : Text("Anda Tidak Mempunyai Akses Ke Halaman Ini");
           case 1:
             return AdminControllerTransaksiPage();
           case 2:

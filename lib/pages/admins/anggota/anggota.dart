@@ -523,7 +523,7 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                                               ),
                                             ),
                                             Text(
-                                              "Role: ${snapData[1][index]['kode_role']}",
+                                              "Role: ${snapData[1][index]['nama_role']}",
                                               style: GoogleFonts.nunito(
                                                 fontWeight: FontWeight.w700,
                                                 fontSize: 14,
