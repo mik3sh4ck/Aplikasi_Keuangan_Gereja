@@ -210,7 +210,7 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                                     buatListRole(namaPagePop, context);
                                   }
                                 },
-                                child: const Text("Tambah"),
+                                child: const Text("Simpan"),
                               ),
                             ],
                           ),
@@ -338,7 +338,7 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                                               itemBuilder: (context, index) {
                                                 return ListTile(
                                                   title: Text(
-                                                      "${snapData[1][index]['nama_role']}"),
+                                                      "${snapData[1][index]['nama_role']} ~ (Kode : ${snapData[1][index]['role_user']})"),
                                                 );
                                               },
                                             ),

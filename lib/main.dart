@@ -193,15 +193,18 @@ class UserAuthentication with ChangeNotifier {
   String _loginStatus = "false";
   String _kodeUser = "";
   String _kodeGereja = "";
+  String _kodeRole = "";
 
   String get loginStatus => _loginStatus;
   String get kodeUser => _kodeUser;
   String get kodeGereja => _kodeGereja;
+  String get kodeRole => _kodeRole;
 
-  void setUserAuthentication(loginStatus, kodeUser, kodeGereja) {
+  void setUserAuthentication(loginStatus, kodeUser, kodeGereja, kodeRole) {
     _loginStatus = loginStatus;
     _kodeUser = kodeUser;
     _kodeGereja = kodeGereja;
+    _kodeRole = kodeRole;
     notifyListeners();
   }
 }
@@ -219,10 +222,10 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     // TODO: implement initState
+
     getPrefAuth().then((value) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         context.read<UserAuth>().setIsLoggedIn(userStatus);
-        // FlutterNativeSplash.remove();
       });
     });
 
@@ -240,17 +243,18 @@ class _MyAppState extends State<MyApp> {
     userStatus = prefs.getBool('userStatus') ?? false;
     kodeUser = prefs.getString('kodeUser') ?? "";
     kodeGereja = prefs.getString('kodeGereja') ?? "";
+    kodeRole = prefs.getString('kodeRole') ?? "";
   }
 
   @override
   Widget build(BuildContext context) {
     if (context.watch<UserAuth>().isLoggedIn) {
       debugPrint(context.watch<UserAuth>().isLoggedIn.toString());
-      debugPrint("$userStatus, $kodeUser, $kodeGereja");
+      debugPrint("$userStatus, $kodeUser, $kodeGereja, $kodeRole");
       return AdminHome();
     } else {
       debugPrint(context.watch<UserAuth>().isLoggedIn.toString());
-      debugPrint("$userStatus, $kodeUser, $kodeGereja");
+      debugPrint("$userStatus, $kodeUser, $kodeGereja $kodeRole");
       return LoginActivationController();
     }
   }

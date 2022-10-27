@@ -1059,6 +1059,21 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
+  //TODO: get Page Role
+  Future getPageAccess(kodeGereja, namaPage, userRole) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}checking-page-role?kode_gereja=$kodeGereja&page_name=$namaPage&user_role=$userRole"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
 }
 
 

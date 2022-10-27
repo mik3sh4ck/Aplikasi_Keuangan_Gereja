@@ -5,10 +5,10 @@ import 'package:aplikasi_keuangan_gereja/main.dart';
 import 'package:aplikasi_keuangan_gereja/pages/Profiles/profile.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/anggota/anggota.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/dashboard/dashboard.dart';
-import 'package:aplikasi_keuangan_gereja/pages/admins/donasi/donasi.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/kegiatan/kegiatan.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/settings/settings.dart';
 import 'package:aplikasi_keuangan_gereja/pages/admins/transaksi/transaksi.dart';
+import 'package:aplikasi_keuangan_gereja/services/apiservices.dart';
 import 'package:aplikasi_keuangan_gereja/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +17,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../../../globals.dart';
+
+String _noAccess = "Anda tidak mempunyai akses di halaman ini";
+bool _iniDasboard = true;
 
 class AdminHome extends StatefulWidget {
   const AdminHome({Key? key}) : super(key: key);
@@ -37,6 +40,7 @@ class _AdminHomeState extends State<AdminHome> {
         DeviceOrientation.landscapeRight,
       ],
     );
+    getAllAccess().whenComplete(() => setState(() {}));
 
     super.initState();
   }
@@ -55,6 +59,26 @@ class _AdminHomeState extends State<AdminHome> {
     _controllerSidebarX.dispose();
 
     super.dispose();
+  }
+
+  Future _getAccess(kodeGereja, namaPage, userRole) async {
+    ServicesUser servicesUser = ServicesUser();
+    var response =
+        await servicesUser.getPageAccess(kodeGereja, namaPage, userRole);
+    if (response[0] == 404) {
+      pageAccess.add(false);
+    } else {
+      pageAccess.add(true);
+    }
+  }
+
+  Future getAllAccess() async {
+    pageAccess.clear();
+    await _getAccess(kodeGereja, "Dasboard", kodeRole);
+    await _getAccess(kodeGereja, "Keuangan", kodeRole);
+    await _getAccess(kodeGereja, "Anggota", kodeRole);
+    await _getAccess(kodeGereja, "Kegiatan", kodeRole);
+    await _getAccess(kodeGereja, "Setting", kodeRole);
   }
 
   @override
@@ -105,9 +129,11 @@ class NavigationSidebarX extends StatelessWidget {
     userStatus = false;
     kodeUser = "";
     kodeGereja = "";
+    kodeRole = "";
     prefs.setBool('userStatus', userStatus);
     prefs.setString('kodeUser', kodeUser);
     prefs.setString('kodeGereja', kodeGereja);
+    prefs.setString('kodeRole', kodeRole);
   }
 
   @override
@@ -255,10 +281,6 @@ class NavigationSidebarX extends StatelessWidget {
           icon: Icons.event_note_rounded,
           label: 'Kegiatan',
         ),
-        // SidebarXItem(
-        //   icon: Icons.inbox_rounded,
-        //   label: 'Donasi',
-        // ),
         SidebarXItem(
           icon: Icons.settings,
           label: 'Pengaturan',
@@ -280,23 +302,22 @@ class NavigationScreen extends StatelessWidget {
       builder: (context, child) {
         switch (controller.selectedIndex) {
           case 0:
-            return "a" == "a"
-                ? AdminDashboardControllerPage()
-                : Text("Anda Tidak Mempunyai Akses Ke Halaman Ini");
+            return AdminDashboardControllerPage();
           case 1:
-            return AdminControllerTransaksiPage();
+            return pageAccess[1]
+                ? AdminControllerTransaksiPage()
+                : Text(_noAccess);
           case 2:
-            return AdminAnggotaController();
+            return pageAccess[2] ? AdminAnggotaController() : Text(_noAccess);
           case 3:
-            return AdminControllerKegiatanPage();
-          // case 4:
-          //   return AdminControllerDonasiPage();
+            return pageAccess[3]
+                ? AdminControllerKegiatanPage()
+                : Text(_noAccess);
           case 4:
-            return AdminSettingPage();
+            return pageAccess[4] ? AdminSettingPage() : Text(_noAccess);
           default:
             return Text(
               "Halaman Tidak Tersedia",
-              // style: theme.textTheme.headline5,
             );
         }
       },

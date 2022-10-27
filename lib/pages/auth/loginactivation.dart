@@ -104,10 +104,20 @@ class _LoginPageState extends State<LoginPage> {
         prefs.setBool('userStatus', userStatus);
         prefs.setString('kodeUser', kodeUser);
         prefs.setString('kodeGereja', kodeGereja);
+        await getUserData(kodeUser);
       }
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future getUserData(userKode) async {
+    var response = await servicesUser.getSingleUser(kodeUser);
+    final prefs = await SharedPreferences.getInstance();
+    if (response[0] != 404) {
+      kodeRole = response[1]['kode_role'].toString();
+      prefs.setString('kodeRole', kodeRole);
     }
   }
 

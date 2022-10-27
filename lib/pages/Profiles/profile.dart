@@ -453,7 +453,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 deviceHeight,
                                 _controllerNoTelp,
                                 0.45,
-                                _readOnly,
+                                true,
                               ),
                               const SizedBox(
                                 height: 10,
@@ -495,7 +495,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     deviceHeight,
                                     _controllerNoTelp,
                                     0.45,
-                                    _readOnly,
+                                    true,
                                   ),
                                 ],
                               ),
@@ -541,7 +541,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               responsiveTextField(deviceWidth, deviceHeight,
-                                  _controllerPeran, 0.45, _readOnly),
+                                  _controllerPeran, 0.45, true),
                               const SizedBox(
                                 height: 10,
                               ),
@@ -578,7 +578,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                   responsiveTextField(deviceWidth, deviceHeight,
-                                      _controllerPeran, 0.45, _readOnly),
+                                      _controllerPeran, 0.45, true),
                                 ],
                               ),
                               SizedBox(
