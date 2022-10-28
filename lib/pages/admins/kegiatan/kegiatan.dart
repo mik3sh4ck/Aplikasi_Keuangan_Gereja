@@ -1138,12 +1138,12 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                           kodeGereja, _tempKodePerkiraan)
                                       .whenComplete(() => setState(() {}));
                                   _harianNominal =
-                                      (int.parse(_controllerSaldo.text) /
+                                      (double.parse(_controllerSaldo.text) /
                                               differenceDate)
                                           .toString();
 
-                                  if (int.parse(_harianNominal) >
-                                      int.parse(_masukAkalNominal)) {
+                                  if (double.parse(_harianNominal) >
+                                      double.parse(_masukAkalNominal)) {
                                     showDialog(
                                       barrierDismissible: false,
                                       useRootNavigator: true,
@@ -1980,11 +1980,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                               }
                                             },
                                             icon: const Tooltip(
-                                                    message:
-                                                        "Tanggal Kegiatan Mulai",
-                                                    child:  Icon(
-                                                        Icons.calendar_month),
-                                                  ),
+                                              message: "Tanggal Kegiatan Mulai",
+                                              child: Icon(Icons.calendar_month),
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -2039,7 +2037,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                   icon: const Tooltip(
                                                     message:
                                                         "Tanggal Kegiatan Selesai",
-                                                    child:  Icon(
+                                                    child: Icon(
                                                         Icons.calendar_month),
                                                   ),
                                                 ),
@@ -2373,7 +2371,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                       dateDariAcara,
                                       dateSampaiAcara,
                                       _controllerLokasi.text.capitalize(),
-                                      _controllerKeteranganKegiatan.text.capitalize(),
+                                      _controllerKeteranganKegiatan.text
+                                          .capitalize(),
                                       dateDariKegiatan,
                                       dateSampaiKegiatan,
                                       context);
@@ -3689,25 +3688,40 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                               17,
                                               FontWeight.w600,
                                               darkText),
-                                          trailing: 
-                                          ElevatedButton(
+                                          trailing: ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               padding: EdgeInsets.all(12),
                                               shape: CircleBorder(),
                                             ),
                                             onPressed: () {
-                                              print(snapData[1][index]['tanggal_absen']);
+                                              print(snapData[1][index]
+                                                  ['tanggal_absen']);
                                               print(DateTime.now());
-                                              if(snapData[1][index]['tanggal_absen'].toString() == DateTime.now().day.toString()+"-"+DateTime.now().month.toString()+"-"+DateTime.now().year.toString()){
+                                              if (snapData[1][index]
+                                                          ['tanggal_absen']
+                                                      .toString() ==
+                                                  DateTime.now()
+                                                          .day
+                                                          .toString() +
+                                                      "-" +
+                                                      DateTime.now()
+                                                          .month
+                                                          .toString() +
+                                                      "-" +
+                                                      DateTime.now()
+                                                          .year
+                                                          .toString()) {
                                                 _tanggalAbsensi = snapData[1]
-                                                  [index]['tanggal_absen'];
-                                              widget
-                                                  .controllerPageDetailAbsensiKegiatan
-                                                  .animateToPage(1,
-                                                      duration: const Duration(
-                                                          milliseconds: 250),
-                                                      curve: Curves.ease);
-                                              setState(() {});
+                                                    [index]['tanggal_absen'];
+                                                widget
+                                                    .controllerPageDetailAbsensiKegiatan
+                                                    .animateToPage(1,
+                                                        duration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    250),
+                                                        curve: Curves.ease);
+                                                setState(() {});
                                               }
                                             },
                                             child: Tooltip(
@@ -3957,7 +3971,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                                         color: scaffoldBackgroundColor,
                                         child: ListTile(
                                           title: Text(
-                                            snapData[1][index]['kode_user'],
+                                            snapData[1][index]['nama_user'],
                                           ),
                                           trailing: ToggleSwitch(
                                             minWidth: 40,
