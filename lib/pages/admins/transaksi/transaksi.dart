@@ -204,7 +204,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     });
 
     _getKodeTransaksiAdded(kodeGereja);
-    _getKodePerkiraan(kodeGereja, "", "");
+    _getKodePerkiraan(kodeGereja, "", "", "pengeluaran");
     _getMasterKode(kodeGereja);
     _getTransaksi(kodeGereja);
 
@@ -240,11 +240,12 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     super.dispose();
   }
 
-  Future _getKodePerkiraan(kodeGereja, kodeKegiatan, kodeTransaksi) async {
+  Future _getKodePerkiraan(
+      kodeGereja, kodeKegiatan, kodeTransaksi, status) async {
     _kodePerkiraan.clear();
 
     var response = await servicesUser.getKodePerkiraanSingleKegiatan(
-        kodeGereja, kodeKegiatan, kodeTransaksi);
+        kodeGereja, kodeKegiatan, kodeTransaksi, status);
 
     if (response[0] != 404) {
       for (var element in response[1]) {
@@ -1330,7 +1331,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   }
 }
 
-enum RadioJenisTransaksi { pemasukan, pengeluaran }
+enum RadioStatusTransaksi { pemasukan, pengeluaran }
 
 enum RadioJenisMaster { pemasukan, pengeluaran }
 
@@ -1358,7 +1359,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
 
   final _controllerKodeTransaksi = TextEditingController();
   final _controllerNamaKodeTransaksi = TextEditingController();
-  String _status = "";
   String _statusMaster = "";
   @override
   void initState() {
@@ -1776,7 +1776,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   }
 
   _showBuatKodeTransaksiDialog(dw, dh) {
-    RadioJenisTransaksi? radio;
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1849,63 +1848,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                   ),
                                   responsiveTextField(dw, dh,
                                       _controllerNamaKodeTransaksi, null),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    children: [
-                                      Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Radio(
-                                            value:
-                                                RadioJenisTransaksi.pemasukan,
-                                            groupValue: radio,
-                                            activeColor: primaryColorVariant,
-                                            onChanged: (val) {
-                                              radio =
-                                                  val as RadioJenisTransaksi?;
-                                              if (mounted) {
-                                                setState(() {});
-                                                _status = "pemasukan";
-                                              }
-                                            },
-                                          ),
-                                          responsiveText("Pemasukan", 14,
-                                              FontWeight.w700, darkText),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        width: 25,
-                                      ),
-                                      Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Radio(
-                                            value:
-                                                RadioJenisTransaksi.pengeluaran,
-                                            groupValue: radio,
-                                            activeColor: primaryColorVariant,
-                                            onChanged: (val) {
-                                              radio =
-                                                  val as RadioJenisTransaksi?;
-                                              _status = "pengeluaran";
-
-                                              if (mounted) {
-                                                setState(() {});
-                                              }
-                                            },
-                                          ),
-                                          responsiveText("Pengeluaran", 14,
-                                              FontWeight.w700, darkText),
-                                        ],
-                                      )
-                                    ],
-                                  ),
                                 ],
                               ),
                               const SizedBox(
@@ -1924,7 +1866,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                   if (mounted) {
                                     _controllerKodeTransaksi.clear();
                                     _controllerNamaKodeTransaksi.clear();
-                                    _status = "";
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -1943,13 +1884,11 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                 .capitalize(),
                                             _controllerKodeTransaksi.text
                                                 .toUpperCase(),
-                                            _status,
                                             context)
                                         .then(
                                       (value) {
                                         _controllerNamaKodeTransaksi.clear();
                                         _controllerKodeTransaksi.clear();
-                                        _status = "";
                                         Navigator.pop(context);
                                       },
                                     );
@@ -2059,9 +1998,9 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   }
 
   Future postKodeTransaksi(
-      kodeGereja, namaKodeTransaksi, kodeTransaksi, status, context) async {
+      kodeGereja, namaKodeTransaksi, kodeTransaksi, context) async {
     var response = await servicesUser.inputKodeTransaksi(
-        kodeGereja, namaKodeTransaksi, kodeTransaksi, status);
+        kodeGereja, namaKodeTransaksi, kodeTransaksi);
 
     if (response[0] != 404) {
       return true;
@@ -3006,6 +2945,8 @@ class AdminBuatTransaksiPage extends StatefulWidget {
 class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   ServicesUser servicesUser = ServicesUser();
 
+  String _status = "";
+
   final _controllerNominal = TextEditingController();
   final _controllerKeterangan = TextEditingController();
   String kodeMaster = "";
@@ -3047,7 +2988,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     _getMasterKode(kodeGereja);
     _getKodeTransaksi(kodeGereja);
     _getKodeRefKegiatan(kodeGereja);
-    _getKodePerkiraanSingleKegiatan(kodeGereja, "", "");
+    _getKodePerkiraanSingleKegiatan(kodeGereja, "", "", "");
 
     formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
     date = formattedDate;
@@ -3198,11 +3139,11 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   }
 
   Future _getKodePerkiraanSingleKegiatan(
-      kodeGereja, kodeKegiatan, kodeTransaksi) async {
+      kodeGereja, kodeKegiatan, kodeTransaksi, status) async {
     _kodePerkiraanSingleKegiatan.clear();
 
     var response = await servicesUser.getKodePerkiraanSingleKegiatan(
-        kodeGereja, kodeKegiatan, kodeTransaksi);
+        kodeGereja, kodeKegiatan, kodeTransaksi, status);
     if (response[0] != 404) {
       for (var element in response[1]) {
         debugPrint(element.toString());
@@ -3265,6 +3206,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
       tanggalTransaksi,
       deskripsiTransaksi,
       nominalTransaksi,
+      jenisTransaksi,
       context) async {
     var response = await servicesUser.inputTransaksi(
         kodeGereja,
@@ -3274,7 +3216,8 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
         kodeRefKegiatan,
         tanggalTransaksi,
         deskripsiTransaksi,
-        nominalTransaksi);
+        nominalTransaksi,
+        jenisTransaksi);
 
     if (response[0] != 404) {
       return true;
@@ -3366,6 +3309,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
 //TODO: Show Tambah Transaksi Dialog
   _showTambahDialog(dw, dh, kodeTransaksi) {
+    RadioStatusTransaksi? radio;
     selectedKodePerkiraan = "Pilih Kode Perkiraan";
     selectedKodeRefKegiatan = "Pilih Kode Referensi";
     _controllerKeterangan.clear();
@@ -3444,6 +3388,83 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                   const Divider(
                                     height: 25,
                                   ),
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Radio(
+                                            value:
+                                                RadioStatusTransaksi.pemasukan,
+                                            groupValue: radio,
+                                            activeColor: primaryColorVariant,
+                                            onChanged: (val) {
+                                              radio =
+                                                  val as RadioStatusTransaksi?;
+                                              if (mounted) {
+                                                _status = "pemasukan";
+                                                _getKodePerkiraanSingleKegiatan(
+                                                  kodeGereja,
+                                                  kodeRefKegiatan,
+                                                  _splitStringKode(
+                                                      kodeTransaksi),
+                                                  _status,
+                                                ).whenComplete(() {
+                                                  setState(() {});
+                                                });
+                                                setState(() {});
+                                              }
+                                              debugPrint(_status);
+                                            },
+                                          ),
+                                          responsiveText("Pemasukan", 14,
+                                              FontWeight.w700, darkText),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        width: 25,
+                                      ),
+                                      Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Radio(
+                                            value: RadioStatusTransaksi
+                                                .pengeluaran,
+                                            groupValue: radio,
+                                            activeColor: primaryColorVariant,
+                                            onChanged: (val) {
+                                              radio =
+                                                  val as RadioStatusTransaksi?;
+
+                                              if (mounted) {
+                                                _status = "pengeluaran";
+                                                _getKodePerkiraanSingleKegiatan(
+                                                  kodeGereja,
+                                                  kodeRefKegiatan,
+                                                  _splitStringKode(
+                                                      kodeTransaksi),
+                                                  _status,
+                                                ).whenComplete(() {
+                                                  setState(() {});
+                                                });
+                                                setState(() {});
+                                              }
+                                              debugPrint(_status);
+                                            },
+                                          ),
+                                          responsiveText("Pengeluaran", 14,
+                                              FontWeight.w700, darkText),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                   //TODO: Input Kode Referensi Dialog
                                   responsiveText("Kode Referensi Kegiatan", 16,
                                       FontWeight.w700, darkText),
@@ -3490,6 +3511,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             kodeGereja,
                                             "",
                                             _splitStringKode(kodeTransaksi),
+                                            _status,
                                           ).whenComplete(() => setState(() {}));
                                         } else {
                                           selectedKodePerkiraan =
@@ -3507,6 +3529,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             kodeGereja,
                                             kodeRefKegiatan,
                                             _splitStringKode(kodeTransaksi),
+                                            _status,
                                           ).whenComplete(() {
                                             setState(() {});
                                           });
@@ -3717,6 +3740,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                     kodeGereja,
                                     "",
                                     _splitStringKode(kodeTransaksi),
+                                    "",
                                   ).whenComplete(() => setState(() {}));
 
                                   Navigator.pop(context);
@@ -3728,42 +3752,77 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (kodePerkiraan == "" || kodeMaster == "") {
+                                  if (_status == "") {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                            "Silahkan Pilih Kode Perkiraan Terlebih Dahulu"),
+                                            "Silahkan pilih Status Pemasukan / Pengeluaran"),
                                       ),
                                     );
                                   } else {
-                                    //Print
-                                    debugPrint(kodeTransaksi);
-                                    debugPrint(kodeMaster);
-                                    debugPrint(kodePerkiraan);
-                                    debugPrint(kodeRefKegiatan);
-                                    debugPrint(date);
-                                    debugPrint(_controllerNominal.text);
-                                    debugPrint(_controllerKeterangan.text);
+                                    if (kodePerkiraan == "" ||
+                                        kodeMaster == "") {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              "Silahkan Pilih Kode Perkiraan Terlebih Dahulu"),
+                                        ),
+                                      );
+                                    } else {
+                                      if (_controllerNominal.text == "") {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text("Silahkan Isi Nominal"),
+                                          ),
+                                        );
+                                      } else {
+                                        if (_controllerKeterangan.text == "") {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  "Silahkan Isi Deskripsi"),
+                                            ),
+                                          );
+                                        } else {
+                                          //Print
+                                          debugPrint(kodeTransaksi);
+                                          debugPrint(kodeMaster);
+                                          debugPrint(kodePerkiraan);
+                                          debugPrint(kodeRefKegiatan);
+                                          debugPrint(date);
+                                          debugPrint(_controllerNominal.text);
+                                          debugPrint(
+                                              _controllerKeterangan.text);
 
-                                    //Add
-                                    tempItemTransaksi.add(kodeTransaksi);
-                                    tempItemTransaksi.add(kodeMaster);
-                                    tempItemTransaksi.add(kodePerkiraan);
-                                    tempItemTransaksi.add(kodeRefKegiatan);
-                                    tempItemTransaksi.add(date);
-                                    tempItemTransaksi
-                                        .add(_controllerNominal.text);
-                                    tempItemTransaksi
-                                        .add(_controllerKeterangan.text);
+                                          //Add
+                                          tempItemTransaksi.add(kodeTransaksi);
+                                          tempItemTransaksi.add(kodeMaster);
+                                          tempItemTransaksi.add(kodePerkiraan);
+                                          tempItemTransaksi
+                                              .add(kodeRefKegiatan);
+                                          tempItemTransaksi.add(date);
+                                          tempItemTransaksi
+                                              .add(_controllerNominal.text);
+                                          tempItemTransaksi
+                                              .add(_controllerKeterangan.text);
+                                          tempItemTransaksi.add(_status);
 
-                                    debugPrint(tempItemTransaksi.toString());
-                                    itemTransaksi
-                                        .add(tempItemTransaksi.toList());
-                                    if (mounted) {
-                                      setState(() {});
+                                          debugPrint(
+                                              tempItemTransaksi.toString());
+                                          itemTransaksi
+                                              .add(tempItemTransaksi.toList());
+                                          if (mounted) {
+                                            setState(() {});
+                                          }
+
+                                          Navigator.pop(context);
+                                        }
+                                      }
                                     }
-
-                                    Navigator.pop(context);
                                   }
                                 },
                                 child: const Text("Tambah"),
@@ -4071,7 +4130,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                             tempKodeTransaksi = _splitStringKode(element[0]);
                             debugPrint(tempKodeTransaksi);
                             debugPrint(
-                                "${element[0]} - ${element[1]} - ${element[2]} - ${element[3]} - ${element[4]} - ${element[5]}");
+                                "${element[0]} - ${element[1]} - ${element[2]} - ${element[3]} - ${element[4]} - ${element[5]} - ${element[6]} - ${element[7]}");
 
                             _postTransaksi(
                                     kodeGereja,
@@ -4082,6 +4141,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                     element[4],
                                     element[6],
                                     element[5],
+                                    element[7],
                                     context)
                                 .whenComplete(
                               () {

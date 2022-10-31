@@ -74,7 +74,6 @@ class _LoginPageState extends State<LoginPage> {
   ServicesUser servicesUser = ServicesUser();
   final _controllerUsername = TextEditingController();
   final _controllerPassword = TextEditingController();
-
   bool _passwordVisible = true;
 
   @override
@@ -318,8 +317,10 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {
-                                      getAuth(_controllerUsername.text,
-                                              _controllerPassword.text)
+                                      getAuth(
+                                              _controllerUsername.text,
+                                              encryptPassword(
+                                                  _controllerPassword.text))
                                           .then((value) {
                                         if (value) {
                                           context
@@ -477,7 +478,7 @@ class ActivationPage extends StatefulWidget {
 }
 
 class _ActivationPageState extends State<ActivationPage> {
-  final serviceUser = new ServicesUser();
+  final serviceUser = ServicesUser();
   final _controllerUsername = TextEditingController();
   final _controllerNotelp = TextEditingController();
   final _controllerOtp = TextEditingController();

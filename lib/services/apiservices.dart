@@ -260,10 +260,10 @@ class ServicesUser {
 
   //TODO: get kode Perkiraan
   Future getKodePerkiraanSingleKegiatan(
-      kodeGereja, kodeKegiatan, kodeTransaksi) async {
+      kodeGereja, kodeKegiatan, kodeTransaksi, status) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}read-kode-perkiraan-single-kegiatan?kode_gereja=$kodeGereja&kode_kegiatan=$kodeKegiatan&kode_transaksi=$kodeTransaksi"),
+          "${_linkPath}read-kode-perkiraan-single-kegiatan?kode_gereja=$kodeGereja&kode_kegiatan=$kodeKegiatan&kode_transaksi=$kodeTransaksi&status=$status"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -290,10 +290,10 @@ class ServicesUser {
 
   //TODO: Input Kode Transaksi
   Future inputKodeTransaksi(
-      kodeGereja, namaKodeTransaksi, kodeTransaksi, status) async {
+      kodeGereja, namaKodeTransaksi, kodeTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaKodeTransaksi&kode_transaksi=$kodeTransaksi&status=$status"),
+          "${_linkPath}input-kode-transaksi?kode_gereja=$kodeGereja&nama_transaksi=$namaKodeTransaksi&kode_transaksi=$kodeTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -356,10 +356,11 @@ class ServicesUser {
       kodeRefKegiatan,
       tanggalTransaksi,
       deskripsiTransaksi,
-      nominalTransaksi) async {
+      nominalTransaksi,
+      jenisTransaksi) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-transaksi?kode_transaksi=$kodeTransaksi&kode_perkiraan=$kodePerkiraan&kode_gereja=$kodeGereja&kode_kegiatan=$kodeRefKegiatan&uraian_transaksi=$deskripsiTransaksi&tanggal_transaksi=$tanggalTransaksi&nominal=$nominalTransaksi&header_kode_perkiraan=$kodeMaster"),
+          "${_linkPath}input-transaksi?kode_transaksi=$kodeTransaksi&kode_perkiraan=$kodePerkiraan&kode_gereja=$kodeGereja&kode_kegiatan=$kodeRefKegiatan&uraian_transaksi=$deskripsiTransaksi&tanggal_transaksi=$tanggalTransaksi&nominal=$nominalTransaksi&header_kode_perkiraan=$kodeMaster&jenis_transaksi=$jenisTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
