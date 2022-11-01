@@ -547,9 +547,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     if (response[0] != 404) {
       _kodeMaster.clear();
       for (var element in response[1]) {
-        if(element['status'] == "pengeluaran"){
+        if (element['status'] == "pengeluaran") {
           _kodeMaster.add(
-            "${element['header_kode_perkiraan']} - ${element['nama_header']}");
+              "${element['header_kode_perkiraan']} - ${element['nama_header']}");
         }
       }
     } else {
