@@ -547,8 +547,10 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     if (response[0] != 404) {
       _kodeMaster.clear();
       for (var element in response[1]) {
-        _kodeMaster.add(
+        if(element['status'] == "pengeluaran"){
+          _kodeMaster.add(
             "${element['header_kode_perkiraan']} - ${element['nama_header']}");
+        }
       }
     } else {
       throw "Gagal Mengambil Data";
@@ -1023,6 +1025,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                         selectedItem: "Pilih Kode Master",
                                       ),
                                     ),
+                                  ),
+                                  const SizedBox(
+                                    height: 15,
                                   ),
                                   Visibility(
                                     visible: cekKodeMaster,
