@@ -40,6 +40,7 @@ String _tempmulaiacara = "";
 String _tempselesaiacara = "";
 String _tempmulaikegiatan = "";
 String _lokasiKegiatan = "";
+String _tanggungjawabKegiatan = "";
 String _keteranganKegiatan = "";
 String _tempselesaikegiatan = "";
 
@@ -211,10 +212,16 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
   ServicesUser servicesUser = ServicesUser();
   late Future kategoriProposalKegiatan;
 
+  var stateOfDisable = true;
+  DateTime tanggalUbahStatus = DateTime.now();
+  String formattedtanggalUbahStatus = "";
+  String datetanggalUbahStatus = "Date";
+
   @override
   void initState() {
     // TODO: implement initState
     kategoriProposalKegiatan = servicesUser.getAllProposalKegiatan(kodeGereja);
+    _updateStatusKegiatan(kodeGereja).then((value) => setState(() {}));
     super.initState();
   }
 
@@ -222,6 +229,43 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future _updateStatusKegiatanPakai(kodeKegGab, context) async {
+    var response = await servicesUser.updateStatusRiwayat(kodeKegGab);
+    if (response[0] != 404) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response[1]),
+        ),
+      );
+    }
+  }
+
+  Future _updateStatusKegiatan(kodeGereja) async {
+    var response = await servicesUser.getAllProposalKegiatan(kodeGereja);
+    if (mounted) {
+      formattedtanggalUbahStatus =
+          DateFormat('dd-MM-yyyy').format(tanggalUbahStatus);
+      datetanggalUbahStatus = formattedtanggalUbahStatus;
+      stateOfDisable = false;
+
+      setState(() {});
+    }
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(element['tanggal_acara_selesai']);
+        debugPrint(datetanggalUbahStatus);
+        if (element['tanggal_acara_selesai'] == datetanggalUbahStatus) {
+          _updateStatusKegiatanPakai(
+              element['kode_kegiatan_gabungan'].toString(), context);
+        }
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
   }
 
   @override
@@ -428,6 +472,9 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                                     'tanggal_kegiatan_selesai'];
                                                 _lokasiKegiatan = snapData[1]
                                                     [index]['lokasi_kegiatan'];
+                                                _tanggungjawabKegiatan =
+                                                    snapData[1][index][
+                                                        'nama_penanggungjawab'];
                                                 _keteranganKegiatan =
                                                     snapData[1][index]
                                                         ['keterangan_kegiatan'];
@@ -652,7 +699,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   Future<void> selectDateDari(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDateDariKegiatan,
+      initialDate: selectedDateDariAcara,
       firstDate: selectedDateDariAcara,
       lastDate: selectedDateSampaiAcara,
       builder: (context, child) {
@@ -689,7 +736,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   Future<void> selectDateSampai(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDateSampaiKegiatan,
+      initialDate: selectedDateDariKegiatan,
       firstDate: selectedDateDariKegiatan,
       lastDate: selectedDateSampaiAcara,
       builder: (context, child) {
@@ -763,7 +810,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
   Future<void> selectDateSampaiAcara(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDateSampaiAcara,
+      initialDate: selectedDateDariAcara,
       firstDate: selectedDateDariAcara,
       lastDate: DateTime(DateTime.now().year, 12, 31),
       builder: (context, child) {
@@ -1858,6 +1905,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                               selectDateDariAcara(context).then(
                                                 (value) => setState(() {}),
                                               );
+                                              dateSampaiAcara = "Date";
+                                              dateDariKegiatan = "Date";
+                                              dateSampaiKegiatan = "Date";
                                             },
                                             icon: const Tooltip(
                                               message: "Tanggal Acara Mulai",
@@ -1910,6 +1960,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                             setState(() {}),
                                                       );
                                                     }
+                                                    dateDariKegiatan = "Date";
+                                                    dateSampaiKegiatan = "Date";
                                                   },
                                                   icon: const Tooltip(
                                                     message:
@@ -1983,6 +2035,7 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
                                                   (value) => setState(() {}),
                                                 );
                                               }
+                                              dateSampaiKegiatan = "Date";
                                             },
                                             icon: const Tooltip(
                                               message: "Tanggal Kegiatan Mulai",
@@ -2636,6 +2689,19 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                         18,
                         FontWeight.w600,
                         darkText),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.people_alt_outlined, color: navButtonPrimary),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    responsiveText("Penanggung Jawab : $_tanggungjawabKegiatan",
+                        18, FontWeight.w600, darkText),
                   ],
                 ),
                 const SizedBox(
@@ -3560,6 +3626,11 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
   ServicesUser servicesUser = ServicesUser();
   late Future kategoriAbsensiKegiatan;
 
+  var stateOfDisable = true;
+  DateTime tanggalUbahAbsen = DateTime.now();
+  String formattedtanggalUbahAbsen = "";
+  String datetanggalUbahAbsen = "Date";
+
   @override
   void initState() {
     // TODO: implement initState
@@ -3699,23 +3770,22 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                               shape: CircleBorder(),
                                             ),
                                             onPressed: () {
-                                              print(snapData[1][index]
-                                                  ['tanggal_absen']);
-                                              print(DateTime.now());
+                                              if (mounted) {
+                                                formattedtanggalUbahAbsen =
+                                                    DateFormat('dd-MM-yyyy')
+                                                        .format(
+                                                            tanggalUbahAbsen);
+                                                datetanggalUbahAbsen =
+                                                    formattedtanggalUbahAbsen;
+                                                stateOfDisable = false;
+
+                                                setState(() {});
+                                              }
+
                                               if (snapData[1][index]
                                                           ['tanggal_absen']
                                                       .toString() ==
-                                                  DateTime.now()
-                                                          .day
-                                                          .toString() +
-                                                      "-" +
-                                                      DateTime.now()
-                                                          .month
-                                                          .toString() +
-                                                      "-" +
-                                                      DateTime.now()
-                                                          .year
-                                                          .toString()) {
+                                                  datetanggalUbahAbsen) {
                                                 _tanggalAbsensi = snapData[1]
                                                     [index]['tanggal_absen'];
                                                 widget

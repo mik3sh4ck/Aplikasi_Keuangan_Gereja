@@ -1075,6 +1075,21 @@ class ServicesUser {
       throw Exception("Gagal mengambil data");
     }
   }
+
+  //TODO: update status riwayat
+  Future updateStatusRiwayat(kodeKegGab) async {
+    final response = await http.put(
+      Uri.parse(
+          "${_linkPath}update-status-kegiatan?kode_kegiatan_gabungan=$kodeKegGab"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespMessage = json.decode(response.body)['message'];
+      return [jsonRespStatus, jsonRespMessage];
+    } else {
+      throw Exception("Gagal mengupdate data");
+    }
+  }
 }
 
 
