@@ -2971,6 +2971,18 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   final clearKodePerkiraan =
       const ClearButtonProps(icon: Icon(Icons.clear), isVisible: true);
 
+  int budgetNotif = 0;
+  int sumNotif = 0;
+
+  var stateOfDisable = true;
+  DateTime tanggalMulaiAcaraBatas = DateTime.now();
+  String formattedtanggalMulaiAcaraBatas = "";
+  String temptanggalMulaiAcaraBatas = "";
+
+  DateTime tanggalSelesaiAcaraBatas = DateTime.now();
+  String formattedtanggalSelesaiAcaraBatas = "";
+  String temptanggalSelesaiAcaraBatas = "";
+
   @override
   void initState() {
     // TODO: implement initState
@@ -3003,6 +3015,53 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     _controllerKeterangan.dispose();
     _controllerDropdownFilter.dispose();
     super.dispose();
+  }
+
+  Future _getBatasTanggal(kodeGer, kodeKegiatanBatas) async {
+    var response = await servicesUser.getAllProposalKegiatan(kodeGer);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        debugPrint(kodeKegiatanBatas);
+        debugPrint(element['kode_kegiatan']);
+        if (kodeKegiatanBatas == element['kode_kegiatan']) {
+          tanggalMulaiAcaraBatas =
+              DateTime.parse(element['tanggal_acara_dimulai'].toString());
+          formattedtanggalMulaiAcaraBatas =
+              DateFormat('dd-MM-yyyy').format(tanggalMulaiAcaraBatas);
+          stateOfDisable = false;
+          temptanggalMulaiAcaraBatas = formattedtanggalMulaiAcaraBatas;
+
+          tanggalSelesaiAcaraBatas =
+              DateTime.parse(element['tanggal_acara_selesai'].toString());
+        } else {
+          throw "Gagal Mengambil Data";
+        }
+      }
+    }
+  }
+
+  Future _getPerbandinganPeringatan(
+      kodeKegiatangab, kodeKeg, kodeGer, kodePerkiraanNotif) async {
+    //_kodeMaster.clear();
+
+    var response = await servicesUser.getAllItemProposalKegiatan(
+        kodeKegiatangab, kodeKeg, kodeGer);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        // _kodeMaster.add(
+        //     "${element['header_kode_perkiraan']} - ${element['nama_header']}");
+        debugPrint(element.toString());
+        debugPrint("asu" + kodePerkiraanNotif.toString());
+        debugPrint(element['kode_perkiraan']);
+        if (kodePerkiraanNotif == element['kode_perkiraan']) {
+          debugPrint('dd' + kodePerkiraanNotif);
+          sumNotif = element['sum_kebutuhan'];
+          budgetNotif = element['budget_kebutuhan'];
+        }
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
   }
 
   responsiveTextField(deviceWidth, deviceHeight, controllerText) {
@@ -3535,6 +3594,9 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                           });
                                         }
                                         debugPrint(kodeRefKegiatan);
+                                        _getBatasTanggal(
+                                            kodeGereja, kodeRefKegiatan);
+                                        debugPrint(kodeRefKegiatan);
                                         if (mounted) {
                                           setState(() {});
                                         }
@@ -3752,6 +3814,25 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
+                                  if (kodeRefKegiatan != "") {
+                                    _getPerbandinganPeringatan(
+                                            kodeGereja + kodeRefKegiatan,
+                                            kodeRefKegiatan,
+                                            kodeGereja,
+                                            kodePerkiraan)
+                                        .then((value) {
+                                      debugPrint(
+                                          "............................................");
+                                      debugPrint(kodeRefKegiatan);
+                                      debugPrint(kodeGereja);
+                                      debugPrint(kodePerkiraan);
+                                      debugPrint(budgetNotif.toString());
+                                      debugPrint(sumNotif.toString());
+                                      debugPrint(
+                                          "............................................");
+                                    });
+                                  }
+
                                   if (_status == "") {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -3788,38 +3869,111 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             ),
                                           );
                                         } else {
-                                          //Print
-                                          debugPrint(kodeTransaksi);
-                                          debugPrint(kodeMaster);
-                                          debugPrint(kodePerkiraan);
-                                          debugPrint(kodeRefKegiatan);
-                                          debugPrint(date);
-                                          debugPrint(_controllerNominal.text);
-                                          debugPrint(
-                                              _controllerKeterangan.text);
+                                          if (kodeRefKegiatan != "") {
+                                            if (budgetNotif <
+                                                (sumNotif +
+                                                    int.parse(_controllerNominal
+                                                        .text))) {
+                                              //alert
+                                              if (_status == "pengeluaran") {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Nominal untuk item ini sudah melebihi budget yang ditentukan"),
+                                                  ),
+                                                );
+                                              }
+                                              //Add
+                                              tempItemTransaksi
+                                                  .add(kodeTransaksi);
+                                              tempItemTransaksi.add(kodeMaster);
+                                              tempItemTransaksi
+                                                  .add(kodePerkiraan);
+                                              tempItemTransaksi
+                                                  .add(kodeRefKegiatan);
+                                              tempItemTransaksi.add(date);
+                                              tempItemTransaksi
+                                                  .add(_controllerNominal.text);
+                                              tempItemTransaksi.add(
+                                                  _controllerKeterangan.text);
+                                              tempItemTransaksi.add(_status);
 
-                                          //Add
-                                          tempItemTransaksi.add(kodeTransaksi);
-                                          tempItemTransaksi.add(kodeMaster);
-                                          tempItemTransaksi.add(kodePerkiraan);
-                                          tempItemTransaksi
-                                              .add(kodeRefKegiatan);
-                                          tempItemTransaksi.add(date);
-                                          tempItemTransaksi
-                                              .add(_controllerNominal.text);
-                                          tempItemTransaksi
-                                              .add(_controllerKeterangan.text);
-                                          tempItemTransaksi.add(_status);
+                                              debugPrint(
+                                                  tempItemTransaksi.toString());
+                                              itemTransaksi.add(
+                                                  tempItemTransaksi.toList());
+                                              if (mounted) {
+                                                setState(() {});
+                                              }
+                                              Navigator.pop(context);
+                                            } else {
+                                              //Print
+                                              debugPrint(kodeTransaksi);
+                                              debugPrint(kodeMaster);
+                                              debugPrint(kodePerkiraan);
+                                              debugPrint(kodeRefKegiatan);
+                                              debugPrint(date);
+                                              debugPrint(
+                                                  _controllerNominal.text);
+                                              debugPrint(
+                                                  _controllerKeterangan.text);
 
-                                          debugPrint(
-                                              tempItemTransaksi.toString());
-                                          itemTransaksi
-                                              .add(tempItemTransaksi.toList());
-                                          if (mounted) {
-                                            setState(() {});
+                                              //Add
+                                              tempItemTransaksi
+                                                  .add(kodeTransaksi);
+                                              tempItemTransaksi.add(kodeMaster);
+                                              tempItemTransaksi
+                                                  .add(kodePerkiraan);
+                                              tempItemTransaksi
+                                                  .add(kodeRefKegiatan);
+                                              tempItemTransaksi.add(date);
+                                              tempItemTransaksi
+                                                  .add(_controllerNominal.text);
+                                              tempItemTransaksi.add(
+                                                  _controllerKeterangan.text);
+                                              tempItemTransaksi.add(_status);
+
+                                              debugPrint(
+                                                  tempItemTransaksi.toString());
+                                              itemTransaksi.add(
+                                                  tempItemTransaksi.toList());
+                                              if (mounted) {
+                                                setState(() {});
+                                              }
+                                              Navigator.pop(context);
+                                            }
+                                          } else {
+                                            //Add
+                                            tempItemTransaksi
+                                                .add(kodeTransaksi);
+                                            tempItemTransaksi.add(kodeMaster);
+                                            tempItemTransaksi
+                                                .add(kodePerkiraan);
+                                            tempItemTransaksi
+                                                .add(kodeRefKegiatan);
+                                            tempItemTransaksi.add(date);
+                                            tempItemTransaksi
+                                                .add(_controllerNominal.text);
+                                            tempItemTransaksi.add(
+                                                _controllerKeterangan.text);
+                                            tempItemTransaksi.add(_status);
+
+                                            debugPrint(
+                                                tempItemTransaksi.toString());
+                                            itemTransaksi.add(
+                                                tempItemTransaksi.toList());
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+                                            Navigator.pop(context);
                                           }
 
-                                          Navigator.pop(context);
+                                          // if (mounted) {
+                                          //   setState(() {});
+                                          // }
+
+                                          // Navigator.pop(context);
                                         }
                                       }
                                     }
