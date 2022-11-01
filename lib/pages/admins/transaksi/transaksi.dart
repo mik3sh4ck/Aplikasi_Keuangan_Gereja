@@ -4152,6 +4152,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                           items: _kodeRefKegiatan,
                           onChanged: (val) {
                             if (val == null) {
+                              itemTransaksi.clear();
                               selectedKodeRefKegiatan = "Pilih Kode Referensi";
                               kodeRefKegiatan = "";
                               selectedKodePerkiraan = "Pilih Kode Perkiraan";
