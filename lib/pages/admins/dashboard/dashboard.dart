@@ -319,44 +319,44 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 25),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: buttonColor,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      textStyle: GoogleFonts.nunito(
-                          color: lightText,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                          letterSpacing: 0.125),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onPressed: () {
-                      widget.controllerDashboardPage.animateToPage(1,
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.ease);
-                    },
-                    child: Row(
-                      children: [
-                        const Icon(Icons.add),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text("Buat"),
-                            Text("Berita"),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(right: 25),
+                //   child: ElevatedButton(
+                //     style: ElevatedButton.styleFrom(
+                //       primary: buttonColor,
+                //       padding: const EdgeInsets.symmetric(
+                //           horizontal: 24, vertical: 16),
+                //       textStyle: GoogleFonts.nunito(
+                //           color: lightText,
+                //           fontWeight: FontWeight.w800,
+                //           fontSize: 14,
+                //           letterSpacing: 0.125),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(10),
+                //       ),
+                //     ),
+                //     onPressed: () {
+                //       widget.controllerDashboardPage.animateToPage(1,
+                //           duration: const Duration(milliseconds: 250),
+                //           curve: Curves.ease);
+                //     },
+                //     child: Row(
+                //       children: [
+                //         const Icon(Icons.add),
+                //         const SizedBox(
+                //           width: 10,
+                //         ),
+                //         Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: const [
+                //             Text("Buat"),
+                //             Text("Berita"),
+                //           ],
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             const Divider(
@@ -381,28 +381,28 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  cardNews('judul news',
-                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  cardNews('judul news',
-                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  cardNews('judul news',
-                                      'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.')
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20,
-                            ),
+                            // Expanded(
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     children: [
+                            //       cardNews('judul news',
+                            //           'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
+                            //       const SizedBox(
+                            //         height: 20,
+                            //       ),
+                            //       cardNews('judul news',
+                            //           'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.'),
+                            //       const SizedBox(
+                            //         height: 20,
+                            //       ),
+                            //       cardNews('judul news',
+                            //           'Telah diterima donasi sebesar 3.000.000 dari Gereja ABCDE, Tuhan Yesus memberkati.')
+                            //     ],
+                            //   ),
+                            // ),
+                            // const SizedBox(
+                            //   width: 20,
+                            // ),
                             Expanded(
                               flex: 3,
                               child: Column(
@@ -411,7 +411,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                   Container(
                                     padding: const EdgeInsets.all(0),
                                     width: double.infinity,
-                                    height: deviceWidth * 0.35,
+                                    height: deviceHeight * 0.70,
                                     child: SfCartesianChart(
                                       enableAxisAnimation: true,
                                       legend: Legend(

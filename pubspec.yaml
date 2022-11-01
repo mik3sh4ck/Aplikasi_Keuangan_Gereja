@@ -74,6 +74,7 @@ dependencies:
   signature: ^5.2.1
   numberpicker: ^2.1.1
   flutter_colorpicker: ^1.0.3
+  responsive_framework: ^0.2.0
 
   # window_size:
   #   git:/

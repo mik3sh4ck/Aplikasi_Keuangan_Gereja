@@ -151,6 +151,7 @@ class AdminTransaksiPage extends StatefulWidget {
 
 class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   ServicesUser servicesUser = ServicesUser();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final _controllerDropdownFilter = TextEditingController();
 
@@ -408,13 +409,19 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
           ),
           DataCell(
             Text(
-              jenis == "pemasukan" ? nominal.toString() : "-",
+              jenis == "pemasukan"
+                  ? CurrencyFormat.convertToIdr(
+                      int.parse(nominal.toString()), 2)
+                  : "-",
               overflow: TextOverflow.ellipsis,
             ),
           ),
           DataCell(
             Text(
-              jenis == "pengeluaran" ? nominal.toString() : "-",
+              jenis == "pengeluaran"
+                  ? CurrencyFormat.convertToIdr(
+                      int.parse(nominal.toString()), 2)
+                  : "-",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -877,11 +884,226 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     }
   }
 
+  drawerFilter() {
+    return Container(
+      color: scaffoldBackgroundColor,
+      width: 350,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            dragDevices: {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            },
+          ),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            controller: ScrollController(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 56,
+                ),
+                ToggleSwitch(
+                  initialLabelIndex: _indexFilterTanggal,
+                  totalSwitches: 4,
+                  labels: const ['Semua', 'Hari', 'Minggu', 'Bulan'],
+                  activeBgColor: [primaryColorVariant],
+                  activeFgColor: darkText,
+                  inactiveBgColor: Colors.grey[200],
+                  inactiveFgColor: darkText,
+                  dividerColor: Colors.white,
+                  animate: true,
+                  animationDuration: 250,
+                  onToggle: (index) {
+                    setState(() {
+                      _indexFilterTanggal = index!;
+                    });
+                    debugPrint('switched to: $_indexFilterTanggal');
+                    if (_indexFilterTanggal == 0) {
+                      _getTransaksi(kodeGereja)
+                          .whenComplete(() => setState(() {}));
+                    }
+                  },
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                _filterTanggalField(),
+                const Divider(
+                  height: 56,
+                ),
+                responsiveText(
+                    "Filter Transaksi", 14, FontWeight.w700, darkText),
+                Card(
+                  color: primaryColor,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: DropdownSearch<dynamic>(
+                    popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: "Cari Disini",
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              _controllerDropdownFilter.clear();
+                            },
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                          ),
+                        ),
+                        controller: _controllerDropdownFilter,
+                      ),
+                    ),
+                    items: _kodeTransaksiAdded,
+                    onChanged: (val) {
+                      debugPrint(val);
+                      debugPrint(_splitString(val));
+                      kodeTransaksiFilter = _splitString(val);
+                      _queryTransaksiKode(kodeGereja, kodeTransaksiFilter, "")
+                          .whenComplete(() => setState(() {}));
+                      debugPrint(_buatKodeGabungan(val));
+                    },
+                    selectedItem: "pilih Transaksi",
+                  ),
+                ),
+                responsiveText(
+                    "Filter Kode Perkiraan", 14, FontWeight.w700, darkText),
+                Card(
+                  color: primaryColor,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: DropdownSearch<dynamic>(
+                    popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: "Cari Disini",
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              _controllerDropdownFilter.clear();
+                            },
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                          ),
+                        ),
+                        controller: _controllerDropdownFilter,
+                      ),
+                    ),
+                    items: _kodePerkiraan,
+                    onChanged: (val) {
+                      debugPrint(val);
+                      debugPrint(_splitString(val));
+                      kodePerkiraanFilter = _splitString(val);
+                      _queryTransaksiKode(kodeGereja, "", kodePerkiraanFilter)
+                          .whenComplete(() => setState(() {}));
+                      debugPrint(_buatKodeGabungan(val));
+                    },
+                    selectedItem: "pilih Kode Perkiraan",
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                  //TODO: search btn
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    _queryTransaksiKode(kodeGereja, kodeTransaksiFilter,
+                            kodePerkiraanFilter)
+                        .whenComplete(() => setState(() {}));
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.search),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "Cari",
+                        style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w700, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(
+                  height: 56,
+                ),
+                _cardInfo(
+                  "Pemasukan",
+                  _totalPemasukan,
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                _cardInfo(
+                  "Pengeluaran",
+                  _totalPengeluaran,
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                _cardInfo(
+                  "Saldo",
+                  _totalSaldo,
+                ),
+                const SizedBox(
+                  height: 56,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  visibleFilter(deviceWidth, context) {
+    return Wrap(
+      children: [
+        const SizedBox(
+          width: 16,
+        ),
+        deviceWidth < 1280
+            ? IconButton(
+                onPressed: () {
+                  _scaffoldKey.currentState!.openEndDrawer();
+                },
+                icon: const Icon(Icons.filter_alt_outlined),
+              )
+            : Visibility(
+                visible: false,
+                child: Column(),
+              ),
+        const SizedBox(
+          width: 16,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawerEnableOpenDragGesture: false,
+      endDrawer: drawerFilter(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
         child: Column(
@@ -891,70 +1113,77 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 responsiveText("Transaksi", 32, FontWeight.w800, darkText),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                Expanded(
+                  child: Wrap(
+                    runSpacing: 16.0,
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    runAlignment: WrapAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          widget.controllerPageLihatLaporan.animateToPage(1,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.ease);
+                        },
+                        child: Text(
+                          "Laporan Keuangan",
+                          style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.w700, fontSize: 14),
                         ),
                       ),
-                      onPressed: () {
-                        widget.controllerPageLihatLaporan.animateToPage(1,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease);
-                      },
-                      child: Text(
-                        "Laporan Keuangan",
-                        style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700, fontSize: 14),
+                      const SizedBox(
+                        width: 16,
                       ),
-                    ),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          widget.controllerPageKategori.animateToPage(1,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.ease);
+                        },
+                        child: Text(
+                          "Kode Keuangan",
+                          style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.w700, fontSize: 14),
                         ),
                       ),
-                      onPressed: () {
-                        widget.controllerPageKategori.animateToPage(1,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease);
-                      },
-                      child: Text(
-                        "Kode Keuangan",
-                        style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700, fontSize: 14),
+                      const SizedBox(
+                        width: 16,
                       ),
-                    ),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          widget.controllerPageBuatTransaksi.animateToPage(1,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.ease);
+                        },
+                        child: Text(
+                          "Buat Transaksi",
+                          style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.w700, fontSize: 14),
                         ),
                       ),
-                      onPressed: () {
-                        widget.controllerPageBuatTransaksi.animateToPage(1,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease);
-                      },
-                      child: Text(
-                        "Buat Transaksi",
-                        style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w700, fontSize: 14),
+                      const SizedBox(
+                        width: 16,
                       ),
-                    ),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                visibleFilter(deviceWidth, context),
               ],
             ),
             const Divider(
@@ -1130,193 +1359,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                     ),
                                   ),
                           ),
-                          const SizedBox(
-                            width: 16,
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                ToggleSwitch(
-                                  initialLabelIndex: _indexFilterTanggal,
-                                  totalSwitches: 4,
-                                  labels: const [
-                                    'Semua',
-                                    'Hari',
-                                    'Minggu',
-                                    'Bulan'
-                                  ],
-                                  activeBgColor: [primaryColorVariant],
-                                  activeFgColor: darkText,
-                                  inactiveBgColor: Colors.grey[200],
-                                  inactiveFgColor: darkText,
-                                  dividerColor: Colors.white,
-                                  animate: true,
-                                  animationDuration: 250,
-                                  onToggle: (index) {
-                                    setState(() {
-                                      _indexFilterTanggal = index!;
-                                    });
-                                    debugPrint(
-                                        'switched to: $_indexFilterTanggal');
-                                    if (_indexFilterTanggal == 0) {
-                                      _getTransaksi(kodeGereja)
-                                          .whenComplete(() => setState(() {}));
-                                    }
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                _filterTanggalField(),
-                                const Divider(
-                                  height: 56,
-                                ),
-                                responsiveText("Filter Transaksi", 14,
-                                    FontWeight.w700, darkText),
-                                Card(
-                                  color: primaryColor,
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: DropdownSearch<dynamic>(
-                                    popupProps: PopupProps.menu(
-                                      showSearchBox: true,
-                                      searchFieldProps: TextFieldProps(
-                                        decoration: InputDecoration(
-                                          border: const OutlineInputBorder(),
-                                          hintText: "Cari Disini",
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              _controllerDropdownFilter.clear();
-                                            },
-                                            icon: Icon(
-                                              Icons.clear,
-                                              color:
-                                                  Colors.black.withOpacity(0.5),
-                                            ),
-                                          ),
-                                        ),
-                                        controller: _controllerDropdownFilter,
-                                      ),
-                                    ),
-                                    items: _kodeTransaksiAdded,
-                                    onChanged: (val) {
-                                      debugPrint(val);
-                                      debugPrint(_splitString(val));
-                                      kodeTransaksiFilter = _splitString(val);
-                                      _queryTransaksiKode(kodeGereja,
-                                              kodeTransaksiFilter, "")
-                                          .whenComplete(() => setState(() {}));
-                                      debugPrint(_buatKodeGabungan(val));
-                                    },
-                                    selectedItem: "pilih Transaksi",
-                                  ),
-                                ),
-                                responsiveText("Filter Kode Perkiraan", 14,
-                                    FontWeight.w700, darkText),
-                                Card(
-                                  color: primaryColor,
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: DropdownSearch<dynamic>(
-                                    popupProps: PopupProps.menu(
-                                      showSearchBox: true,
-                                      searchFieldProps: TextFieldProps(
-                                        decoration: InputDecoration(
-                                          border: const OutlineInputBorder(),
-                                          hintText: "Cari Disini",
-                                          suffixIcon: IconButton(
-                                            onPressed: () {
-                                              _controllerDropdownFilter.clear();
-                                            },
-                                            icon: Icon(
-                                              Icons.clear,
-                                              color:
-                                                  Colors.black.withOpacity(0.5),
-                                            ),
-                                          ),
-                                        ),
-                                        controller: _controllerDropdownFilter,
-                                      ),
-                                    ),
-                                    items: _kodePerkiraan,
-                                    onChanged: (val) {
-                                      debugPrint(val);
-                                      debugPrint(_splitString(val));
-                                      kodePerkiraanFilter = _splitString(val);
-                                      _queryTransaksiKode(kodeGereja, "",
-                                              kodePerkiraanFilter)
-                                          .whenComplete(() => setState(() {}));
-                                      debugPrint(_buatKodeGabungan(val));
-                                    },
-                                    selectedItem: "pilih Kode Perkiraan",
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                ElevatedButton(
-                                  //TODO: search btn
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    _queryTransaksiKode(
-                                            kodeGereja,
-                                            kodeTransaksiFilter,
-                                            kodePerkiraanFilter)
-                                        .whenComplete(() => setState(() {}));
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.search),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text(
-                                        "Cari",
-                                        style: GoogleFonts.nunito(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 56,
-                                ),
-                                _cardInfo(
-                                  "Pemasukan",
-                                  _totalPemasukan,
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                _cardInfo(
-                                  "Pengeluaran",
-                                  _totalPengeluaran,
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                _cardInfo(
-                                  "Saldo",
-                                  _totalSaldo,
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                              ],
-                            ),
-                          ),
+                          deviceWidth > 1280 ? drawerFilter() : Column(),
                         ],
                       ),
                     ],
@@ -2983,6 +3026,9 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   String formattedtanggalSelesaiAcaraBatas = "";
   String temptanggalSelesaiAcaraBatas = "";
 
+  int totalPemasukanStatus = 0;
+  int totalPengeluaranStatus = 0;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -3004,6 +3050,9 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
     formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
     date = formattedDate;
+
+    budgetNotif = 0;
+    sumNotif = 0;
 
     super.initState();
   }
@@ -3367,14 +3416,13 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   }
 
 //TODO: Show Tambah Transaksi Dialog
-  _showTambahDialog(dw, dh, kodeTransaksi) {
+  _showTambahDialog(dw, dh, kodeTransaksi, kodeRef) {
+    print(kodeRef);
     RadioStatusTransaksi? radio;
     selectedKodePerkiraan = "Pilih Kode Perkiraan";
-    selectedKodeRefKegiatan = "Pilih Kode Referensi";
     _controllerKeterangan.clear();
     _controllerNominal.clear();
     date = formattedDate;
-    kodeRefKegiatan = "";
     kodePerkiraan = "";
     kodeMaster = "";
     tempItemTransaksi.clear();
@@ -3524,91 +3572,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  //TODO: Input Kode Referensi Dialog
-                                  responsiveText("Kode Referensi Kegiatan", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Card(
-                                    color: surfaceColor,
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 10),
-                                    child: DropdownSearch<dynamic>(
-                                      clearButtonProps: clearKodeRef,
-                                      popupProps: PopupProps.menu(
-                                        showSearchBox: true,
-                                        searchFieldProps: TextFieldProps(
-                                          decoration: InputDecoration(
-                                            border: const OutlineInputBorder(),
-                                            hintText: "Cari Disini",
-                                            suffixIcon: IconButton(
-                                              onPressed: () {
-                                                _controllerDropdownFilter
-                                                    .clear();
-                                              },
-                                              icon: Icon(
-                                                Icons.clear,
-                                                color: Colors.black
-                                                    .withOpacity(0.5),
-                                              ),
-                                            ),
-                                          ),
-                                          controller: _controllerDropdownFilter,
-                                        ),
-                                      ),
-                                      items: _kodeRefKegiatan,
-                                      onChanged: (val) {
-                                        if (val == null) {
-                                          selectedKodeRefKegiatan =
-                                              "Pilih Kode Referensi";
-                                          kodeRefKegiatan = "";
-                                          selectedKodePerkiraan =
-                                              "Pilih Kode Perkiraan";
-                                          kodePerkiraan = "";
-                                          _getKodePerkiraanSingleKegiatan(
-                                            kodeGereja,
-                                            "",
-                                            _splitStringKode(kodeTransaksi),
-                                            _status,
-                                          ).whenComplete(() => setState(() {}));
-                                        } else {
-                                          selectedKodePerkiraan =
-                                              "Pilih Kode Perkiraan";
-                                          _kodePerkiraanSingleKegiatan.clear();
-                                          selectedKodeRefKegiatan = val;
-                                          debugPrint(selectedKodeRefKegiatan);
-                                          debugPrint(_splitString(
-                                              selectedKodeRefKegiatan));
-                                          debugPrint(_buatKodeGabungan(
-                                              selectedKodeRefKegiatan));
-                                          kodeRefKegiatan = _splitString(
-                                              selectedKodeRefKegiatan);
-                                          _getKodePerkiraanSingleKegiatan(
-                                            kodeGereja,
-                                            kodeRefKegiatan,
-                                            _splitStringKode(kodeTransaksi),
-                                            _status,
-                                          ).whenComplete(() {
-                                            setState(() {});
-                                          });
-                                        }
-                                        debugPrint(kodeRefKegiatan);
-                                        _getBatasTanggal(
-                                            kodeGereja, kodeRefKegiatan);
-                                        debugPrint(kodeRefKegiatan);
-                                        if (mounted) {
-                                          setState(() {});
-                                        }
-                                      },
-                                      selectedItem: selectedKodeRefKegiatan,
-                                    ),
-                                  ),
-                                  responsiveText("*Biarkan Kalau Tidak Ada", 12,
-                                      FontWeight.w700, Colors.red),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
+//
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -3802,7 +3766,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                     kodeGereja,
                                     "",
                                     _splitStringKode(kodeTransaksi),
-                                    "",
+                                    _status,
                                   ).whenComplete(() => setState(() {}));
 
                                   Navigator.pop(context);
@@ -3903,6 +3867,17 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                                   tempItemTransaksi.toString());
                                               itemTransaksi.add(
                                                   tempItemTransaksi.toList());
+                                              if (_status == "pemasukan") {
+                                                totalPemasukanStatus +=
+                                                    int.parse(_controllerNominal
+                                                        .text);
+                                              } else if (_status ==
+                                                  "pengeluaran") {
+                                                totalPengeluaranStatus +=
+                                                    int.parse(_controllerNominal
+                                                        .text);
+                                              }
+
                                               if (mounted) {
                                                 setState(() {});
                                               }
@@ -3938,6 +3913,16 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                                   tempItemTransaksi.toString());
                                               itemTransaksi.add(
                                                   tempItemTransaksi.toList());
+                                              if (_status == "pemasukan") {
+                                                totalPemasukanStatus +=
+                                                    int.parse(_controllerNominal
+                                                        .text);
+                                              } else if (_status ==
+                                                  "pengeluaran") {
+                                                totalPengeluaranStatus +=
+                                                    int.parse(_controllerNominal
+                                                        .text);
+                                              }
                                               if (mounted) {
                                                 setState(() {});
                                               }
@@ -3963,6 +3948,15 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                                 tempItemTransaksi.toString());
                                             itemTransaksi.add(
                                                 tempItemTransaksi.toList());
+                                            if (_status == "pemasukan") {
+                                              totalPemasukanStatus += int.parse(
+                                                  _controllerNominal.text);
+                                            } else if (_status ==
+                                                "pengeluaran") {
+                                              totalPengeluaranStatus +=
+                                                  int.parse(
+                                                      _controllerNominal.text);
+                                            }
                                             if (mounted) {
                                               setState(() {});
                                             }
@@ -4124,6 +4118,74 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                       const SizedBox(
                         height: 25,
                       ),
+//
+                      //TODO: Input Kode Referensi Dialog
+                      responsiveText("Kode Referensi Kegiatan", 16,
+                          FontWeight.w700, darkText),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Card(
+                        color: surfaceColor,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        child: DropdownSearch<dynamic>(
+                          clearButtonProps: clearKodeRef,
+                          popupProps: PopupProps.menu(
+                            showSearchBox: true,
+                            searchFieldProps: TextFieldProps(
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                hintText: "Cari Disini",
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    _controllerDropdownFilter.clear();
+                                  },
+                                  icon: Icon(
+                                    Icons.clear,
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                              controller: _controllerDropdownFilter,
+                            ),
+                          ),
+                          items: _kodeRefKegiatan,
+                          onChanged: (val) {
+                            if (val == null) {
+                              selectedKodeRefKegiatan = "Pilih Kode Referensi";
+                              kodeRefKegiatan = "";
+                              selectedKodePerkiraan = "Pilih Kode Perkiraan";
+                              kodePerkiraan = "";
+                              _getKodePerkiraanSingleKegiatan(
+                                kodeGereja,
+                                "",
+                                _singleKodeTransaksi,
+                                "",
+                              ).whenComplete(() => setState(() {}));
+                            } else {
+                              selectedKodePerkiraan = "Pilih Kode Perkiraan";
+                              _kodePerkiraanSingleKegiatan.clear();
+                              selectedKodeRefKegiatan = val;
+
+                              kodeRefKegiatan =
+                                  _splitString(selectedKodeRefKegiatan);
+                            }
+                            debugPrint(kodeRefKegiatan);
+                            // _getBatasTanggal(kodeGereja, kodeRefKegiatan);
+                            debugPrint(kodeRefKegiatan);
+                            if (mounted) {
+                              setState(() {});
+                            }
+                          },
+                          selectedItem: selectedKodeRefKegiatan,
+                        ),
+                      ),
+                      responsiveText("*Biarkan Kalau Tidak Ada", 12,
+                          FontWeight.w700, Colors.red),
+                      const SizedBox(
+                        height: 10,
+                      ),
+//
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -4136,8 +4198,12 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                             onPressed: () {
                               debugPrint(_singleKodeTransaksi);
                               if (_singleKodeTransaksi != "") {
-                                _showTambahDialog(deviceWidth, deviceHeight,
-                                    "$_singleKodeTransaksi-$_kodeTransaksiCount");
+                                _showTambahDialog(
+                                  deviceWidth,
+                                  deviceHeight,
+                                  "$_singleKodeTransaksi-$_kodeTransaksiCount",
+                                  _splitString(selectedKodeRefKegiatan),
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -4186,12 +4252,24 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                         title: Row(
                                           children: [
                                             Expanded(
-                                              flex: 1,
-                                              child: responsiveText(
-                                                  "${itemTransaksi[index][0]}-${itemTransaksi[index][2]}",
-                                                  16,
-                                                  FontWeight.w600,
-                                                  darkText),
+                                              flex: 2,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  responsiveText(
+                                                      "${itemTransaksi[index][0]}-${itemTransaksi[index][2]}",
+                                                      16,
+                                                      FontWeight.w600,
+                                                      darkText),
+                                                  responsiveText(
+                                                    "Ref : ${itemTransaksi[index][3]}",
+                                                    14,
+                                                    FontWeight.w500,
+                                                    darkText.withOpacity(0.5),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                             SizedBox(
                                               height: 25,
@@ -4200,7 +4278,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                               ),
                                             ),
                                             Expanded(
-                                              flex: 1,
+                                              flex: 2,
                                               child: responsiveText(
                                                   itemTransaksi[index][4]
                                                       .toString(),
@@ -4215,13 +4293,29 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                               ),
                                             ),
                                             Expanded(
-                                              flex: 3,
-                                              child: responsiveText(
-                                                  itemTransaksi[index][6]
-                                                      .toString(),
-                                                  16,
-                                                  FontWeight.w600,
-                                                  darkText),
+                                              flex: 5,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  responsiveText(
+                                                      itemTransaksi[index][6]
+                                                          .toString(),
+                                                      16,
+                                                      FontWeight.w600,
+                                                      darkText),
+                                                  responsiveText(
+                                                      itemTransaksi[index][7]
+                                                          .toString(),
+                                                      16,
+                                                      FontWeight.w600,
+                                                      itemTransaksi[index][7]
+                                                                  .toString() ==
+                                                              "pemasukan"
+                                                          ? Colors.green
+                                                          : Colors.red),
+                                                ],
+                                              ),
                                             ),
                                             SizedBox(
                                               height: 25,
@@ -4230,7 +4324,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                               ),
                                             ),
                                             Expanded(
-                                              flex: 1,
+                                              flex: 2,
                                               child: responsiveText(
                                                   CurrencyFormat.convertToIdr(
                                                       int.parse(
@@ -4278,49 +4372,61 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                           ),
                         ),
                         onPressed: () async {
-                          int ctr = 0;
-                          String tempKodeTransaksi = "";
-                          for (var element in itemTransaksi) {
-                            tempKodeTransaksi = _splitStringKode(element[0]);
-                            debugPrint(tempKodeTransaksi);
-                            debugPrint(
-                                "${element[0]} - ${element[1]} - ${element[2]} - ${element[3]} - ${element[4]} - ${element[5]} - ${element[6]} - ${element[7]}");
-
-                            _postTransaksi(
-                                    kodeGereja,
-                                    element[0],
-                                    element[1],
-                                    element[2],
-                                    element[3],
-                                    element[4],
-                                    element[6],
-                                    element[5],
-                                    element[7],
-                                    context)
-                                .whenComplete(
-                              () {
-                                ctr++;
-                                if (ctr == itemTransaksi.length) {
-                                  _updateCountKodeTransaksi(tempKodeTransaksi,
-                                          kodeGereja, context)
-                                      .whenComplete(
-                                    () {
-                                      _rowList.clear();
-                                      _totalPemasukan = 0;
-                                      _totalPengeluaran = 0;
-                                      _totalSaldo = 0;
-                                      _getTransaksi(kodeGereja).whenComplete(
-                                        () => widget.controllerPageBuatTransaksi
-                                            .animateToPage(0,
-                                                duration: const Duration(
-                                                    milliseconds: 250),
-                                                curve: Curves.ease),
-                                      );
-                                    },
-                                  );
-                                }
-                              },
+                          print(totalPemasukanStatus);
+                          print(totalPengeluaranStatus);
+                          if (totalPemasukanStatus != totalPengeluaranStatus) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    "Pemasukan dan Pengeluaran Belum Seimbang, Silahkan Periksa Lagi"),
+                              ),
                             );
+                          } else {
+                            int ctr = 0;
+                            String tempKodeTransaksi = "";
+                            for (var element in itemTransaksi) {
+                              tempKodeTransaksi = _splitStringKode(element[0]);
+                              debugPrint(tempKodeTransaksi);
+                              debugPrint(
+                                  "${element[0]} - ${element[1]} - ${element[2]} - ${element[3]} - ${element[4]} - ${element[5]} - ${element[6]} - ${element[7]}");
+
+                              _postTransaksi(
+                                      kodeGereja,
+                                      element[0],
+                                      element[1],
+                                      element[2],
+                                      element[3],
+                                      element[4],
+                                      element[6],
+                                      element[5],
+                                      element[7],
+                                      context)
+                                  .whenComplete(
+                                () {
+                                  ctr++;
+                                  if (ctr == itemTransaksi.length) {
+                                    _updateCountKodeTransaksi(tempKodeTransaksi,
+                                            kodeGereja, context)
+                                        .whenComplete(
+                                      () {
+                                        _rowList.clear();
+                                        _totalPemasukan = 0;
+                                        _totalPengeluaran = 0;
+                                        _totalSaldo = 0;
+                                        _getTransaksi(kodeGereja).whenComplete(
+                                          () => widget
+                                              .controllerPageBuatTransaksi
+                                              .animateToPage(0,
+                                                  duration: const Duration(
+                                                      milliseconds: 250),
+                                                  curve: Curves.ease),
+                                        );
+                                      },
+                                    );
+                                  }
+                                },
+                              );
+                            }
                           }
                         },
                         child: Text(
