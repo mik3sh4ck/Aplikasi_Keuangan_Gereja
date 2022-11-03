@@ -168,10 +168,10 @@ class ServicesUser {
   }
 
   //TODO: Delete Kode Master
-  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan) async {
+  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan, kodeMaster) async {
     final response = await http.delete(
       Uri.parse(
-          "${_linkPath}delete-kode-perkiraan?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraan"),
+          "${_linkPath}delete-kode-perkiraan?kode_gereja=$kodeGereja&kode_perkiraan=$kodePerkiraan&header_kode_perkiraan=$kodeMaster"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

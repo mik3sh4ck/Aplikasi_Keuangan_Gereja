@@ -263,8 +263,6 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
               element['kode_kegiatan_gabungan'].toString(), context);
         }
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -584,8 +582,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
       for (var element in response[1]) {
         _user.add("${element['kode_user']} - ${element['nama_lengkap_user']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -599,8 +595,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
               "${element['header_kode_perkiraan']} - ${element['nama_header']}");
         }
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -612,8 +606,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
         _kodeKegiatanbuatList.add(
             "${element['kode_kategori_kegiatan']} - ${element['nama_kategori_kegiatan']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -628,8 +620,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
         _kodePerkiraanSingleKegiatan.add(
             "${element['nama_kode_perkiraan']} - ${element['kode_perkiraan']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -664,8 +654,9 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     if (response[0] != 404) {
       _masukAkalNominal = response[1]['budget_kebutuhan_per_hari'].toString();
     } else {
-      throw "Gagal Mengambil Data";
+      _masukAkalNominal = 0.toString();
     }
+    
   }
 
   _splitString(val) {
@@ -3625,6 +3616,7 @@ class AbsensiKegiatanPage extends StatefulWidget {
 class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
   ServicesUser servicesUser = ServicesUser();
   late Future kategoriAbsensiKegiatan;
+  late Future kategoriDetailAbsensiKegiatanCek;
 
   var stateOfDisable = true;
   DateTime tanggalUbahAbsen = DateTime.now();
@@ -3757,55 +3749,164 @@ class _AbsensiKegiatanPageState extends State<AbsensiKegiatanPage> {
                                           ),
                                         ),
                                         color: scaffoldBackgroundColor,
-                                        child: ListTile(
-                                          title: responsiveText(
-                                              snapData[1][index]
-                                                  ['tanggal_absen'],
-                                              17,
-                                              FontWeight.w600,
-                                              darkText),
-                                          trailing: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              padding: EdgeInsets.all(12),
-                                              shape: CircleBorder(),
-                                            ),
-                                            onPressed: () {
-                                              if (mounted) {
-                                                formattedtanggalUbahAbsen =
-                                                    DateFormat('dd-MM-yyyy')
-                                                        .format(
-                                                            tanggalUbahAbsen);
-                                                datetanggalUbahAbsen =
-                                                    formattedtanggalUbahAbsen;
-                                                stateOfDisable = false;
+                                        child: ExpansionTile(
+                                          initiallyExpanded: false,
+                                          expandedCrossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          expandedAlignment:
+                                              Alignment.centerLeft,
+                                          childrenPadding:
+                                              const EdgeInsets.all(16),
+                                          textColor: darkText,
+                                          iconColor: navButtonPrimary,
+                                          collapsedTextColor: darkText,
+                                          collapsedIconColor: navButtonPrimary,
+                                          title: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              responsiveText(
+                                                  snapData[1][index]
+                                                      ['tanggal_absen'],
+                                                  17,
+                                                  FontWeight.w600,
+                                                  darkText),
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  padding: EdgeInsets.all(12),
+                                                  shape: CircleBorder(),
+                                                ),
+                                                onPressed: () {
+                                                  if (mounted) {
+                                                    formattedtanggalUbahAbsen =
+                                                        DateFormat('dd-MM-yyyy')
+                                                            .format(
+                                                                tanggalUbahAbsen);
+                                                    datetanggalUbahAbsen =
+                                                        formattedtanggalUbahAbsen;
+                                                    stateOfDisable = false;
 
-                                                setState(() {});
-                                              }
+                                                    setState(() {});
+                                                  }
 
-                                              if (snapData[1][index]
-                                                          ['tanggal_absen']
-                                                      .toString() ==
-                                                  datetanggalUbahAbsen) {
-                                                _tanggalAbsensi = snapData[1]
-                                                    [index]['tanggal_absen'];
-                                                widget
-                                                    .controllerPageDetailAbsensiKegiatan
-                                                    .animateToPage(1,
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    250),
-                                                        curve: Curves.ease);
-                                                setState(() {});
-                                              }
-                                            },
-                                            child: Tooltip(
-                                              message:
-                                                  "Absensi Tanggal ${snapData[1][index]['tanggal_absen']}",
-                                              child: const Icon(
-                                                  Icons.arrow_forward_outlined),
-                                            ),
+                                                  if (snapData[1][index]
+                                                              ['tanggal_absen']
+                                                          .toString() ==
+                                                      datetanggalUbahAbsen) {
+                                                    _tanggalAbsensi =
+                                                        snapData[1][index]
+                                                            ['tanggal_absen'];
+                                                    widget
+                                                        .controllerPageDetailAbsensiKegiatan
+                                                        .animateToPage(1,
+                                                            duration:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        250),
+                                                            curve: Curves.ease);
+                                                    setState(() {});
+                                                  }
+                                                },
+                                                child: Tooltip(
+                                                  message:
+                                                      "Absensi Tanggal ${snapData[1][index]['tanggal_absen']}",
+                                                  child: const Icon(Icons
+                                                      .arrow_forward_outlined),
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                          children: [
+                                            AbsorbPointer(
+                                              child: FutureBuilder(
+                                                future: kategoriDetailAbsensiKegiatanCek =
+                                                    servicesUser.getUserAbsen(
+                                                        kodeGereja,
+                                                        _kodeKegiatan,
+                                                        snapData[1][index]
+                                                            ['tanggal_absen']),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasData) {
+                                                    List snapData =
+                                                        snapshot.data! as List;
+                                                    if (snapData[0] != 404) {
+                                                      return ScrollConfiguration(
+                                                        behavior:
+                                                            ScrollConfiguration
+                                                                    .of(context)
+                                                                .copyWith(
+                                                          dragDevices: {
+                                                            PointerDeviceKind
+                                                                .touch,
+                                                            PointerDeviceKind
+                                                                .mouse,
+                                                          },
+                                                        ),
+                                                        child: ListView.builder(
+                                                          shrinkWrap: true,
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          controller:
+                                                              ScrollController(),
+                                                          physics:
+                                                              const ClampingScrollPhysics(),
+                                                          itemCount: snapData[1]
+                                                              .length,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            return ListTile(
+                                                              title: Text(
+                                                                snapData[1]
+                                                                        [index][
+                                                                    'nama_user'],
+                                                              ),
+                                                              trailing:
+                                                                  ToggleSwitch(
+                                                                minWidth: 40,
+                                                                initialLabelIndex:
+                                                                    snapData[1][
+                                                                            index]
+                                                                        [
+                                                                        'status_user_absensi'],
+                                                                cornerRadius:
+                                                                    10,
+                                                                activeFgColor:
+                                                                    Colors
+                                                                        .white,
+                                                                inactiveBgColor:
+                                                                    surfaceColor,
+                                                                inactiveFgColor:
+                                                                    Colors
+                                                                        .white,
+                                                                totalSwitches:
+                                                                    2,
+                                                                activeBgColors: [
+                                                                  [
+                                                                    errorColor
+                                                                        .withOpacity(
+                                                                            0.5)
+                                                                  ],
+                                                                  [
+                                                                    correctColor
+                                                                        .withOpacity(
+                                                                            0.8),
+                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      );
+                                                    } else if (snapData[0] ==
+                                                        404) {
+                                                      return noData();
+                                                    }
+                                                  }
+                                                  return loadingIndicator();
+                                                },
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       );
                                     },

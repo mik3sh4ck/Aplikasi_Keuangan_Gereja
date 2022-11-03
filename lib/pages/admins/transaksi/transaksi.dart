@@ -43,7 +43,6 @@ final List<DataRow> _rowList = List.empty(growable: true);
 int _totalPemasukan = 0;
 int _totalPengeluaran = 0;
 int _totalSaldo = 0;
-int _akunSaldo = 0;
 
 String _singleKodeTransaksi = "";
 String _kodeTransaksiCount = "000";
@@ -73,7 +72,6 @@ class _AdminControllerTransaksiPageState
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
-    _akunSaldo = 0;
     super.initState();
   }
 
@@ -151,7 +149,7 @@ class AdminTransaksiPage extends StatefulWidget {
 
 class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
   ServicesUser servicesUser = ServicesUser();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _controllerDropdownFilter = TextEditingController();
 
@@ -190,7 +188,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     _totalPemasukan = 0;
     _totalPengeluaran = 0;
     _totalSaldo = 0;
-    _akunSaldo = 0;
 
     kodeTransaksiFilter = "";
     kodePerkiraanFilter = "";
@@ -252,9 +249,9 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
       for (var element in response[1]) {
         debugPrint(element.toString());
         _kodePerkiraan.add(
-            "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
+            "${element['kode_perkiraan']} ~ ${element['nama_kode_perkiraan']}");
       }
-    } 
+    }
   }
 
   Future _getMasterKode(kodeGereja) async {
@@ -267,7 +264,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         _kodeMaster.add(
             "${element['header_kode_perkiraan']} - ${element['nama_header']}");
       }
-    } 
+    }
   }
 
   Future _getKodeTransaksiAdded(kodeGereja) async {
@@ -279,19 +276,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         _kodeTransaksiAdded
             .add("${element['kode_transaksi']} - ${element['nama_transaksi']}");
       }
-    } 
-  }
-
-  Future _getKodeRefKegiatan(kodeGereja) async {
-    _kodeRefKegiatan.clear();
-    var response = await servicesUser.getAllProposalKegiatan(kodeGereja);
-    if (response[0] != 404) {
-      for (var element in response[1]) {
-        debugPrint(element.toString());
-        _kodeRefKegiatan
-            .add("${element['kode_kegiatan']} - ${element['nama_kegiatan']}");
-      }
-    } 
+    }
   }
 
   Future _getTransaksi(kodeGereja) async {
@@ -865,17 +850,6 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     return temp;
   }
 
-  Future _getSaldoAkun(kodeGereja, kodePerkiraan) async {
-    var response = await servicesUser.getSaldoAkun(kodeGereja, kodePerkiraan);
-    _akunSaldo = 0;
-    if (response[0] != 404) {
-      _akunSaldo = response[1]['nominal'];
-      debugPrint(response[1].toString());
-    } else {
-      _akunSaldo = 0;
-    }
-  }
-
   drawerFilter() {
     return Container(
       color: scaffoldBackgroundColor,
@@ -928,8 +902,11 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                 const Divider(
                   height: 56,
                 ),
-                responsiveText(
-                    "Filter Transaksi", 14, FontWeight.w700, darkText),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: responsiveText(
+                      "Filter Transaksi", 14, FontWeight.w700, darkText),
+                ),
                 Card(
                   color: primaryColor,
                   margin: const EdgeInsets.symmetric(vertical: 10),
@@ -965,8 +942,11 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                     selectedItem: "pilih Transaksi",
                   ),
                 ),
-                responsiveText(
-                    "Filter Kode Perkiraan", 14, FontWeight.w700, darkText),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: responsiveText(
+                      "Filter Kode Perkiraan", 14, FontWeight.w700, darkText),
+                ),
                 Card(
                   color: primaryColor,
                   margin: const EdgeInsets.symmetric(vertical: 10),
@@ -1405,6 +1385,10 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   String _statusAktivaPasiva = "";
 
   bool _visibleAktivaPasiva = false;
+
+  final _kodePerkiraanForm = GlobalKey<FormState>();
+  final _kodeMasterForm = GlobalKey<FormState>();
+  final _kodeTransaksiForm = GlobalKey<FormState>();
   @override
   void initState() {
     // TODO: implement initState
@@ -1466,6 +1450,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   }
 
   _showBuatKodePerkiraanDialog(dw, dh, headerKodePerkiraan) {
+    _controllerKodePerkiraan.clear();
+    _controllerNamaKodePerkiraan.clear();
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1518,27 +1504,130 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Kode Perkiraan", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKodePerkiraan, null),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText("Nama Kode Perkiraan", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(dw, dh,
-                                      _controllerNamaKodePerkiraan, null),
-                                ],
+                              Form(
+                                key: _kodePerkiraanForm,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText("Kode Perkiraan", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller: _controllerKodePerkiraan,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          prefix: Text("$headerKodePerkiraan-"),
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveText("Nama Kode Perkiraan", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller:
+                                            _controllerNamaKodePerkiraan,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(
                                 height: 25,
@@ -1554,8 +1643,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
-                                    _controllerKodePerkiraan.clear();
-                                    _controllerNamaKodePerkiraan.clear();
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -1567,32 +1654,35 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (mounted) {
-                                    postKodePerkiraan(
-                                            kodeGereja,
-                                            _controllerNamaKodePerkiraan.text
-                                                .capitalize(),
-                                            _controllerKodePerkiraan.text
-                                                .toUpperCase(),
-                                            headerKodePerkiraan,
-                                            context)
-                                        .then(
-                                      (value) {
-                                        postSaldoAwal(
-                                                kodeGereja,
-                                                headerKodePerkiraan,
-                                                _controllerKodePerkiraan.text
-                                                    .toUpperCase(),
-                                                0,
-                                                context)
-                                            .then((value) {
-                                          _controllerKodePerkiraan.clear();
-                                          _controllerNamaKodePerkiraan.clear();
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
-                                        });
-                                      },
-                                    );
+                                  if (_kodePerkiraanForm.currentState!
+                                      .validate()) {
+                                    if (mounted) {
+                                      postKodePerkiraan(
+                                              kodeGereja,
+                                              _controllerNamaKodePerkiraan.text
+                                                  .capitalize(),
+                                              "$headerKodePerkiraan-${_controllerKodePerkiraan.text}"
+                                                  .toUpperCase(),
+                                              headerKodePerkiraan,
+                                              context)
+                                          .then(
+                                        (value) {
+                                          postSaldoAwal(
+                                                  kodeGereja,
+                                                  headerKodePerkiraan,
+                                                  _controllerKodePerkiraan.text
+                                                      .toUpperCase(),
+                                                  0,
+                                                  context)
+                                              .then(
+                                            (value) {
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            },
+                                          );
+                                        },
+                                      );
+                                    }
                                   }
                                 },
                                 child: const Text("Tambah"),
@@ -1625,6 +1715,9 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     RadioJenisMaster? radio;
     RadioAktivaPasiva? radioAktivaPasiva;
     _visibleAktivaPasiva = false;
+    _controllerMasterKode.clear();
+    _controllerNamaMasterKode.clear();
+    _statusMaster = "";
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1677,84 +1770,127 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Kode Master", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerMasterKode, null),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText("Nama Kode Master", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerNamaMasterKode, null),
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    children: [
-                                      Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Radio(
-                                            value: RadioJenisMaster.pemasukan,
-                                            groupValue: radio,
-                                            activeColor: primaryColorVariant,
-                                            onChanged: (val) {
-                                              radio = val as RadioJenisMaster?;
-                                              _visibleAktivaPasiva = true;
-                                              _statusMaster = "pemasukan";
-                                              if (mounted) {
-                                                setState(() {});
-                                              }
-                                            },
-                                          ),
-                                          responsiveText("Pemasukan", 14,
-                                              FontWeight.w700, darkText),
-                                        ],
+                              Form(
+                                key: _kodeMasterForm,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText("Kode Master", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      const SizedBox(
-                                        width: 25,
-                                      ),
-                                      Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Radio(
-                                            value: RadioJenisMaster.pengeluaran,
-                                            groupValue: radio,
-                                            activeColor: primaryColorVariant,
-                                            onChanged: (val) {
-                                              radio = val as RadioJenisMaster?;
-                                              _visibleAktivaPasiva = true;
-                                              _statusMaster = "pengeluaran";
-
-                                              if (mounted) {
-                                                setState(() {});
-                                              }
-                                            },
+                                      child: TextFormField(
+                                        controller: _controllerMasterKode,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
                                           ),
-                                          responsiveText("Pengeluaran", 14,
-                                              FontWeight.w700, darkText),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 16,
-                                  ),
-                                  Visibility(
-                                    visible: _visibleAktivaPasiva,
-                                    child: Wrap(
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveText("Nama Kode Master", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller: _controllerNamaMasterKode,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    Wrap(
                                       crossAxisAlignment:
                                           WrapCrossAlignment.center,
                                       children: [
@@ -1763,31 +1899,21 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                               WrapCrossAlignment.center,
                                           children: [
                                             Radio(
-                                              value:
-                                                  _statusMaster == "pemasukan"
-                                                      ? RadioAktivaPasiva
-                                                          .aktivalancar
-                                                      : RadioAktivaPasiva
-                                                          .pasivalancar,
-                                              groupValue: radioAktivaPasiva,
+                                              value: RadioJenisMaster.pemasukan,
+                                              groupValue: radio,
                                               activeColor: primaryColorVariant,
                                               onChanged: (val) {
-                                                radioAktivaPasiva =
-                                                    val as RadioAktivaPasiva?;
+                                                radio =
+                                                    val as RadioJenisMaster?;
+                                                _visibleAktivaPasiva = true;
+                                                _statusMaster = "pemasukan";
                                                 if (mounted) {
                                                   setState(() {});
-                                                  _statusAktivaPasiva =
-                                                      "lancar";
                                                 }
                                               },
                                             ),
-                                            responsiveText(
-                                                _statusMaster == "pemasukan"
-                                                    ? "Aktiva Lancar"
-                                                    : "Pasiva Lancar",
-                                                14,
-                                                FontWeight.w700,
-                                                darkText),
+                                            responsiveText("Pemasukan", 14,
+                                                FontWeight.w700, darkText),
                                           ],
                                         ),
                                         const SizedBox(
@@ -1799,42 +1925,115 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                           children: [
                                             Radio(
                                               value:
-                                                  _statusMaster == "pemasukan"
-                                                      ? RadioAktivaPasiva
-                                                          .aktivatetap
-                                                      : RadioAktivaPasiva
-                                                          .pasivajangkapanjang,
-                                              groupValue: radioAktivaPasiva,
+                                                  RadioJenisMaster.pengeluaran,
+                                              groupValue: radio,
                                               activeColor: primaryColorVariant,
                                               onChanged: (val) {
-                                                radioAktivaPasiva =
-                                                    val as RadioAktivaPasiva?;
+                                                radio =
+                                                    val as RadioJenisMaster?;
+                                                _visibleAktivaPasiva = true;
+                                                _statusMaster = "pengeluaran";
+
                                                 if (mounted) {
                                                   setState(() {});
-                                                  if (_statusMaster ==
-                                                      "pemasukan") {
-                                                    _statusAktivaPasiva =
-                                                        "tetap";
-                                                  } else {
-                                                    _statusAktivaPasiva =
-                                                        "Jangka Panjang";
-                                                  }
                                                 }
                                               },
                                             ),
-                                            responsiveText(
-                                                _statusMaster == "pemasukan"
-                                                    ? "Aktiva Tetap"
-                                                    : "Pasiva Jangka Panjang",
-                                                14,
-                                                FontWeight.w700,
-                                                darkText),
+                                            responsiveText("Pengeluaran", 14,
+                                                FontWeight.w700, darkText),
                                           ],
-                                        ),
+                                        )
                                       ],
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(
+                                      height: 16,
+                                    ),
+                                    Visibility(
+                                      visible: _visibleAktivaPasiva,
+                                      child: Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Wrap(
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
+                                            children: [
+                                              Radio(
+                                                value:
+                                                    _statusMaster == "pemasukan"
+                                                        ? RadioAktivaPasiva
+                                                            .aktivalancar
+                                                        : RadioAktivaPasiva
+                                                            .pasivalancar,
+                                                groupValue: radioAktivaPasiva,
+                                                activeColor:
+                                                    primaryColorVariant,
+                                                onChanged: (val) {
+                                                  radioAktivaPasiva =
+                                                      val as RadioAktivaPasiva?;
+                                                  if (mounted) {
+                                                    setState(() {});
+                                                    _statusAktivaPasiva =
+                                                        "lancar";
+                                                  }
+                                                },
+                                              ),
+                                              responsiveText(
+                                                  _statusMaster == "pemasukan"
+                                                      ? "Aktiva Lancar"
+                                                      : "Pasiva Lancar",
+                                                  14,
+                                                  FontWeight.w700,
+                                                  darkText),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            width: 25,
+                                          ),
+                                          Wrap(
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
+                                            children: [
+                                              Radio(
+                                                value:
+                                                    _statusMaster == "pemasukan"
+                                                        ? RadioAktivaPasiva
+                                                            .aktivatetap
+                                                        : RadioAktivaPasiva
+                                                            .pasivajangkapanjang,
+                                                groupValue: radioAktivaPasiva,
+                                                activeColor:
+                                                    primaryColorVariant,
+                                                onChanged: (val) {
+                                                  radioAktivaPasiva =
+                                                      val as RadioAktivaPasiva?;
+                                                  if (mounted) {
+                                                    setState(() {});
+                                                    if (_statusMaster ==
+                                                        "pemasukan") {
+                                                      _statusAktivaPasiva =
+                                                          "tetap";
+                                                    } else {
+                                                      _statusAktivaPasiva =
+                                                          "Jangka Panjang";
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                              responsiveText(
+                                                  _statusMaster == "pemasukan"
+                                                      ? "Aktiva Tetap"
+                                                      : "Pasiva Jangka Panjang",
+                                                  14,
+                                                  FontWeight.w700,
+                                                  darkText),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(
                                 height: 25,
@@ -1851,9 +2050,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                 onPressed: () {
                                   _visibleAktivaPasiva = false;
                                   if (mounted) {
-                                    _controllerMasterKode.clear();
-                                    _controllerNamaMasterKode.clear();
-                                    _statusMaster = "";
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -1865,61 +2061,41 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (_controllerMasterKode.text == "") {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Nama Kode Harus Diisi"),
-                                      ),
-                                    );
-                                  } else {
-                                    if (_controllerMasterKode.text == "") {
+                                  if (_kodeMasterForm.currentState!
+                                      .validate()) {
+                                    if (_statusMaster == "") {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
-                                          content: Text("Kode Harus Diisi"),
+                                          content:
+                                              Text("Status Kode Harus Diisi"),
                                         ),
                                       );
                                     } else {
-                                      if (_statusMaster == "") {
+                                      if (_statusAktivaPasiva == "") {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           const SnackBar(
-                                            content:
-                                                Text("Status Kode Harus Diisi"),
+                                            content: Text(
+                                                "Jenis Status Harus Diisi"),
                                           ),
                                         );
                                       } else {
-                                        if (_statusAktivaPasiva == "") {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  "Jenis Status Harus Diisi"),
-                                            ),
+                                        if (mounted) {
+                                          postMasterKode(
+                                                  kodeGereja,
+                                                  _controllerNamaMasterKode.text
+                                                      .capitalize(),
+                                                  _controllerMasterKode.text
+                                                      .toUpperCase(),
+                                                  _statusMaster,
+                                                  _statusAktivaPasiva,
+                                                  context)
+                                              .then(
+                                            (value) {
+                                              Navigator.pop(context);
+                                            },
                                           );
-                                        } else {
-                                          if (mounted) {
-                                            postMasterKode(
-                                                    kodeGereja,
-                                                    _controllerNamaMasterKode
-                                                        .text
-                                                        .capitalize(),
-                                                    _controllerMasterKode.text
-                                                        .toUpperCase(),
-                                                    _statusMaster,
-                                                    _statusAktivaPasiva,
-                                                    context)
-                                                .then(
-                                              (value) {
-                                                _controllerKodePerkiraan
-                                                    .clear();
-                                                _controllerNamaKodePerkiraan
-                                                    .clear();
-                                                _statusMaster = "";
-                                                Navigator.pop(context);
-                                              },
-                                            );
-                                          }
                                         }
                                       }
                                     }
@@ -1952,6 +2128,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   }
 
   _showBuatKodeTransaksiDialog(dw, dh) {
+    _controllerNamaKodeTransaksi.clear();
+    _controllerKodeTransaksi.clear();
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -2004,27 +2182,129 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Kode Transaksi", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKodeTransaksi, null),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText("Nama Kode Transaksi", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(dw, dh,
-                                      _controllerNamaKodeTransaksi, null),
-                                ],
+                              Form(
+                                key: _kodeTransaksiForm,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    responsiveText("Kode Transaksi", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller: _controllerKodeTransaksi,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveText("Nama Kode Transaksi", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller:
+                                            _controllerNamaKodeTransaksi,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(
                                 height: 25,
@@ -2040,8 +2320,6 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
-                                    _controllerKodeTransaksi.clear();
-                                    _controllerNamaKodeTransaksi.clear();
                                     setState(() {});
                                   }
                                   Navigator.pop(context);
@@ -2054,20 +2332,21 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                               ElevatedButton(
                                 onPressed: () {
                                   if (mounted) {
-                                    postKodeTransaksi(
-                                            kodeGereja,
-                                            _controllerNamaKodeTransaksi.text
-                                                .capitalize(),
-                                            _controllerKodeTransaksi.text
-                                                .toUpperCase(),
-                                            context)
-                                        .then(
-                                      (value) {
-                                        _controllerNamaKodeTransaksi.clear();
-                                        _controllerKodeTransaksi.clear();
-                                        Navigator.pop(context);
-                                      },
-                                    );
+                                    if (_kodeTransaksiForm.currentState!
+                                        .validate()) {
+                                      postKodeTransaksi(
+                                              kodeGereja,
+                                              _controllerNamaKodeTransaksi.text
+                                                  .capitalize(),
+                                              _controllerKodeTransaksi.text
+                                                  .toUpperCase(),
+                                              context)
+                                          .then(
+                                        (value) {
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    }
                                   }
                                 },
                                 child: const Text("Tambah"),
@@ -2158,9 +2437,10 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
     }
   }
 
-  Future deleteKodePerkiraan(kodeGereja, kodePerkiraan, context) async {
-    var response =
-        await servicesUser.deleteKodePerkiraan(kodeGereja, kodePerkiraan);
+  Future deleteKodePerkiraan(
+      kodeGereja, kodePerkiraan, kodeMaster, context) async {
+    var response = await servicesUser.deleteKodePerkiraan(
+        kodeGereja, kodePerkiraan, kodeMaster);
 
     if (response[0] != 404) {
       return true;
@@ -2291,8 +2571,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                       setState(() {});
                                     });
                                   } else if (type == 2) {
-                                    deleteKodePerkiraan(
-                                            kodeGereja, kode, context)
+                                    deleteKodePerkiraan(kodeGereja, kode,
+                                            headerKodePerkiraan, context)
                                         .whenComplete(() {
                                       Navigator.pop(context);
                                       kodePerkiraan =
@@ -2471,9 +2751,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
           },
         );
       },
-    ).whenComplete(() {
-      setState(() {});
-    });
+    ).then((value) => setState(() {}));
   }
 
   @override
@@ -3358,24 +3636,6 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
         _kodeMaster.add(
             "${element['header_kode_perkiraan']} - ${element['nama_header']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
-    }
-  }
-
-  Future _getKodePerkiraan(kodeGereja, headerKodePerkiraan) async {
-    _kodePerkiraan.clear();
-
-    var response =
-        await servicesUser.getKodePerkiraan(kodeGereja, headerKodePerkiraan);
-    if (response[0] != 404) {
-      for (var element in response[1]) {
-        debugPrint(element.toString());
-        _kodePerkiraan.add(
-            "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
-      }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -3389,10 +3649,8 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
       for (var element in response[1]) {
         debugPrint(element.toString());
         _kodePerkiraanSingleKegiatan.add(
-            "${element['header_kode_perkiraan']}.${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
+            "${element['kode_perkiraan']} ~ ${element['nama_kode_perkiraan']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -3405,8 +3663,6 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
         _kodeTransaksi
             .add("${element['kode_transaksi']} - ${element['nama_transaksi']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -3433,8 +3689,6 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
         _kodeRefKegiatan
             .add("${element['kode_kegiatan']} - ${element['nama_kegiatan']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
@@ -3506,7 +3760,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
   _splitKodeMasterDanPerkiraan(val) {
     var value = val.toString();
-    var splitDot = value.indexOf(".");
+    var splitDot = value.indexOf("-");
     var splitSpace = value.indexOf(" ");
     var master = value.substring(0, splitDot);
     var perkiraan = value.substring(splitDot + 1, splitSpace);
@@ -6300,8 +6554,6 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
         _kodeMasterSA.add(
             "${element['header_kode_perkiraan']} - ${element['nama_header']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
     }
   }
 
