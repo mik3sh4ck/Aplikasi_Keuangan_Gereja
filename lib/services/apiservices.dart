@@ -79,7 +79,8 @@ class ServicesUser {
   //TODO: Login
   Future getAuth(username, password) async {
     final response = await http.get(
-      Uri.parse("${_linkPath}login?username=$username&password=$password"),
+      Uri.parse(
+          "${_linkPath}login?username=$username&password=$password&status1=2&status2=3"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -506,7 +507,7 @@ class ServicesUser {
   Future getKodeKegiatanJurnal(kodeGereja, tanggal) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}read-kode-kegiatan-jurnal?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+          "${_linkPath}read-kode-transaksi-jurnal?kode_gereja=$kodeGereja&tanggal=$tanggal"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -517,10 +518,10 @@ class ServicesUser {
     }
   }
 
-  Future getJurnal(kodeGereja, tanggal, kodeKegiatan) async {
+  Future getJurnal(kodeGereja, tanggal, kodeTransaksi) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}jurnal?kode_gereja=$kodeGereja&tanggal=$tanggal&kode_kegiatan=$kodeKegiatan"),
+          "${_linkPath}jurnal?kode_gereja=$kodeGereja&tanggal=$tanggal&kode_transaksi=$kodeTransaksi"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

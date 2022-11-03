@@ -1016,14 +1016,14 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                   height: 56,
                 ),
                 _cardInfo(
-                  "Pemasukan",
+                  "Debit",
                   _totalPemasukan,
                 ),
                 const SizedBox(
                   height: 25,
                 ),
                 _cardInfo(
-                  "Pengeluaran",
+                  "Kredit",
                   _totalPengeluaran,
                 ),
                 const SizedBox(
@@ -1223,7 +1223,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                         ),
                                         DataColumn(
                                           label: Text(
-                                            "Pemasukan",
+                                            "Debit",
                                             style: GoogleFonts.nunito(
                                               fontWeight: FontWeight.w700,
                                               fontSize: 18,
@@ -1232,7 +1232,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                         ),
                                         DataColumn(
                                           label: Text(
-                                            "Pengeluaran",
+                                            "Kredit",
                                             style: GoogleFonts.nunito(
                                               fontWeight: FontWeight.w700,
                                               fontSize: 18,
@@ -1912,7 +1912,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                 }
                                               },
                                             ),
-                                            responsiveText("Pemasukan", 14,
+                                            responsiveText("Debit", 14,
                                                 FontWeight.w700, darkText),
                                           ],
                                         ),
@@ -1939,7 +1939,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                                 }
                                               },
                                             ),
-                                            responsiveText("Pengeluaran", 14,
+                                            responsiveText("Kredit", 14,
                                                 FontWeight.w700, darkText),
                                           ],
                                         )
@@ -3440,6 +3440,8 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   int totalPemasukanStatus = 0;
   int totalPengeluaranStatus = 0;
 
+  final _buatTransaksiform = GlobalKey<FormState>();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -3687,7 +3689,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
       for (var element in response[1]) {
         debugPrint(element.toString());
         _kodeRefKegiatan
-            .add("${element['kode_kegiatan']} - ${element['nama_kegiatan']}");
+            .add("${element['kode_kegiatan']} ~ ${element['nama_kegiatan']}");
       }
     }
   }
@@ -3802,9 +3804,12 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     }
   }
 
+  final numericRegex = RegExp(r'^-?(([0-9]*)|(([0-9]*)\.([0-9]*)))$');
 //TODO: Show Tambah Transaksi Dialog
   _showTambahDialog(dw, dh, kodeTransaksi, kodeRef) {
-    print(kodeRef);
+    if (kodeRef == "Pilih") {
+      kodeRef = "";
+    }
     RadioStatusTransaksi? radio;
     selectedKodePerkiraan = "Pilih Kode Perkiraan";
     _controllerKeterangan.clear();
@@ -3868,267 +3873,405 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  responsiveText("Kode Transaksi", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  //TODO: Kode Transaksi
-                                  responsiveText(kodeTransaksi, 16,
-                                      FontWeight.w700, darkText),
-                                  const Divider(
-                                    height: 25,
-                                  ),
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    children: [
-                                      Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Radio(
-                                            value:
-                                                RadioStatusTransaksi.pemasukan,
-                                            groupValue: radio,
-                                            activeColor: primaryColorVariant,
-                                            onChanged: (val) {
-                                              radio =
-                                                  val as RadioStatusTransaksi?;
-                                              if (mounted) {
-                                                _status = "pemasukan";
-                                                _getKodePerkiraanSingleKegiatan(
-                                                  kodeGereja,
-                                                  kodeRefKegiatan,
-                                                  _splitStringKode(
-                                                      kodeTransaksi),
-                                                  _status,
-                                                ).whenComplete(() {
-                                                  setState(() {});
-                                                });
-                                                setState(() {});
-                                              }
-                                              debugPrint(_status);
-                                            },
-                                          ),
-                                          responsiveText("Pemasukan", 14,
-                                              FontWeight.w700, darkText),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        width: 25,
-                                      ),
-                                      Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Radio(
-                                            value: RadioStatusTransaksi
-                                                .pengeluaran,
-                                            groupValue: radio,
-                                            activeColor: primaryColorVariant,
-                                            onChanged: (val) {
-                                              radio =
-                                                  val as RadioStatusTransaksi?;
-
-                                              if (mounted) {
-                                                _status = "pengeluaran";
-                                                _getKodePerkiraanSingleKegiatan(
-                                                  kodeGereja,
-                                                  kodeRefKegiatan,
-                                                  _splitStringKode(
-                                                      kodeTransaksi),
-                                                  _status,
-                                                ).whenComplete(() {
-                                                  setState(() {});
-                                                });
-                                                setState(() {});
-                                              }
-                                              debugPrint(_status);
-                                            },
-                                          ),
-                                          responsiveText("Pengeluaran", 14,
-                                              FontWeight.w700, darkText),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-//
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      //TODO: Input Kode Perkiraan Dialog
-                                      responsiveText("Kode Perkiraan", 16,
-                                          FontWeight.w700, darkText),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Card(
-                                        color: surfaceColor,
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 10),
-                                        child: DropdownSearch<dynamic>(
-                                          clearButtonProps: clearKodeRef,
-                                          popupProps: PopupProps.menu(
-                                            showSearchBox: true,
-                                            searchFieldProps: TextFieldProps(
-                                              decoration: InputDecoration(
-                                                border:
-                                                    const OutlineInputBorder(),
-                                                hintText: "Cari Disini",
-                                                suffixIcon: IconButton(
-                                                  onPressed: () {
-                                                    _controllerDropdownFilter
-                                                        .clear();
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.clear,
-                                                    color: Colors.black
-                                                        .withOpacity(0.5),
-                                                  ),
-                                                ),
-                                              ),
-                                              controller:
-                                                  _controllerDropdownFilter,
-                                            ),
-                                          ),
-                                          items: _kodePerkiraanSingleKegiatan,
-                                          onChanged: (val) {
-                                            if (val == null) {
-                                              selectedKodePerkiraan =
-                                                  "Pilih Kode Perkiraan";
-                                              kodePerkiraan = "";
-                                            } else {
-                                              selectedKodePerkiraan = val;
-                                              debugPrint(selectedKodePerkiraan);
-                                              debugPrint(_splitString(
-                                                  selectedKodePerkiraan));
-                                              debugPrint(_buatKodeGabungan(
-                                                  selectedKodePerkiraan));
-                                              kodeMaster =
-                                                  _splitKodeMasterDanPerkiraan(
-                                                      val)[0];
-                                              kodePerkiraan =
-                                                  _splitKodeMasterDanPerkiraan(
-                                                      val)[1];
-                                            }
-                                            debugPrint(kodeMaster);
-                                            debugPrint(kodePerkiraan);
-                                            if (mounted) {
-                                              setState(() {});
-                                            }
-                                          },
-                                          selectedItem: selectedKodePerkiraan,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText(
-                                      "Tanggal", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    width: dw,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        selectDate(context).then(
-                                          (value) => setState(() {}),
-                                        );
-                                      },
-                                      child: Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 25),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                              Form(
+                                key: _buatTransaksiform,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 2,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Text(date),
-                                              const IconButton(
-                                                onPressed: null,
-                                                icon:
-                                                    Icon(Icons.calendar_month),
+                                              responsiveText(
+                                                  "Kode Transaksi",
+                                                  16,
+                                                  FontWeight.w700,
+                                                  darkText),
+                                              const SizedBox(
+                                                height: 10,
                                               ),
+                                              //TODO: Kode Transaksi
+                                              responsiveText("Kode Ref", 16,
+                                                  FontWeight.w700, darkText),
                                             ],
                                           ),
                                         ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            responsiveText(" : ", 16,
+                                                FontWeight.w700, darkText),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            //TODO: Kode Transaksi
+                                            responsiveText(" : ", 16,
+                                                FontWeight.w700, darkText),
+                                          ],
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              responsiveText(kodeTransaksi, 16,
+                                                  FontWeight.w700, darkText),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              //TODO: Kode Transaksi
+                                              responsiveText(
+                                                  kodeRef == "" ? "-" : kodeRef,
+                                                  16,
+                                                  FontWeight.w700,
+                                                  darkText),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: dw < 800 ? dw * 0.75 : dw * 0.35,
+                                      child: const Divider(
+                                        height: 25,
                                       ),
                                     ),
-                                  ),
+                                    Wrap(
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            Radio(
+                                              value: RadioStatusTransaksi
+                                                  .pemasukan,
+                                              groupValue: radio,
+                                              activeColor: primaryColorVariant,
+                                              onChanged: (val) {
+                                                radio = val
+                                                    as RadioStatusTransaksi?;
+                                                if (mounted) {
+                                                  if (kodeRef != "") {
+                                                    _status = "pengeluaran";
+                                                  } else {
+                                                    _status = "pemasukan";
+                                                  }
+                                                  _getKodePerkiraanSingleKegiatan(
+                                                    kodeGereja,
+                                                    kodeRefKegiatan,
+                                                    _splitStringKode(
+                                                        kodeTransaksi),
+                                                    _status,
+                                                  ).whenComplete(() {
+                                                    setState(() {});
+                                                  });
+                                                  setState(() {});
+                                                }
+                                                debugPrint(_status);
+                                              },
+                                            ),
+                                            responsiveText("Debit", 14,
+                                                FontWeight.w700, darkText),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          width: 25,
+                                        ),
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            Radio(
+                                              value: RadioStatusTransaksi
+                                                  .pengeluaran,
+                                              groupValue: radio,
+                                              activeColor: primaryColorVariant,
+                                              onChanged: (val) {
+                                                radio = val
+                                                    as RadioStatusTransaksi?;
 
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText(
-                                      "Nominal", 16, FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                                if (mounted) {
+                                                  if (kodeRef != "") {
+                                                    _status = "pemasukan";
+                                                  } else {
+                                                    _status = "pengeluaran";
+                                                  }
+
+                                                  _getKodePerkiraanSingleKegiatan(
+                                                    kodeGereja,
+                                                    kodeRefKegiatan,
+                                                    _splitStringKode(
+                                                        kodeTransaksi),
+                                                    _status,
+                                                  ).whenComplete(() {
+                                                    setState(() {});
+                                                  });
+                                                  setState(() {});
+                                                }
+                                                debugPrint(_status);
+                                              },
+                                            ),
+                                            responsiveText("Kredit", 14,
+                                                FontWeight.w700, darkText),
+                                          ],
+                                        )
+                                      ],
                                     ),
-                                    child: TextField(
-                                      controller: _controllerNominal,
-                                      autofocus: false,
-                                      keyboardType: TextInputType.number,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: surfaceColor,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 0, horizontal: 25),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: const BorderSide(
-                                            color: Colors.transparent,
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    //
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        //TODO: Input Kode Perkiraan Dialog
+                                        responsiveText("Kode Perkiraan", 16,
+                                            FontWeight.w700, darkText),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Card(
+                                          color: surfaceColor,
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          child: DropdownSearch<dynamic>(
+                                            clearButtonProps: clearKodeRef,
+                                            popupProps: PopupProps.menu(
+                                              showSearchBox: true,
+                                              searchFieldProps: TextFieldProps(
+                                                decoration: InputDecoration(
+                                                  border:
+                                                      const OutlineInputBorder(),
+                                                  hintText: "Cari Disini",
+                                                  suffixIcon: IconButton(
+                                                    onPressed: () {
+                                                      _controllerDropdownFilter
+                                                          .clear();
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.clear,
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
+                                                    ),
+                                                  ),
+                                                ),
+                                                controller:
+                                                    _controllerDropdownFilter,
+                                              ),
+                                            ),
+                                            items: _kodePerkiraanSingleKegiatan,
+                                            onChanged: (val) {
+                                              if (val == null) {
+                                                selectedKodePerkiraan =
+                                                    "Pilih Kode Perkiraan";
+                                                kodePerkiraan = "";
+                                              } else {
+                                                selectedKodePerkiraan = val;
+                                                debugPrint(
+                                                    selectedKodePerkiraan);
+                                                debugPrint(_splitString(
+                                                    selectedKodePerkiraan));
+                                                debugPrint(_buatKodeGabungan(
+                                                    selectedKodePerkiraan));
+                                                kodeMaster =
+                                                    _splitKodeMasterDanPerkiraan(
+                                                        val)[0];
+                                                kodePerkiraan =
+                                                    _splitKodeMasterDanPerkiraan(
+                                                            val)[0] +
+                                                        "-" +
+                                                        _splitKodeMasterDanPerkiraan(
+                                                            val)[1];
+                                              }
+                                              debugPrint(kodeMaster);
+                                              debugPrint(kodePerkiraan);
+                                              if (mounted) {
+                                                setState(() {});
+                                              }
+                                            },
+                                            selectedItem: selectedKodePerkiraan,
                                           ),
                                         ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: const BorderSide(
-                                            color: Colors.transparent,
+                                      ],
+                                    ),
+
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveText("Tanggal", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    SizedBox(
+                                      width: dw,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          selectDate(context).then(
+                                            (value) => setState(() {}),
+                                          );
+                                        },
+                                        child: Card(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: const BorderSide(
-                                            color: Colors.transparent,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 25),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(date),
+                                                const IconButton(
+                                                  onPressed: null,
+                                                  icon: Icon(
+                                                      Icons.calendar_month),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveText("Deskripsi", 16,
-                                      FontWeight.w700, darkText),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  responsiveTextField(
-                                      dw, dh, _controllerKeterangan),
-                                ],
+
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveText("Nominal", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller: _controllerNominal,
+                                        autofocus: false,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+
+                                          if (!numericRegex.hasMatch(value)) {
+                                            return "Hanya Angka ";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    responsiveText("Deskripsi", 16,
+                                        FontWeight.w700, darkText),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: TextFormField(
+                                        controller: _controllerKeterangan,
+                                        autofocus: false,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: surfaceColor,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0, horizontal: 25),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Harus Diisi";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(
                                 height: 25,
@@ -4150,11 +4293,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                   debugPrint(_controllerNominal.text);
                                   debugPrint(_controllerKeterangan.text);
                                   _getKodePerkiraanSingleKegiatan(
-                                    kodeGereja,
-                                    "",
-                                    _splitStringKode(kodeTransaksi),
-                                    _status,
-                                  ).whenComplete(() => setState(() {}));
+                                      kodeGereja, "", "", "");
 
                                   Navigator.pop(context);
                                 },
@@ -4184,138 +4323,86 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                     });
                                   }
 
-                                  if (_status == "") {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            "Silahkan pilih Status Pemasukan / Pengeluaran"),
-                                      ),
-                                    );
-                                  } else {
-                                    if (kodePerkiraan == "" ||
-                                        kodeMaster == "") {
+                                  if (_buatTransaksiform.currentState!
+                                      .validate()) {
+                                    if (_status == "") {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                              "Silahkan Pilih Kode Perkiraan Terlebih Dahulu"),
+                                              "Silahkan pilih Status Pemasukan / Pengeluaran"),
                                         ),
                                       );
                                     } else {
-                                      if (_controllerNominal.text == "") {
+                                      if (kodePerkiraan == "" ||
+                                          kodeMaster == "") {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           const SnackBar(
-                                            content:
-                                                Text("Silahkan Isi Nominal"),
+                                            content: Text(
+                                                "Silahkan Pilih Kode Perkiraan Terlebih Dahulu"),
                                           ),
                                         );
                                       } else {
-                                        if (_controllerKeterangan.text == "") {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  "Silahkan Isi Deskripsi"),
-                                            ),
-                                          );
-                                        } else {
-                                          if (kodeRefKegiatan != "") {
-                                            if (budgetNotif <
-                                                (sumNotif +
-                                                    int.parse(_controllerNominal
-                                                        .text))) {
-                                              //alert
-                                              if (_status == "pengeluaran") {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                        "Nominal untuk item ini sudah melebihi budget yang ditentukan"),
-                                                  ),
-                                                );
-                                              }
-                                              //Add
-                                              tempItemTransaksi
-                                                  .add(kodeTransaksi);
-                                              tempItemTransaksi.add(kodeMaster);
-                                              tempItemTransaksi
-                                                  .add(kodePerkiraan);
-                                              tempItemTransaksi
-                                                  .add(kodeRefKegiatan);
-                                              tempItemTransaksi.add(date);
-                                              tempItemTransaksi
-                                                  .add(_controllerNominal.text);
-                                              tempItemTransaksi.add(
-                                                  _controllerKeterangan.text);
-                                              tempItemTransaksi.add(_status);
-
-                                              debugPrint(
-                                                  tempItemTransaksi.toString());
-                                              itemTransaksi.add(
-                                                  tempItemTransaksi.toList());
-                                              if (_status == "pemasukan") {
-                                                totalPemasukanStatus +=
-                                                    int.parse(_controllerNominal
-                                                        .text);
-                                              } else if (_status ==
-                                                  "pengeluaran") {
-                                                totalPengeluaranStatus +=
-                                                    int.parse(_controllerNominal
-                                                        .text);
-                                              }
-
-                                              if (mounted) {
-                                                setState(() {});
-                                              }
-                                              Navigator.pop(context);
-                                            } else {
-                                              //Print
-                                              debugPrint(kodeTransaksi);
-                                              debugPrint(kodeMaster);
-                                              debugPrint(kodePerkiraan);
-                                              debugPrint(kodeRefKegiatan);
-                                              debugPrint(date);
-                                              debugPrint(
-                                                  _controllerNominal.text);
-                                              debugPrint(
-                                                  _controllerKeterangan.text);
-
-                                              //Add
-                                              tempItemTransaksi
-                                                  .add(kodeTransaksi);
-                                              tempItemTransaksi.add(kodeMaster);
-                                              tempItemTransaksi
-                                                  .add(kodePerkiraan);
-                                              tempItemTransaksi
-                                                  .add(kodeRefKegiatan);
-                                              tempItemTransaksi.add(date);
-                                              tempItemTransaksi
-                                                  .add(_controllerNominal.text);
-                                              tempItemTransaksi.add(
-                                                  _controllerKeterangan.text);
-                                              tempItemTransaksi.add(_status);
-
-                                              debugPrint(
-                                                  tempItemTransaksi.toString());
-                                              itemTransaksi.add(
-                                                  tempItemTransaksi.toList());
-                                              if (_status == "pemasukan") {
-                                                totalPemasukanStatus +=
-                                                    int.parse(_controllerNominal
-                                                        .text);
-                                              } else if (_status ==
-                                                  "pengeluaran") {
-                                                totalPengeluaranStatus +=
-                                                    int.parse(_controllerNominal
-                                                        .text);
-                                              }
-                                              if (mounted) {
-                                                setState(() {});
-                                              }
-                                              Navigator.pop(context);
+                                        if (kodeRefKegiatan != "") {
+                                          if (budgetNotif <
+                                              (sumNotif +
+                                                  int.parse(_controllerNominal
+                                                      .text))) {
+                                            //alert
+                                            if (_status == "pengeluaran") {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Nominal untuk item ini sudah melebihi budget yang ditentukan"),
+                                                ),
+                                              );
                                             }
+                                            //Add
+                                            tempItemTransaksi
+                                                .add(kodeTransaksi);
+                                            tempItemTransaksi.add(kodeMaster);
+                                            tempItemTransaksi
+                                                .add(kodePerkiraan);
+                                            tempItemTransaksi
+                                                .add(kodeRefKegiatan);
+                                            tempItemTransaksi.add(date);
+                                            tempItemTransaksi
+                                                .add(_controllerNominal.text);
+                                            tempItemTransaksi.add(
+                                                _controllerKeterangan.text);
+                                            tempItemTransaksi.add(_status);
+
+                                            debugPrint(
+                                                tempItemTransaksi.toString());
+                                            itemTransaksi.add(
+                                                tempItemTransaksi.toList());
+                                            if (_status == "pemasukan") {
+                                              totalPemasukanStatus += int.parse(
+                                                  _controllerNominal.text);
+                                            } else if (_status ==
+                                                "pengeluaran") {
+                                              totalPengeluaranStatus +=
+                                                  int.parse(
+                                                      _controllerNominal.text);
+                                            }
+
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+                                            Navigator.pop(context);
                                           } else {
+                                            //Print
+                                            debugPrint(kodeTransaksi);
+                                            debugPrint(kodeMaster);
+                                            debugPrint(kodePerkiraan);
+                                            debugPrint(kodeRefKegiatan);
+                                            debugPrint(date);
+                                            debugPrint(_controllerNominal.text);
+                                            debugPrint(
+                                                _controllerKeterangan.text);
+
                                             //Add
                                             tempItemTransaksi
                                                 .add(kodeTransaksi);
@@ -4349,12 +4436,35 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             }
                                             Navigator.pop(context);
                                           }
+                                        } else {
+                                          //Add
+                                          tempItemTransaksi.add(kodeTransaksi);
+                                          tempItemTransaksi.add(kodeMaster);
+                                          tempItemTransaksi.add(kodePerkiraan);
+                                          tempItemTransaksi
+                                              .add(kodeRefKegiatan);
+                                          tempItemTransaksi.add(date);
+                                          tempItemTransaksi
+                                              .add(_controllerNominal.text);
+                                          tempItemTransaksi
+                                              .add(_controllerKeterangan.text);
+                                          tempItemTransaksi.add(_status);
 
-                                          // if (mounted) {
-                                          //   setState(() {});
-                                          // }
-
-                                          // Navigator.pop(context);
+                                          debugPrint(
+                                              tempItemTransaksi.toString());
+                                          itemTransaksi
+                                              .add(tempItemTransaksi.toList());
+                                          if (_status == "pemasukan") {
+                                            totalPemasukanStatus += int.parse(
+                                                _controllerNominal.text);
+                                          } else if (_status == "pengeluaran") {
+                                            totalPengeluaranStatus += int.parse(
+                                                _controllerNominal.text);
+                                          }
+                                          if (mounted) {
+                                            setState(() {});
+                                          }
+                                          Navigator.pop(context);
                                         }
                                       }
                                     }
@@ -4936,15 +5046,14 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     if (responseKode[0] != 404) {
       for (var element in responseKode[1]) {
         var responseData = await servicesUser.getJurnal(
-            kodeGereja, month, element['kode_kegiatan']);
+            kodeGereja, month, element['kode_transaksi']);
 
         for (var element in responseData[1]) {
           tempData.add(element['kode_perkiraan']);
           tempData.add(element['nama_kode_perkiraan']);
           tempData.add(element['status']);
           tempData.add(element['jurnal']);
-          tempData.add(element['nama_kegiatan']);
-          tempData.add(element['kode_kegiatan']);
+          tempData.add(element['tanggal_transaksi']);
           tempKode.add(tempData.toList());
           tempData.clear();
         }
@@ -5366,135 +5475,133 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: FutureBuilder(
-                  future: servicesUser.getKodeKegiatanJurnal(kodeGereja, month),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      List snapData = snapshot.data! as List;
-                      debugPrint(snapData.toString());
-                      debugPrint(snapData[1].length.toString());
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Tanggal",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Keterangan",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Ref",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Debit",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Kredit",
+                              style: GoogleFonts.nunito(
+                                  color: darkText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 0.125),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      color: darkText.withOpacity(0.2),
+                    ),
+                    FutureBuilder(
+                      future:
+                          servicesUser.getKodeKegiatanJurnal(kodeGereja, month),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          List snapData = snapshot.data! as List;
+                          debugPrint(snapData.toString());
+                          debugPrint(snapData[1].length.toString());
 
-                      if (snapData[0] != 404) {
-                        return ListView.separated(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          controller: ScrollController(),
-                          physics: const ClampingScrollPhysics(),
-                          itemCount: snapData[1].length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: 25,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    snapData[1][index]['kode_kegiatan']
-                                        .toString(),
-                                    style: GoogleFonts.nunito(
-                                        color: darkText,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18,
-                                        letterSpacing: 0.125),
+                          if (snapData[0] != 404) {
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              controller: ScrollController(),
+                              physics: const ClampingScrollPhysics(),
+                              itemCount: snapData[1].length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: 25,
                                   ),
-                                  const SizedBox(
-                                    height: 16,
-                                  ),
-                                  Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: FutureBuilder(
-                                          future: servicesUser.getJurnal(
-                                              kodeGereja,
-                                              month,
-                                              snapData[1][index]
-                                                  ['kode_kegiatan']),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              List snapData =
-                                                  snapshot.data! as List;
-                                              debugPrint(snapData.toString());
-                                              debugPrint(snapData[1]
-                                                  .length
-                                                  .toString());
-                                              if (snapData[0] != 404) {
-                                                return Column(
-                                                  children: [
-                                                    ListTile(
-                                                      title: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          Expanded(
-                                                            child: Text(
-                                                              "Kode",
-                                                              style: GoogleFonts.nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 5),
-                                                          Expanded(
-                                                            flex: 2,
-                                                            child: Text(
-                                                              "Uraian",
-                                                              style: GoogleFonts.nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 5),
-                                                          Expanded(
-                                                            child: Text(
-                                                              "Debit",
-                                                              style: GoogleFonts.nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 5),
-                                                          Expanded(
-                                                            child: Text(
-                                                              "Kredit",
-                                                              style: GoogleFonts.nunito(
-                                                                  color:
-                                                                      darkText,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing:
-                                                                      0.125),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Divider(color: lightText),
-                                                    ListView.builder(
+                                      // Text(
+                                      //   snapData[1][index]['kode_transaksi']
+                                      //       .toString(),
+                                      //   style: GoogleFonts.nunito(
+                                      //       color: darkText,
+                                      //       fontWeight: FontWeight.w800,
+                                      //       fontSize: 18,
+                                      //       letterSpacing: 0.125),
+                                      // ),
+                                      // const SizedBox(
+                                      //   height: 16,
+                                      // ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: FutureBuilder(
+                                              future: servicesUser.getJurnal(
+                                                  kodeGereja,
+                                                  month,
+                                                  snapData[1][index]
+                                                      ['kode_transaksi']),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  List snapData =
+                                                      snapshot.data! as List;
+                                                  debugPrint(
+                                                      snapData.toString());
+                                                  debugPrint(snapData[1]
+                                                      .length
+                                                      .toString());
+                                                  if (snapData[0] != 404) {
+                                                    return ListView.builder(
                                                       shrinkWrap: true,
                                                       scrollDirection:
                                                           Axis.vertical,
@@ -5514,10 +5621,15 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                             children: [
                                                               Expanded(
                                                                 child: Text(
-                                                                  snapData[1][index]
-                                                                          [
-                                                                          'kode_perkiraan']
-                                                                      .toString(),
+                                                                  index != 0
+                                                                      ? ""
+                                                                      : DateFormat(
+                                                                              'dd MMM')
+                                                                          .format(
+                                                                          DateTime.parse(snapData[1][index]
+                                                                              [
+                                                                              'tanggal_transaksi']),
+                                                                        ),
                                                                   style: GoogleFonts.nunito(
                                                                       color:
                                                                           darkText,
@@ -5554,6 +5666,28 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                               const SizedBox(
                                                                   width: 5),
                                                               Expanded(
+                                                                flex: 2,
+                                                                child: Text(
+                                                                  snapData[1][index]
+                                                                          [
+                                                                          'kode_kegiatan']
+                                                                      .toString(),
+                                                                  style: GoogleFonts.nunito(
+                                                                      color:
+                                                                          darkText,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          16,
+                                                                      letterSpacing:
+                                                                          0.125),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Expanded(
+                                                                flex: 2,
                                                                 child: snapData[1][index]
                                                                             [
                                                                             'status'] ==
@@ -5578,6 +5712,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                               const SizedBox(
                                                                   width: 5),
                                                               Expanded(
+                                                                flex: 2,
                                                                 child: snapData[1][index]
                                                                             [
                                                                             'status'] ==
@@ -5603,37 +5738,39 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                           ),
                                                         );
                                                       },
-                                                    ),
-                                                  ],
-                                                );
-                                              } else if (snapData[0] == 404) {
-                                                return noData();
-                                              }
-                                            }
-                                            return loadingIndicator();
-                                          },
-                                        ),
+                                                    );
+                                                  } else if (snapData[0] ==
+                                                      404) {
+                                                    return noData();
+                                                  }
+                                                }
+                                                return loadingIndicator();
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return Divider(
+                                  height: 0,
+                                  color: dividerColor.withOpacity(0.1),
+                                );
+                              },
                             );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return Divider(
-                              height: 32,
-                              color: dividerColor.withOpacity(0.5),
-                            );
-                          },
-                        );
-                      }
-                      if (snapData[0] == 404) {
-                        return noData();
-                      }
-                    }
-                    return loadingIndicator();
-                  },
+                          }
+                          if (snapData[0] == 404) {
+                            return noData();
+                          }
+                        }
+                        return loadingIndicator();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -6065,7 +6202,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     }
   }
 
-  neracaSaldoView(dw, dh) {
+  neracaView(dw, dh) {
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
         dragDevices: {
@@ -6349,7 +6486,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                 children: [
                   jurnalUmumView(deviceWidth, deviceHeight),
                   bukuBesarView(deviceWidth, deviceHeight),
-                  neracaSaldoView(deviceWidth, deviceHeight),
+                  neracaView(deviceWidth, deviceHeight),
                 ],
               ),
             ),
