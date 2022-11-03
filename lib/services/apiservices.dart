@@ -152,11 +152,11 @@ class ServicesUser {
   }
 
   //TODO: Input Master Kode Perkiraan
-  Future inputMasterKode(
-      kodeGereja, namaMasterKode, masterKodePerkiraan, statusKode) async {
+  Future inputMasterKode(kodeGereja, namaMasterKode, masterKodePerkiraan,
+      statusKode, statusNeraca) async {
     final response = await http.post(
       Uri.parse(
-          "${_linkPath}input-header-kode-perkiraan?kode_gereja=$kodeGereja&nama_header=$namaMasterKode&header_kode_perkiraan=$masterKodePerkiraan&status=$statusKode"),
+          "${_linkPath}input-header-kode-perkiraan?kode_gereja=$kodeGereja&nama_header=$namaMasterKode&header_kode_perkiraan=$masterKodePerkiraan&status=$statusKode&status_neraca=$statusNeraca"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];
@@ -247,7 +247,7 @@ class ServicesUser {
   Future deleteKodeMaster(kodeGereja, kodeMaster) async {
     final response = await http.delete(
       Uri.parse(
-          "${_linkPath}http://cfin.crossnet.co.id:1323/input-header-kode-perkiraan?kode_gereja=$kodeGereja&header_kode_perkiraan=$kodeMaster"),
+          "${_linkPath}delete-header-kode-perkiraan?kode_gereja=$kodeGereja&header_kode_perkiraan=$kodeMaster"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

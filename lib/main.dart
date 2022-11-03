@@ -53,21 +53,21 @@ void main() async {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Keuangan Gereja",
-        // builder: (context, child) => ResponsiveWrapper.builder(
-        //   child,
-        //   maxWidth: 2460,
-        //   minWidth: 480,
-        //   defaultScale: true,
-        //   breakpoints: const [
-        //     ResponsiveBreakpoint.resize(480, name: MOBILE),
-        //     ResponsiveBreakpoint.autoScale(800, name: TABLET),
-        //     ResponsiveBreakpoint.resize(1200, name: DESKTOP),
-        //     ResponsiveBreakpoint.autoScale(2460, name: "4K")
-        //   ],
-        //   background: Container(
-        //     color: const Color(0xFFF5F5F5),
-        //   ),
-        // ),
+        builder: (context, child) => ResponsiveWrapper.builder(
+          child,
+          maxWidth: 2460,
+          minWidth: 480,
+          defaultScale: false,
+          breakpoints: const [
+            ResponsiveBreakpoint.resize(480, name: MOBILE),
+            ResponsiveBreakpoint.autoScale(800, name: TABLET, scaleFactor: 0.8),
+            ResponsiveBreakpoint.resize(1200, name: DESKTOP),
+            ResponsiveBreakpoint.autoScale(2460, name: "4K", scaleFactor: 0.8)
+          ],
+          background: Container(
+            color: const Color(0xFFF5F5F5),
+          ),
+        ),
         theme: ThemeData(
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(

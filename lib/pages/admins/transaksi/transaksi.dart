@@ -254,9 +254,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         _kodePerkiraan.add(
             "${element['kode_perkiraan']} - ${element['nama_kode_perkiraan']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
-    }
+    } 
   }
 
   Future _getMasterKode(kodeGereja) async {
@@ -269,9 +267,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         _kodeMaster.add(
             "${element['header_kode_perkiraan']} - ${element['nama_header']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
-    }
+    } 
   }
 
   Future _getKodeTransaksiAdded(kodeGereja) async {
@@ -283,9 +279,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         _kodeTransaksiAdded
             .add("${element['kode_transaksi']} - ${element['nama_transaksi']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
-    }
+    } 
   }
 
   Future _getKodeRefKegiatan(kodeGereja) async {
@@ -297,9 +291,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
         _kodeRefKegiatan
             .add("${element['kode_kegiatan']} - ${element['nama_kegiatan']}");
       }
-    } else {
-      throw "Gagal Mengambil Data";
-    }
+    } 
   }
 
   Future _getTransaksi(kodeGereja) async {
@@ -1378,6 +1370,13 @@ enum RadioStatusTransaksi { pemasukan, pengeluaran }
 
 enum RadioJenisMaster { pemasukan, pengeluaran }
 
+enum RadioAktivaPasiva {
+  aktivalancar,
+  aktivatetap,
+  pasivalancar,
+  pasivajangkapanjang
+}
+
 //TODO: buat Kategori
 class BuatKodeKeuanganPage extends StatefulWidget {
   final PageController controllerPageKategori;
@@ -1403,6 +1402,9 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   final _controllerKodeTransaksi = TextEditingController();
   final _controllerNamaKodeTransaksi = TextEditingController();
   String _statusMaster = "";
+  String _statusAktivaPasiva = "";
+
+  bool _visibleAktivaPasiva = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -1621,6 +1623,8 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
 
   _showBuatMasterKodeDialog(dw, dh) {
     RadioJenisMaster? radio;
+    RadioAktivaPasiva? radioAktivaPasiva;
+    _visibleAktivaPasiva = false;
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -1707,9 +1711,10 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                             activeColor: primaryColorVariant,
                                             onChanged: (val) {
                                               radio = val as RadioJenisMaster?;
+                                              _visibleAktivaPasiva = true;
+                                              _statusMaster = "pemasukan";
                                               if (mounted) {
                                                 setState(() {});
-                                                _statusMaster = "pemasukan";
                                               }
                                             },
                                           ),
@@ -1730,6 +1735,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                             activeColor: primaryColorVariant,
                                             onChanged: (val) {
                                               radio = val as RadioJenisMaster?;
+                                              _visibleAktivaPasiva = true;
                                               _statusMaster = "pengeluaran";
 
                                               if (mounted) {
@@ -1742,6 +1748,91 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                         ],
                                       )
                                     ],
+                                  ),
+                                  const SizedBox(
+                                    height: 16,
+                                  ),
+                                  Visibility(
+                                    visible: _visibleAktivaPasiva,
+                                    child: Wrap(
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            Radio(
+                                              value:
+                                                  _statusMaster == "pemasukan"
+                                                      ? RadioAktivaPasiva
+                                                          .aktivalancar
+                                                      : RadioAktivaPasiva
+                                                          .pasivalancar,
+                                              groupValue: radioAktivaPasiva,
+                                              activeColor: primaryColorVariant,
+                                              onChanged: (val) {
+                                                radioAktivaPasiva =
+                                                    val as RadioAktivaPasiva?;
+                                                if (mounted) {
+                                                  setState(() {});
+                                                  _statusAktivaPasiva =
+                                                      "lancar";
+                                                }
+                                              },
+                                            ),
+                                            responsiveText(
+                                                _statusMaster == "pemasukan"
+                                                    ? "Aktiva Lancar"
+                                                    : "Pasiva Lancar",
+                                                14,
+                                                FontWeight.w700,
+                                                darkText),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          width: 25,
+                                        ),
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            Radio(
+                                              value:
+                                                  _statusMaster == "pemasukan"
+                                                      ? RadioAktivaPasiva
+                                                          .aktivatetap
+                                                      : RadioAktivaPasiva
+                                                          .pasivajangkapanjang,
+                                              groupValue: radioAktivaPasiva,
+                                              activeColor: primaryColorVariant,
+                                              onChanged: (val) {
+                                                radioAktivaPasiva =
+                                                    val as RadioAktivaPasiva?;
+                                                if (mounted) {
+                                                  setState(() {});
+                                                  if (_statusMaster ==
+                                                      "pemasukan") {
+                                                    _statusAktivaPasiva =
+                                                        "tetap";
+                                                  } else {
+                                                    _statusAktivaPasiva =
+                                                        "Jangka Panjang";
+                                                  }
+                                                }
+                                              },
+                                            ),
+                                            responsiveText(
+                                                _statusMaster == "pemasukan"
+                                                    ? "Aktiva Tetap"
+                                                    : "Pasiva Jangka Panjang",
+                                                14,
+                                                FontWeight.w700,
+                                                darkText),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1758,6 +1849,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
+                                  _visibleAktivaPasiva = false;
                                   if (mounted) {
                                     _controllerMasterKode.clear();
                                     _controllerNamaMasterKode.clear();
@@ -1773,23 +1865,64 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  if (mounted) {
-                                    postMasterKode(
-                                            kodeGereja,
-                                            _controllerNamaMasterKode.text
-                                                .capitalize(),
-                                            _controllerMasterKode.text
-                                                .toUpperCase(),
-                                            _statusMaster,
-                                            context)
-                                        .then(
-                                      (value) {
-                                        _controllerKodePerkiraan.clear();
-                                        _controllerNamaKodePerkiraan.clear();
-                                        _statusMaster = "";
-                                        Navigator.pop(context);
-                                      },
+                                  if (_controllerMasterKode.text == "") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Nama Kode Harus Diisi"),
+                                      ),
                                     );
+                                  } else {
+                                    if (_controllerMasterKode.text == "") {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Kode Harus Diisi"),
+                                        ),
+                                      );
+                                    } else {
+                                      if (_statusMaster == "") {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text("Status Kode Harus Diisi"),
+                                          ),
+                                        );
+                                      } else {
+                                        if (_statusAktivaPasiva == "") {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  "Jenis Status Harus Diisi"),
+                                            ),
+                                          );
+                                        } else {
+                                          if (mounted) {
+                                            postMasterKode(
+                                                    kodeGereja,
+                                                    _controllerNamaMasterKode
+                                                        .text
+                                                        .capitalize(),
+                                                    _controllerMasterKode.text
+                                                        .toUpperCase(),
+                                                    _statusMaster,
+                                                    _statusAktivaPasiva,
+                                                    context)
+                                                .then(
+                                              (value) {
+                                                _controllerKodePerkiraan
+                                                    .clear();
+                                                _controllerNamaKodePerkiraan
+                                                    .clear();
+                                                _statusMaster = "";
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                          }
+                                        }
+                                      }
+                                    }
                                   }
                                 },
                                 child: const Text("Tambah"),
@@ -1964,9 +2097,9 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
   }
 
   Future postMasterKode(kodeGereja, namaMasterKode, masterKodePerkiraan,
-      statusKode, context) async {
-    var response = await servicesUser.inputMasterKode(
-        kodeGereja, namaMasterKode, masterKodePerkiraan, statusKode);
+      statusKode, statusNeraca, context) async {
+    var response = await servicesUser.inputMasterKode(kodeGereja,
+        namaMasterKode, masterKodePerkiraan, statusKode, statusNeraca);
 
     if (response[0] != 404) {
       return true;
