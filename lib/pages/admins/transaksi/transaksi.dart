@@ -1670,7 +1670,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                                           postSaldoAwal(
                                                   kodeGereja,
                                                   headerKodePerkiraan,
-                                                  _controllerKodePerkiraan.text
+                                                  "$headerKodePerkiraan-${_controllerKodePerkiraan.text}"
                                                       .toUpperCase(),
                                                   0,
                                                   context)
@@ -5100,11 +5100,13 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
             kodeGereja, month, element['kode_transaksi']);
 
         for (var element in responseData[1]) {
-          tempData.add(element['kode_perkiraan']);
+          tempData.add(DateFormat('dd MMM').format(
+            DateTime.parse(element['tanggal_transaksi']),
+          ));
           tempData.add(element['nama_kode_perkiraan']);
+          tempData.add(element['kode_kegiatan']);
           tempData.add(element['status']);
           tempData.add(element['jurnal']);
-          tempData.add(element['tanggal_transaksi']);
           tempKode.add(tempData.toList());
           tempData.clear();
         }
@@ -8112,18 +8114,6 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                 itemBuilder: (context, index) {
                   return pw.Column(
                     children: [
-                      pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            "${_dataJurnal[index][0][5]}  ${_dataJurnal[index][0][4]}",
-                            style: pw.TextStyle(
-                              font: boldHeadingFont,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
                       pw.Table(
                         border: pw.TableBorder.all(
                           style: pw.BorderStyle.solid,
@@ -8131,9 +8121,10 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                         ),
                         columnWidths: {
                           0: const pw.FixedColumnWidth(80),
-                          1: const pw.FlexColumnWidth(2),
-                          2: const pw.FractionColumnWidth(.3),
-                          3: const pw.FractionColumnWidth(.3),
+                          1: const pw.FlexColumnWidth(.3),
+                          2: const pw.FlexColumnWidth(.3),
+                          3: const pw.FractionColumnWidth(.2),
+                          4: const pw.FractionColumnWidth(.2),
                         },
                         children: [
                           //TODO: Header Table
@@ -8142,7 +8133,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                               pw.Column(
                                 children: [
                                   pw.Text(
-                                    "Kode",
+                                    "Tanggal",
                                     style: pw.TextStyle(
                                       font: headingFont,
                                       fontSize: 14,
@@ -8153,7 +8144,18 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                               pw.Column(
                                 children: [
                                   pw.Text(
-                                    "Uraian",
+                                    "Keterangan",
+                                    style: pw.TextStyle(
+                                      font: headingFont,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    "Ref",
                                     style: pw.TextStyle(
                                       font: headingFont,
                                       fontSize: 14,
@@ -8199,7 +8201,9 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                       padding: const pw.EdgeInsets.symmetric(
                                           horizontal: 5),
                                       child: pw.Text(
-                                        "${_dataJurnal[index][i][0]}",
+                                        i == 0
+                                            ? "${_dataJurnal[index][i][0]}"
+                                            : "",
                                         style: pw.TextStyle(
                                           font: regularFont,
                                           fontSize: 12,
@@ -8231,7 +8235,25 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                       pw.CrossAxisAlignment.start,
                                   mainAxisAlignment: pw.MainAxisAlignment.start,
                                   children: [
-                                    _dataJurnal[index][i][2] == "pemasukan"
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: pw.Text(
+                                        "${_dataJurnal[index][i][2]}",
+                                        style: pw.TextStyle(
+                                          font: regularFont,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                  children: [
+                                    _dataJurnal[index][i][3] == "pemasukan"
                                         ? pw.Padding(
                                             padding:
                                                 const pw.EdgeInsets.symmetric(
@@ -8240,7 +8262,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                               CurrencyFormatAkuntansi
                                                       .convertToIdr(
                                                           _dataJurnal[index][i]
-                                                                  [3]
+                                                                  [4]
                                                               .abs(),
                                                           2)
                                                   .toString(),
@@ -8269,7 +8291,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                       pw.CrossAxisAlignment.start,
                                   mainAxisAlignment: pw.MainAxisAlignment.start,
                                   children: [
-                                    _dataJurnal[index][i][2] == "pengeluaran"
+                                    _dataJurnal[index][i][3] == "pengeluaran"
                                         ? pw.Padding(
                                             padding:
                                                 const pw.EdgeInsets.symmetric(
@@ -8278,7 +8300,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                               CurrencyFormatAkuntansi
                                                       .convertToIdr(
                                                           _dataJurnal[index][i]
-                                                                  [3]
+                                                                  [4]
                                                               .abs(),
                                                           2)
                                                   .toString(),
@@ -8299,7 +8321,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                                 fontSize: 12,
                                               ),
                                             ),
-                                          )
+                                          ),
                                   ],
                                 ),
                               ],
@@ -8365,6 +8387,8 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
 
     return pdf.save();
   }
+
+
 
   checkTipe(tipe, format) {
     if (tipe == 0) {
