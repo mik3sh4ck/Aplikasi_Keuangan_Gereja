@@ -368,7 +368,7 @@ class ServicesUser {
       var jsonRespMessage = json.decode(response.body)['message'];
       return [jsonRespStatus, jsonRespMessage];
     } else {
-      throw Exception("Gagal menginput data");
+      print(response.statusCode);
     }
   }
 
@@ -490,10 +490,24 @@ class ServicesUser {
     }
   }
 
-  Future getNeracaSaldo(kodeGereja, tanggal) async {
+  Future getNeraca(kodeGereja, tanggal, status, statusNeraca) async {
     final response = await http.get(
       Uri.parse(
-          "${_linkPath}neraca-saldo?kode_gereja=$kodeGereja&tanggal=$tanggal"),
+          "${_linkPath}neraca-saldo?kode_gereja=$kodeGereja&tanggal=$tanggal&status=$status&status_neraca=$statusNeraca"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future getstatusNeraca(kodeGereja, tanggal) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-status?kode_gereja=$kodeGereja&tanggal=$tanggal"),
     );
     if (response.statusCode == 200) {
       var jsonRespStatus = json.decode(response.body)['status'];

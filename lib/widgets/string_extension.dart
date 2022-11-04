@@ -16,3 +16,14 @@ class CurrencyFormat {
     return currencyFormatter.format(number);
   }
 }
+
+class CurrencyFormatAkuntansi {
+  static String convertToIdr(dynamic number, int decimalDigit) {
+    NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id',
+      symbol: '',
+      decimalDigits: decimalDigit,
+    );
+    return currencyFormatter.format(number);
+  }
+}

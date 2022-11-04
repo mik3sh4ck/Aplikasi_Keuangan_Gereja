@@ -387,7 +387,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
           DataCell(
             Text(
               jenis == "pemasukan"
-                  ? CurrencyFormat.convertToIdr(
+                  ? CurrencyFormatAkuntansi.convertToIdr(
                       int.parse(nominal.toString()), 2)
                   : "-",
               overflow: TextOverflow.ellipsis,
@@ -396,7 +396,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
           DataCell(
             Text(
               jenis == "pengeluaran"
-                  ? CurrencyFormat.convertToIdr(
+                  ? CurrencyFormatAkuntansi.convertToIdr(
                       int.parse(nominal.toString()), 2)
                   : "-",
               overflow: TextOverflow.ellipsis,
@@ -459,7 +459,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: navButtonPrimary, // button text color
+                  foregroundColor: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -493,7 +493,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: navButtonPrimary, // button text color
+                  foregroundColor: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -528,7 +528,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: navButtonPrimary, // button text color
+                  foregroundColor: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -570,7 +570,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: navButtonPrimary, // button text color
+                  foregroundColor: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -826,7 +826,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               thickness: 1,
               height: 10,
             ),
-            responsiveText(CurrencyFormat.convertToIdr(nominal, 2), 16,
+            responsiveText(CurrencyFormatAkuntansi.convertToIdr(nominal, 2), 16,
                 FontWeight.w700, darkText),
           ],
         ),
@@ -2531,7 +2531,7 @@ class _BuatKodeKeuanganPageState extends State<BuatKodeKeuanganPage> {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: cancelButtonColor,
+                                  backgroundColor: cancelButtonColor,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 32, vertical: 16),
                                   textStyle: GoogleFonts.nunito(
@@ -3513,7 +3513,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
         // _kodeMaster.add(
         //     "${element['header_kode_perkiraan']} - ${element['nama_header']}");
         debugPrint(element.toString());
-        debugPrint("asu" + kodePerkiraanNotif.toString());
+        debugPrint("asu$kodePerkiraanNotif");
         debugPrint(element['kode_perkiraan']);
         if (kodePerkiraanNotif == element['kode_perkiraan']) {
           debugPrint('dd' + kodePerkiraanNotif);
@@ -3785,7 +3785,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: navButtonPrimary, // button text color
+                  foregroundColor: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -3806,7 +3806,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
   final numericRegex = RegExp(r'^-?(([0-9]*)|(([0-9]*)\.([0-9]*)))$');
 //TODO: Show Tambah Transaksi Dialog
-  _showTambahDialog(dw, dh, kodeTransaksi, kodeRef) {
+  _showTambahDialog(dw, dh, kodeTransaksi, kodeRef, context) {
     if (kodeRef == "Pilih") {
       kodeRef = "";
     }
@@ -3817,6 +3817,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     date = formattedDate;
     kodePerkiraan = "";
     kodeMaster = "";
+    _status = "";
     tempItemTransaksi.clear();
 
     showDialog(
@@ -3955,26 +3956,35 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                                   .pemasukan,
                                               groupValue: radio,
                                               activeColor: primaryColorVariant,
-                                              onChanged: (val) {
+                                              onChanged: (val) async {
                                                 radio = val
                                                     as RadioStatusTransaksi?;
                                                 if (mounted) {
                                                   if (kodeRef != "") {
-                                                    _status = "pengeluaran";
+                                                    await _getKodePerkiraanSingleKegiatan(
+                                                      kodeGereja,
+                                                      kodeRefKegiatan,
+                                                      _splitStringKode(
+                                                          kodeTransaksi),
+                                                      "pengeluaran",
+                                                    ).whenComplete(() {
+                                                      setState(() {});
+                                                    });
                                                   } else {
-                                                    _status = "pemasukan";
+                                                    await _getKodePerkiraanSingleKegiatan(
+                                                      kodeGereja,
+                                                      kodeRefKegiatan,
+                                                      _splitStringKode(
+                                                          kodeTransaksi),
+                                                      "pemasukan",
+                                                    ).whenComplete(() {
+                                                      setState(() {});
+                                                    });
                                                   }
-                                                  _getKodePerkiraanSingleKegiatan(
-                                                    kodeGereja,
-                                                    kodeRefKegiatan,
-                                                    _splitStringKode(
-                                                        kodeTransaksi),
-                                                    _status,
-                                                  ).whenComplete(() {
-                                                    setState(() {});
-                                                  });
+
                                                   setState(() {});
                                                 }
+                                                _status = "pemasukan";
                                                 debugPrint(_status);
                                               },
                                             ),
@@ -3994,28 +4004,36 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                                   .pengeluaran,
                                               groupValue: radio,
                                               activeColor: primaryColorVariant,
-                                              onChanged: (val) {
+                                              onChanged: (val) async {
                                                 radio = val
                                                     as RadioStatusTransaksi?;
 
                                                 if (mounted) {
                                                   if (kodeRef != "") {
-                                                    _status = "pemasukan";
+                                                    await _getKodePerkiraanSingleKegiatan(
+                                                      kodeGereja,
+                                                      kodeRefKegiatan,
+                                                      _splitStringKode(
+                                                          kodeTransaksi),
+                                                      "pemasukan",
+                                                    ).whenComplete(() {
+                                                      setState(() {});
+                                                    });
                                                   } else {
-                                                    _status = "pengeluaran";
+                                                    await _getKodePerkiraanSingleKegiatan(
+                                                      kodeGereja,
+                                                      kodeRefKegiatan,
+                                                      _splitStringKode(
+                                                          kodeTransaksi),
+                                                      "pengeluaran",
+                                                    ).whenComplete(() {
+                                                      setState(() {});
+                                                    });
                                                   }
 
-                                                  _getKodePerkiraanSingleKegiatan(
-                                                    kodeGereja,
-                                                    kodeRefKegiatan,
-                                                    _splitStringKode(
-                                                        kodeTransaksi),
-                                                    _status,
-                                                  ).whenComplete(() {
-                                                    setState(() {});
-                                                  });
                                                   setState(() {});
                                                 }
+                                                _status = "pengeluaran";
                                                 debugPrint(_status);
                                               },
                                             ),
@@ -4285,17 +4303,17 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   debugPrint(kodeTransaksi);
                                   debugPrint(kodePerkiraan);
                                   debugPrint(kodeRefKegiatan);
                                   debugPrint(date);
                                   debugPrint(_controllerNominal.text);
                                   debugPrint(_controllerKeterangan.text);
-                                  _getKodePerkiraanSingleKegiatan(
-                                      kodeGereja, "", "", "");
-
-                                  Navigator.pop(context);
+                                  await _getKodePerkiraanSingleKegiatan(
+                                          kodeGereja, "", "", "")
+                                      .whenComplete(
+                                          () => Navigator.pop(context));
                                 },
                                 child: const Text("Batal"),
                               ),
@@ -4697,11 +4715,11 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                               debugPrint(_singleKodeTransaksi);
                               if (_singleKodeTransaksi != "") {
                                 _showTambahDialog(
-                                  deviceWidth,
-                                  deviceHeight,
-                                  "$_singleKodeTransaksi-$_kodeTransaksiCount",
-                                  _splitString(selectedKodeRefKegiatan),
-                                );
+                                    deviceWidth,
+                                    deviceHeight,
+                                    "$_singleKodeTransaksi-$_kodeTransaksiCount",
+                                    _splitString(selectedKodeRefKegiatan),
+                                    context);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -4824,11 +4842,12 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                             Expanded(
                                               flex: 2,
                                               child: responsiveText(
-                                                  CurrencyFormat.convertToIdr(
-                                                      int.parse(
-                                                          itemTransaksi[index]
-                                                              [5]),
-                                                      2),
+                                                  CurrencyFormatAkuntansi
+                                                      .convertToIdr(
+                                                          int.parse(
+                                                              itemTransaksi[
+                                                                  index][5]),
+                                                          2),
                                                   16,
                                                   FontWeight.w600,
                                                   darkText),
@@ -4843,6 +4862,20 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                                         ),
                                         trailing: IconButton(
                                           onPressed: () {
+                                            if (itemTransaksi[index][7] ==
+                                                "pemasukan") {
+                                              totalPemasukanStatus -= int.parse(
+                                                  itemTransaksi[index][5]);
+                                            } else {
+                                              totalPengeluaranStatus -=
+                                                  int.parse(
+                                                      itemTransaksi[index][5]);
+                                            }
+                                            debugPrint(totalPemasukanStatus
+                                                .toString());
+                                            debugPrint(totalPengeluaranStatus
+                                                .toString());
+
                                             itemTransaksi.removeAt(index);
                                             if (mounted) {
                                               setState(() {});
@@ -4945,6 +4978,11 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   }
 }
 
+final _pemasukanLancar = List.empty(growable: true);
+final _pemasukanTetap = List.empty(growable: true);
+final _pengeluaranLancar = List.empty(growable: true);
+final _pengeluaranJangkaPanjang = List.empty(growable: true);
+
 class AdminLaporanKeuangan extends StatefulWidget {
   final PageController controllerPageLihatLaporan;
   final PageController controllerPageLihatSaldoAwal;
@@ -4975,6 +5013,11 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
 
   String nama = "User";
 
+  late Future getAktivaLancar;
+  late Future getAktivaTetap;
+  late Future getPasivaLancar;
+  late Future getPasivaJangkaPanjang;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -4986,6 +5029,14 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
         penStrokeWidth: 5,
         penColor: currentColor,
         exportBackgroundColor: Colors.transparent);
+    getAktivaLancar =
+        servicesUser.getNeraca(kodeGereja, month, "pemasukan", "lancar");
+    getAktivaTetap =
+        servicesUser.getNeraca(kodeGereja, month, "pemasukan", "tetap");
+    getPasivaLancar =
+        servicesUser.getNeraca(kodeGereja, month, "pengeluaran", "lancar");
+    getPasivaJangkaPanjang = servicesUser.getNeraca(
+        kodeGereja, month, "pengeluaran", "jangka panjang");
     super.initState();
   }
 
@@ -5019,7 +5070,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  primary: navButtonPrimary, // button text color
+                  foregroundColor: navButtonPrimary, // button text color
                 ),
               ),
             ),
@@ -5190,7 +5241,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                             ],
                           ),
                           Center(
-                            child: Container(
+                            child: SizedBox(
                               height: 300,
                               width: dw,
                               child: Signature(
@@ -5397,22 +5448,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
           },
         );
       } else {
-        _getNeracaData(kodeGereja, month).whenComplete(() {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return AdminLaporanPreviewPDF(
-                  tipe: tipe,
-                  month: month,
-                  signature: value as Uint8List,
-                  nama: nama,
-                );
-              },
-            ),
-          );
-        });
+        //
       }
     });
     exportController.dispose();
@@ -5460,7 +5496,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                   //TODO: search btn
                   style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
-                    primary: const Color(0xff960000),
+                    backgroundColor: const Color(0xff960000),
                   ),
                   onPressed: () {
                     showAsign(dw, dh, 0);
@@ -5693,7 +5729,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                                             'status'] ==
                                                                         "pemasukan"
                                                                     ? Text(
-                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['jurnal'].abs(),
+                                                                        CurrencyFormatAkuntansi.convertToIdr(snapData[1][index]['jurnal'].abs(),
                                                                                 2)
                                                                             .toString(),
                                                                         style: GoogleFonts.nunito(
@@ -5718,7 +5754,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                                             'status'] ==
                                                                         "pengeluaran"
                                                                     ? Text(
-                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['jurnal'].abs(),
+                                                                        CurrencyFormatAkuntansi.convertToIdr(snapData[1][index]['jurnal'].abs(),
                                                                                 2)
                                                                             .toString(),
                                                                         style: GoogleFonts.nunito(
@@ -5853,7 +5889,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                   //TODO: search btn
                   style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
-                    primary: const Color(0xff960000),
+                    backgroundColor: const Color(0xff960000),
                   ),
                   onPressed: () {
                     showAsign(dw, dh, 1);
@@ -6079,7 +6115,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                                             'jenis_transaksi'] ==
                                                                         "pemasukan"
                                                                     ? Text(
-                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['nominal'].abs(),
+                                                                        CurrencyFormatAkuntansi.convertToIdr(snapData[1][index]['nominal'].abs(),
                                                                                 2)
                                                                             .toString(),
                                                                         style: GoogleFonts.nunito(
@@ -6103,7 +6139,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                                             'jenis_transaksi'] ==
                                                                         "pengeluaran"
                                                                     ? Text(
-                                                                        CurrencyFormat.convertToIdr(snapData[1][index]['nominal'].abs(),
+                                                                        CurrencyFormatAkuntansi.convertToIdr(snapData[1][index]['nominal'].abs(),
                                                                                 2)
                                                                             .toString(),
                                                                         style: GoogleFonts.nunito(
@@ -6123,7 +6159,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                                                                   width: 5),
                                                               Expanded(
                                                                 child: Text(
-                                                                  CurrencyFormat.convertToIdr(
+                                                                  CurrencyFormatAkuntansi.convertToIdr(
                                                                           snapData[1][index]['saldo']
                                                                               .abs(),
                                                                           2)
@@ -6183,20 +6219,55 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     );
   }
 
-  Future _getNeracaData(kodeGereja, month) async {
+  Future _getNeracaData(kodeGereja, month, status, statusNeraca) async {
     _dataNeraca.clear();
     var temp = List.empty(growable: true);
-    var response = await servicesUser.getNeracaSaldo(kodeGereja, month);
+    var response =
+        await servicesUser.getNeraca(kodeGereja, month, status, statusNeraca);
     if (response[0] != 404) {
       for (var element in response[1]) {
         temp.add(element['nama_kode_perkiraan']);
         temp.add(element['kode_perkiraan']);
         temp.add(element['status']);
         temp.add(element['saldo']);
-        _dataNeraca.add(temp.toList());
+        _dataNeraca.add(
+          temp.toList(),
+        );
         temp.clear();
       }
-      debugPrint(_dataNeraca.toString());
+      debugPrint(
+        _dataNeraca.toString(),
+      );
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  Future _getNeraca(kodeGereja, month, status, statusNeraca) async {
+    final tempList = List.empty(growable: true);
+    var response =
+        await servicesUser.getNeraca(kodeGereja, month, status, statusNeraca);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        if (status == 'pemasukan' && statusNeraca == 'lancar') {
+          tempList.add(element['nama_kode_perkiraan']);
+          tempList.add(element['saldo']);
+          _pemasukanLancar.add(tempList.toList());
+          tempList.clear();
+        }
+      }
+    } else {
+      throw "Gagal Mengambil Data";
+    }
+  }
+
+  Future _getStatusNeraca(kodeGereja, month) async {
+    var response = await servicesUser.getstatusNeraca(kodeGereja, month);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        await _getNeraca(
+            kodeGereja, month, element['status'], element['status_neraca']);
+      }
     } else {
       throw "Gagal Mengambil Data";
     }
@@ -6220,7 +6291,16 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
               children: [
                 GestureDetector(
                   onTap: () {
-                    selectMonth(context);
+                    selectMonth(context).whenComplete(() {
+                      getAktivaLancar = servicesUser.getNeraca(
+                          kodeGereja, month, "pemasukan", "lancar");
+                      getAktivaTetap = servicesUser.getNeraca(
+                          kodeGereja, month, "pemasukan", "tetap");
+                      getPasivaLancar = servicesUser.getNeraca(
+                          kodeGereja, month, "pengeluaran", "lancar");
+                      getPasivaJangkaPanjang = servicesUser.getNeraca(
+                          kodeGereja, month, "pengeluaran", "jangka panjang");
+                    });
                   },
                   child: Card(
                     color: primaryColor,
@@ -6244,7 +6324,7 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                   //TODO: search btn
                   style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
-                    primary: const Color(0xff960000),
+                    backgroundColor: const Color(0xff960000),
                   ),
                   onPressed: () {
                     showAsign(dw, dh, 2);
@@ -6261,161 +6341,364 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    ListTile(
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Kode",
-                              style: GoogleFonts.nunito(
-                                  color: darkText,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  letterSpacing: 0.125),
-                            ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Aktiva Lancar",
+                                style: GoogleFonts.nunito(
+                                    color: darkText,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18,
+                                    letterSpacing: 0.125),
+                              ),
+                              Divider(
+                                height: 16,
+                                color: dividerColor,
+                              ),
+                              FutureBuilder(
+                                future: getAktivaLancar,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    if (snapData[0] != 404) {
+                                      return ListView.separated(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    snapData[1][index]
+                                                        ['nama_kode_perkiraan'],
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    CurrencyFormatAkuntansi
+                                                            .convertToIdr(
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'saldo']
+                                                                    .abs(),
+                                                                2)
+                                                        .toString(),
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return Divider(
+                                            height: 32,
+                                            color: lightText.withOpacity(0.5),
+                                          );
+                                        },
+                                      );
+                                    } else if (snapData[0] == 404) {
+                                      return noData();
+                                    }
+                                  }
+                                  return loadingIndicator();
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              "Nama Kode",
-                              style: GoogleFonts.nunito(
-                                  color: darkText,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  letterSpacing: 0.125),
-                            ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Pasiva Lancar",
+                                style: GoogleFonts.nunito(
+                                    color: darkText,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18,
+                                    letterSpacing: 0.125),
+                              ),
+                              Divider(
+                                height: 16,
+                                color: dividerColor,
+                              ),
+                              FutureBuilder(
+                                future: getPasivaLancar,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    if (snapData[0] != 404) {
+                                      return ListView.separated(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    snapData[1][index]
+                                                        ['nama_kode_perkiraan'],
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    CurrencyFormatAkuntansi
+                                                            .convertToIdr(
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'saldo']
+                                                                    .abs(),
+                                                                2)
+                                                        .toString(),
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return Divider(
+                                            height: 32,
+                                            color: lightText.withOpacity(0.5),
+                                          );
+                                        },
+                                      );
+                                    } else if (snapData[0] == 404) {
+                                      return noData();
+                                    }
+                                  }
+                                  return loadingIndicator();
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              "Debit",
-                              style: GoogleFonts.nunito(
-                                  color: darkText,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  letterSpacing: 0.125),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              "Kredit",
-                              style: GoogleFonts.nunito(
-                                  color: darkText,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  letterSpacing: 0.125),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Divider(
-                      height: 32,
-                      color: dividerColor.withOpacity(0.5),
-                    ),
-                    FutureBuilder(
-                      future: servicesUser.getNeracaSaldo(kodeGereja, month),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List snapData = snapshot.data! as List;
-                          debugPrint(snapData.toString());
-                          debugPrint(snapData[1].length.toString());
-
-                          if (snapData[0] != 404) {
-                            return ListView.separated(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              controller: ScrollController(),
-                              physics: const ClampingScrollPhysics(),
-                              itemCount: snapData[1].length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  title: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          snapData[1][index]['kode_perkiraan'],
-                                          style: GoogleFonts.nunito(
-                                              color: darkText,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 16,
-                                              letterSpacing: 0.125),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          snapData[1][index]
-                                              ['nama_kode_perkiraan'],
-                                          style: GoogleFonts.nunito(
-                                              color: darkText,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 16,
-                                              letterSpacing: 0.125),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: snapData[1][index]['status'] ==
-                                                "pemasukan"
-                                            ? Text(
-                                                CurrencyFormat.convertToIdr(
-                                                        snapData[1][index]
-                                                                ['saldo']
-                                                            .abs(),
-                                                        2)
-                                                    .toString(),
-                                                style: GoogleFonts.nunito(
-                                                    color: darkText,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                    letterSpacing: 0.125),
-                                              )
-                                            : const Text(""),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: snapData[1][index]['status'] ==
-                                                "pengeluaran"
-                                            ? Text(
-                                                CurrencyFormat.convertToIdr(
-                                                        snapData[1][index]
-                                                                ['saldo']
-                                                            .abs(),
-                                                        2)
-                                                    .toString(),
-                                                style: GoogleFonts.nunito(
-                                                    color: darkText,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
-                                                    letterSpacing: 0.125),
-                                              )
-                                            : const Text(""),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              separatorBuilder:
-                                  (BuildContext context, int index) {
-                                return Divider(
-                                  height: 32,
-                                  color: lightText.withOpacity(0.5),
-                                );
-                              },
-                            );
-                          } else {
-                            return noData();
-                          }
-                        }
-                        return loadingIndicator();
-                      },
+                    const SizedBox(height: 25),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Aktiva Tetap",
+                                style: GoogleFonts.nunito(
+                                    color: darkText,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18,
+                                    letterSpacing: 0.125),
+                              ),
+                              Divider(
+                                height: 16,
+                                color: dividerColor,
+                              ),
+                              FutureBuilder(
+                                future: getAktivaTetap,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    if (snapData[0] != 404) {
+                                      return ListView.separated(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    snapData[1][index]
+                                                        ['nama_kode_perkiraan'],
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    CurrencyFormatAkuntansi
+                                                            .convertToIdr(
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'saldo']
+                                                                    .abs(),
+                                                                2)
+                                                        .toString(),
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return Divider(
+                                            height: 32,
+                                            color: lightText.withOpacity(0.5),
+                                          );
+                                        },
+                                      );
+                                    } else if (snapData[0] == 404) {
+                                      return noData();
+                                    }
+                                  }
+                                  return loadingIndicator();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Pasiva Janga Panjang",
+                                style: GoogleFonts.nunito(
+                                    color: darkText,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18,
+                                    letterSpacing: 0.125),
+                              ),
+                              Divider(
+                                height: 16,
+                                color: dividerColor,
+                              ),
+                              FutureBuilder(
+                                future: getPasivaJangkaPanjang,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List snapData = snapshot.data! as List;
+                                    if (snapData[0] != 404) {
+                                      return ListView.separated(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        controller: ScrollController(),
+                                        physics: const ClampingScrollPhysics(),
+                                        itemCount: snapData.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    snapData[1][index]
+                                                        ['nama_kode_perkiraan'],
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    CurrencyFormatAkuntansi
+                                                            .convertToIdr(
+                                                                snapData[1][index]
+                                                                        [
+                                                                        'saldo']
+                                                                    .abs(),
+                                                                2)
+                                                        .toString(),
+                                                    style: GoogleFonts.nunito(
+                                                        color: darkText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        letterSpacing: 0.125),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) {
+                                          return Divider(
+                                            height: 32,
+                                            color: lightText.withOpacity(0.5),
+                                          );
+                                        },
+                                      );
+                                    } else if (snapData[0] == 404) {
+                                      return noData();
+                                    }
+                                  }
+                                  return loadingIndicator();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -7319,7 +7602,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                   padding: const pw.EdgeInsets.symmetric(
                                       horizontal: 5),
                                   child: pw.Text(
-                                    CurrencyFormat.convertToIdr(
+                                    CurrencyFormatAkuntansi.convertToIdr(
                                             _dataNeraca[i][3].abs(), 2)
                                         .toString(),
                                     style: pw.TextStyle(
@@ -7350,7 +7633,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                   padding: const pw.EdgeInsets.symmetric(
                                       horizontal: 5),
                                   child: pw.Text(
-                                    CurrencyFormat.convertToIdr(
+                                    CurrencyFormatAkuntansi.convertToIdr(
                                             _dataNeraca[i][3].abs(), 2)
                                         .toString(),
                                     style: pw.TextStyle(
@@ -7622,11 +7905,12 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                                 const pw.EdgeInsets.symmetric(
                                                     horizontal: 5),
                                             child: pw.Text(
-                                              CurrencyFormat.convertToIdr(
-                                                      _dataBukuBesar[index][i]
-                                                              [3]
-                                                          .abs(),
-                                                      2)
+                                              CurrencyFormatAkuntansi
+                                                      .convertToIdr(
+                                                          _dataBukuBesar[index]
+                                                                  [i][3]
+                                                              .abs(),
+                                                          2)
                                                   .toString(),
                                               style: pw.TextStyle(
                                                 font: regularFont,
@@ -7659,11 +7943,12 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                                 const pw.EdgeInsets.symmetric(
                                                     horizontal: 5),
                                             child: pw.Text(
-                                              CurrencyFormat.convertToIdr(
-                                                      _dataBukuBesar[index][i]
-                                                              [3]
-                                                          .abs(),
-                                                      2)
+                                              CurrencyFormatAkuntansi
+                                                      .convertToIdr(
+                                                          _dataBukuBesar[index]
+                                                                  [i][3]
+                                                              .abs(),
+                                                          2)
                                                   .toString(),
                                               style: pw.TextStyle(
                                                 font: regularFont,
@@ -7694,7 +7979,7 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                       padding: const pw.EdgeInsets.symmetric(
                                           horizontal: 5),
                                       child: pw.Text(
-                                        CurrencyFormat.convertToIdr(
+                                        CurrencyFormatAkuntansi.convertToIdr(
                                                 _dataBukuBesar[index][i][4]
                                                     .abs(),
                                                 2)
@@ -7952,10 +8237,12 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                                 const pw.EdgeInsets.symmetric(
                                                     horizontal: 5),
                                             child: pw.Text(
-                                              CurrencyFormat.convertToIdr(
-                                                      _dataJurnal[index][i][3]
-                                                          .abs(),
-                                                      2)
+                                              CurrencyFormatAkuntansi
+                                                      .convertToIdr(
+                                                          _dataJurnal[index][i]
+                                                                  [3]
+                                                              .abs(),
+                                                          2)
                                                   .toString(),
                                               style: pw.TextStyle(
                                                 font: regularFont,
@@ -7988,10 +8275,12 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
                                                 const pw.EdgeInsets.symmetric(
                                                     horizontal: 5),
                                             child: pw.Text(
-                                              CurrencyFormat.convertToIdr(
-                                                      _dataJurnal[index][i][3]
-                                                          .abs(),
-                                                      2)
+                                              CurrencyFormatAkuntansi
+                                                      .convertToIdr(
+                                                          _dataJurnal[index][i]
+                                                                  [3]
+                                                              .abs(),
+                                                          2)
                                                   .toString(),
                                               style: pw.TextStyle(
                                                 font: regularFont,
