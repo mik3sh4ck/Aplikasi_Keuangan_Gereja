@@ -3430,12 +3430,10 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
 
   var stateOfDisable = true;
   DateTime tanggalMulaiAcaraBatas = DateTime.now();
-  String formattedtanggalMulaiAcaraBatas = "";
-  String temptanggalMulaiAcaraBatas = "";
+  DateTime temptanggalMulaiAcaraBatas = DateTime(DateTime.now().year - 5, 1, 1);
 
   DateTime tanggalSelesaiAcaraBatas = DateTime.now();
-  String formattedtanggalSelesaiAcaraBatas = "";
-  String temptanggalSelesaiAcaraBatas = "";
+  DateTime temptanggalSelesaiAcaraBatas = DateTime(DateTime.now().year, 12, 31);
 
   int totalPemasukanStatus = 0;
   int totalPengeluaranStatus = 0;
@@ -3483,22 +3481,20 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     var response = await servicesUser.getAllProposalKegiatan(kodeGer);
     if (response[0] != 404) {
       for (var element in response[1]) {
-        debugPrint(kodeKegiatanBatas);
-        debugPrint(element['kode_kegiatan']);
         if (kodeKegiatanBatas == element['kode_kegiatan']) {
           tanggalMulaiAcaraBatas =
-              DateTime.parse(element['tanggal_acara_dimulai'].toString());
-          formattedtanggalMulaiAcaraBatas =
-              DateFormat('dd-MM-yyyy').format(tanggalMulaiAcaraBatas);
-          stateOfDisable = false;
-          temptanggalMulaiAcaraBatas = formattedtanggalMulaiAcaraBatas;
+              DateFormat("dd-MM-yyyy").parse(element['tanggal_acara_dimulai']);
+          temptanggalMulaiAcaraBatas =
+              DateTime.parse(tanggalMulaiAcaraBatas.toString());
 
           tanggalSelesaiAcaraBatas =
-              DateTime.parse(element['tanggal_acara_selesai'].toString());
-        } else {
-          throw "Gagal Mengambil Data";
+              DateFormat("dd-MM-yyyy").parse(element['tanggal_acara_selesai']);
+          temptanggalSelesaiAcaraBatas =
+              DateTime.parse(tanggalSelesaiAcaraBatas.toString());
         }
       }
+    } else {
+      throw "Gagal Mengambil Data";
     }
   }
 
@@ -3773,8 +3769,8 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
-      lastDate: DateTime(DateTime.now().year, 12, 31),
+      firstDate: temptanggalMulaiAcaraBatas,
+      lastDate: temptanggalSelesaiAcaraBatas,
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
@@ -4686,9 +4682,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
                               kodeRefKegiatan =
                                   _splitString(selectedKodeRefKegiatan);
                             }
-                            debugPrint(kodeRefKegiatan);
-                            // _getBatasTanggal(kodeGereja, kodeRefKegiatan);
-                            debugPrint(kodeRefKegiatan);
+                            _getBatasTanggal(kodeGereja, kodeRefKegiatan);
                             if (mounted) {
                               setState(() {});
                             }
@@ -5450,7 +5444,24 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
           },
         );
       } else {
-        //
+        _getNeraca(kodeGereja, month).whenComplete(
+          () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return AdminLaporanPreviewPDF(
+                    tipe: tipe,
+                    month: month,
+                    signature: value as Uint8List,
+                    nama: nama,
+                  );
+                },
+              ),
+            );
+          },
+        );
       }
     });
     exportController.dispose();
@@ -6221,57 +6232,59 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     );
   }
 
-  Future _getNeracaData(kodeGereja, month, status, statusNeraca) async {
-    _dataNeraca.clear();
-    var temp = List.empty(growable: true);
-    var response =
-        await servicesUser.getNeraca(kodeGereja, month, status, statusNeraca);
-    if (response[0] != 404) {
-      for (var element in response[1]) {
-        temp.add(element['nama_kode_perkiraan']);
-        temp.add(element['kode_perkiraan']);
-        temp.add(element['status']);
-        temp.add(element['saldo']);
-        _dataNeraca.add(
-          temp.toList(),
-        );
-        temp.clear();
-      }
-      debugPrint(
-        _dataNeraca.toString(),
-      );
-    } else {
-      throw "Gagal Mengambil Data";
-    }
-  }
+  Future _getNeraca(kodeGereja, month) async {
+    _pemasukanLancar.clear();
+    _pemasukanTetap.clear();
+    _pengeluaranLancar.clear();
+    _pengeluaranJangkaPanjang.clear();
 
-  Future _getNeraca(kodeGereja, month, status, statusNeraca) async {
-    final tempList = List.empty(growable: true);
-    var response =
-        await servicesUser.getNeraca(kodeGereja, month, status, statusNeraca);
-    if (response[0] != 404) {
-      for (var element in response[1]) {
-        if (status == 'pemasukan' && statusNeraca == 'lancar') {
-          tempList.add(element['nama_kode_perkiraan']);
-          tempList.add(element['saldo']);
-          _pemasukanLancar.add(tempList.toList());
-          tempList.clear();
-        }
-      }
-    } else {
-      throw "Gagal Mengambil Data";
-    }
-  }
+    var tempAktiva1 = List.empty(growable: true);
+    var tempAktiva2 = List.empty(growable: true);
+    var tempPasiva1 = List.empty(growable: true);
+    var tempPasiva2 = List.empty(growable: true);
 
-  Future _getStatusNeraca(kodeGereja, month) async {
-    var response = await servicesUser.getstatusNeraca(kodeGereja, month);
-    if (response[0] != 404) {
-      for (var element in response[1]) {
-        await _getNeraca(
-            kodeGereja, month, element['status'], element['status_neraca']);
+    var responseAktivaLancar =
+        await servicesUser.getNeraca(kodeGereja, month, "pemasukan", "lancar");
+    if (responseAktivaLancar[0] != 404) {
+      for (var element in responseAktivaLancar[1]) {
+        tempAktiva1.add(element['nama_kode_perkiraan']);
+        tempAktiva1.add(element['saldo']);
+        _pemasukanLancar.add(tempAktiva1.toList());
+        tempAktiva1.clear();
       }
-    } else {
-      throw "Gagal Mengambil Data";
+    }
+
+    var responseAktivaTetap =
+        await servicesUser.getNeraca(kodeGereja, month, "pemasukan", "tetap");
+    if (responseAktivaTetap[0] != 404) {
+      for (var element in responseAktivaTetap[1]) {
+        tempAktiva2.add(element['nama_kode_perkiraan']);
+        tempAktiva2.add(element['saldo']);
+        _pemasukanTetap.add(tempAktiva2.toList());
+        tempAktiva2.clear();
+      }
+    }
+
+    var responsePasivaLancar = await servicesUser.getNeraca(
+        kodeGereja, month, "pengeluaran", "lancar");
+    if (responsePasivaLancar[0] != 404) {
+      for (var element in responsePasivaLancar[1]) {
+        tempPasiva1.add(element['nama_kode_perkiraan']);
+        tempPasiva1.add(element['saldo']);
+        _pengeluaranLancar.add(tempPasiva1.toList());
+        tempPasiva1.clear();
+      }
+    }
+
+    var responsePasivaJangkaPanjang = await servicesUser.getNeraca(
+        kodeGereja, month, "pengeluaran", "jangka panjang");
+    if (responsePasivaJangkaPanjang[0] != 404) {
+      for (var element in responsePasivaJangkaPanjang[1]) {
+        tempPasiva2.add(element['nama_kode_perkiraan']);
+        tempPasiva2.add(element['saldo']);
+        _pengeluaranJangkaPanjang.add(tempPasiva2.toList());
+        tempPasiva2.clear();
+      }
     }
   }
 
@@ -7495,170 +7508,407 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
             pw.Divider(
               height: 56,
             ),
-            pw.Table(
-              border: pw.TableBorder.all(
-                style: pw.BorderStyle.solid,
-                width: 1,
-              ),
-              columnWidths: {
-                0: const pw.FixedColumnWidth(80),
-                1: const pw.FlexColumnWidth(2),
-                2: const pw.FractionColumnWidth(.3),
-                3: const pw.FractionColumnWidth(.3),
-              },
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                //TODO: Header Table
-                pw.TableRow(
+                pw.Column(
                   children: [
-                    pw.Column(
-                      children: [
-                        pw.Text(
-                          "Kode",
-                          style: pw.TextStyle(
-                            font: headingFont,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                    pw.Text(
+                      "Aktiva Lancar",
+                      style: pw.TextStyle(
+                        font: headingFont,
+                        fontSize: 14,
+                      ),
                     ),
-                    pw.Column(
-                      children: [
-                        pw.Text(
-                          "Nama Kode",
-                          style: pw.TextStyle(
-                            font: headingFont,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                    pw.SizedBox(
+                      height: 10,
                     ),
-                    pw.Column(
+                    pw.Table(
+                      border: pw.TableBorder.all(
+                        style: pw.BorderStyle.solid,
+                        width: 1,
+                      ),
+                      columnWidths: {
+                        0: const pw.FixedColumnWidth(110),
+                        1: const pw.FixedColumnWidth(110),
+                      },
                       children: [
-                        pw.Text(
-                          "Debit",
-                          style: pw.TextStyle(
-                            font: headingFont,
-                            fontSize: 14,
-                          ),
+                        //TODO: Header Table
+                        pw.TableRow(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Kode",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Saldo",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    pw.Column(
-                      children: [
-                        pw.Text(
-                          "Kredit",
-                          style: pw.TextStyle(
-                            font: headingFont,
-                            fontSize: 14,
+                        //TODO: Data Pemasukan
+
+                        for (int i = 0; i < _pemasukanLancar.length; i++)
+                          pw.TableRow(
+                            children: [
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      "${_pemasukanLancar[i][0]}",
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      CurrencyFormatAkuntansi.convertToIdr(
+                                              _pemasukanLancar[i][1].abs(), 2)
+                                          .toString(),
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
                       ],
                     ),
                   ],
                 ),
-                //TODO: Data Pemasukan
+                pw.Column(
+                  children: [
+                    pw.Text(
+                      "Pasiva Lancar",
+                      style: pw.TextStyle(
+                        font: headingFont,
+                        fontSize: 14,
+                      ),
+                    ),
+                    pw.SizedBox(
+                      height: 10,
+                    ),
+                    pw.Table(
+                      border: pw.TableBorder.all(
+                        style: pw.BorderStyle.solid,
+                        width: 1,
+                      ),
+                      columnWidths: {
+                        0: const pw.FixedColumnWidth(110),
+                        1: const pw.FixedColumnWidth(110),
+                      },
+                      children: [
+                        //TODO: Header Table
+                        pw.TableRow(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Kode",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Saldo",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        //TODO: Data Pemasukan
 
-                for (int i = 0; i < _dataNeraca.length; i++)
-                  pw.TableRow(
-                    children: [
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          pw.Padding(
-                            padding:
-                                const pw.EdgeInsets.symmetric(horizontal: 5),
-                            child: pw.Text(
-                              "${_dataNeraca[i][1]}",
-                              style: pw.TextStyle(
-                                font: regularFont,
-                                fontSize: 12,
+                        for (int i = 0; i < _pengeluaranLancar.length; i++)
+                          pw.TableRow(
+                            children: [
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      "${_pengeluaranLancar[i][0]}",
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      CurrencyFormatAkuntansi.convertToIdr(
+                                              _pengeluaranLancar[i][1].abs(), 2)
+                                          .toString(),
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 56,
+            ),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Column(
+                  children: [
+                    pw.Text(
+                      "Aktiva Tetap",
+                      style: pw.TextStyle(
+                        font: headingFont,
+                        fontSize: 14,
                       ),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          pw.Padding(
-                            padding:
-                                const pw.EdgeInsets.symmetric(horizontal: 5),
-                            child: pw.Text(
-                              "${_dataNeraca[i][0]}",
-                              style: pw.TextStyle(
-                                font: regularFont,
-                                fontSize: 12,
-                              ),
+                    ),
+                    pw.SizedBox(
+                      height: 10,
+                    ),
+                    pw.Table(
+                      border: pw.TableBorder.all(
+                        style: pw.BorderStyle.solid,
+                        width: 1,
+                      ),
+                      columnWidths: {
+                        0: const pw.FixedColumnWidth(110),
+                        1: const pw.FixedColumnWidth(110),
+                      },
+                      children: [
+                        //TODO: Header Table
+                        pw.TableRow(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Kode",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
-                          )
-                        ],
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Saldo",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        //TODO: Data Pemasukan
+
+                        for (int i = 0; i < _pemasukanTetap.length; i++)
+                          pw.TableRow(
+                            children: [
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      "${_pemasukanTetap[i][0]}",
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      CurrencyFormatAkuntansi.convertToIdr(
+                                              _pemasukanTetap[i][1].abs(), 2)
+                                          .toString(),
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.Column(
+                  children: [
+                    pw.Text(
+                      "Pasiva Jangka Panjang",
+                      style: pw.TextStyle(
+                        font: headingFont,
+                        fontSize: 14,
                       ),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          _dataNeraca[i][2] == "pemasukan"
-                              ? pw.Padding(
-                                  padding: const pw.EdgeInsets.symmetric(
-                                      horizontal: 5),
-                                  child: pw.Text(
-                                    CurrencyFormatAkuntansi.convertToIdr(
-                                            _dataNeraca[i][3].abs(), 2)
-                                        .toString(),
-                                    style: pw.TextStyle(
-                                      font: regularFont,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                )
-                              : pw.Padding(
-                                  padding: const pw.EdgeInsets.symmetric(
-                                      horizontal: 5),
-                                  child: pw.Text(
-                                    "",
-                                    style: pw.TextStyle(
-                                      font: regularFont,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                )
-                        ],
+                    ),
+                    pw.SizedBox(
+                      height: 10,
+                    ),
+                    pw.Table(
+                      border: pw.TableBorder.all(
+                        style: pw.BorderStyle.solid,
+                        width: 1,
                       ),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        children: [
-                          _dataNeraca[i][2] == "pengeluaran"
-                              ? pw.Padding(
-                                  padding: const pw.EdgeInsets.symmetric(
-                                      horizontal: 5),
-                                  child: pw.Text(
-                                    CurrencyFormatAkuntansi.convertToIdr(
-                                            _dataNeraca[i][3].abs(), 2)
-                                        .toString(),
-                                    style: pw.TextStyle(
-                                      font: regularFont,
-                                      fontSize: 12,
+                      columnWidths: {
+                        0: const pw.FixedColumnWidth(110),
+                        1: const pw.FixedColumnWidth(110),
+                      },
+                      children: [
+                        //TODO: Header Table
+                        pw.TableRow(
+                          children: [
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Kode",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              children: [
+                                pw.Text(
+                                  "Saldo",
+                                  style: pw.TextStyle(
+                                    font: headingFont,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        //TODO: Data Pemasukan
+
+                        for (int i = 0;
+                            i < _pengeluaranJangkaPanjang.length;
+                            i++)
+                          pw.TableRow(
+                            children: [
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      "${_pengeluaranJangkaPanjang[i][0]}",
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
-                                )
-                              : pw.Padding(
-                                  padding: const pw.EdgeInsets.symmetric(
-                                      horizontal: 5),
-                                  child: pw.Text(
-                                    "",
-                                    style: pw.TextStyle(
-                                      font: regularFont,
-                                      fontSize: 12,
+                                ],
+                              ),
+                              pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                children: [
+                                  pw.Padding(
+                                    padding: const pw.EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: pw.Text(
+                                      CurrencyFormatAkuntansi.convertToIdr(
+                                              _pengeluaranJangkaPanjang[i][1]
+                                                  .abs(),
+                                              2)
+                                          .toString(),
+                                      style: pw.TextStyle(
+                                        font: regularFont,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
-                                )
-                        ],
-                      ),
-                    ],
-                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
             pw.SizedBox(
@@ -8387,8 +8637,6 @@ class _AdminLaporanPreviewPDFState extends State<AdminLaporanPreviewPDF> {
 
     return pdf.save();
   }
-
-
 
   checkTipe(tipe, format) {
     if (tipe == 0) {

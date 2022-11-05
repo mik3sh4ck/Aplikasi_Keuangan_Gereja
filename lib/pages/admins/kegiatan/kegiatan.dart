@@ -4078,24 +4078,6 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                     thickness: 1,
                     height: 56,
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          responsiveText("Jumlah Kehadiran Anggota", 16,
-                              FontWeight.w700, darkText),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          responsiveTextField(deviceWidth, deviceHeight,
-                              _controllerJumlahHadir),
-                        ],
-                      ),
-                    ],
-                  ),
                   const SizedBox(
                     height: 15,
                   ),
@@ -4219,7 +4201,7 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                           widget.controllerPageDetailAbsensiKegiatan
                               .animateToPage(0,
                                   duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease);
+                                  curve: Curves.ease).whenComplete(() => setState((){}));
                         },
                         child: const Text("Simpan"),
                       ),
