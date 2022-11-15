@@ -25,7 +25,6 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
     "Keuangan",
     "Anggota",
     "Kegiatan",
-    "Donasi",
     "Setting"
   ];
 

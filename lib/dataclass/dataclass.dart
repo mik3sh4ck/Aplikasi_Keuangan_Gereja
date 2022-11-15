@@ -210,3 +210,31 @@ class TransactionData {
   final String year;
   final double amount;
 }
+
+class ClassNeraca {
+  final String noAkun;
+  final double akun;
+  final double jumlah;
+
+  ClassNeraca({
+    required this.noAkun,
+    required this.akun,
+    required this.jumlah,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'no_akun': noAkun,
+      'akun': akun,
+      'jumlah': jumlah,
+    };
+  }
+
+  factory ClassNeraca.fromJSON(Map<String, dynamic> json) {
+    return ClassNeraca(
+      noAkun: json['no_akun'],
+      akun: json['akun'],
+      jumlah: json['jumlah'],
+    );
+  }
+}

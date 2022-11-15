@@ -40,6 +40,10 @@ final List _dataJurnal = List.empty(growable: true);
 final List<DataRow> _saldoAwal = List.empty(growable: true);
 final List<DataRow> _rowList = List.empty(growable: true);
 
+final List<DataRow> _neracaTable = List.empty(growable: true);
+final List<DataRow> _JurnalTable = List.empty(growable: true);
+final List<DataRow> _BukuBesarTable = List.empty(growable: true);
+
 int _totalPemasukan = 0;
 int _totalPengeluaran = 0;
 int _totalSaldo = 0;
@@ -3768,7 +3772,7 @@ class _AdminBuatTransaksiPageState extends State<AdminBuatTransaksiPage> {
   Future<void> selectDate(context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: temptanggalMulaiAcaraBatas,
       firstDate: temptanggalMulaiAcaraBatas,
       lastDate: temptanggalSelesaiAcaraBatas,
       builder: (context, child) {
@@ -5031,6 +5035,8 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
         servicesUser.getNeraca(kodeGereja, month, "pengeluaran", "lancar");
     getPasivaJangkaPanjang = servicesUser.getNeraca(
         kodeGereja, month, "pengeluaran", "jangka panjang");
+
+    _getNeracaTable(kodeGereja);
     super.initState();
   }
 
@@ -6717,6 +6723,442 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     ),
                   ],
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future _getNeracaTable(kodeGereja) async {
+    _neracaTable.clear();
+    var response = await servicesUser.getTransaksi(kodeGereja);
+    if (response[0] != 404) {
+      for (var element in response[1]) {
+        _addRowNeraca(
+          element['kode_transaksi'],
+          element['uraian_transaksi'],
+          element['nominal'],
+        );
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _addRowNeraca(kode, deskripsi, nominal) {
+    _neracaTable.add(
+      DataRow(
+        cells: [
+          DataCell(
+            Text(
+              kode.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              deskripsi.toString(),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              CurrencyFormatAkuntansi.convertToIdr(
+                  int.parse(nominal.toString()), 2),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  neracaViewVer2(dw, dh) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+        },
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        controller: ScrollController(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {},
+                  child: Card(
+                    color: primaryColor,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          responsiveText(month, 14, FontWeight.w700, lightText),
+                          const IconButton(
+                            onPressed: null,
+                            icon: Icon(Icons.calendar_month),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  //TODO: search btn
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    backgroundColor: const Color(0xff960000),
+                  ),
+                  onPressed: () {
+                    showAsign(dw, dh, 2);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: FaIcon(FontAwesomeIcons.solidFilePdf),
+                  ),
+                ),
+              ],
+            ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: dw > 1200
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                DataTable(
+                                  border: TableBorder.all(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black.withOpacity(0.5),
+                                    style: BorderStyle.solid,
+                                  ),
+                                  headingRowHeight: 70,
+                                  dataRowHeight: 56,
+                                  columns: [
+                                    DataColumn(
+                                      label: Text(
+                                        "KODE ANGGARAN",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "PENERIMAAN",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "JUMLAH",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  rows: List.generate(
+                                    _neracaTable.length,
+                                    (index) {
+                                      return DataRow(
+                                          color: MaterialStateColor.resolveWith(
+                                            (states) {
+                                              return index % 2 == 1
+                                                  ? primaryColor
+                                                      .withOpacity(0.2)
+                                                  : Colors.white;
+                                            },
+                                          ),
+                                          cells: _neracaTable[index].cells);
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 25, vertical: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "2.500.000,00",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                DataTable(
+                                  border: TableBorder.all(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black.withOpacity(0.5),
+                                    style: BorderStyle.solid,
+                                  ),
+                                  headingRowHeight: 70,
+                                  dataRowHeight: 56,
+                                  columns: [
+                                    DataColumn(
+                                      label: Text(
+                                        "KODE ANGGARAN",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "PENGELUARAN",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        "JUMLAH",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  rows: List.generate(
+                                    _neracaTable.length,
+                                    (index) {
+                                      return DataRow(
+                                          color: MaterialStateColor.resolveWith(
+                                            (states) {
+                                              return index % 2 == 1
+                                                  ? primaryColor
+                                                      .withOpacity(0.2)
+                                                  : Colors.white;
+                                            },
+                                          ),
+                                          cells: _neracaTable[index].cells);
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 25, vertical: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "2.500.000,00",
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  DataTable(
+                                    border: TableBorder.all(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.black.withOpacity(0.5),
+                                      style: BorderStyle.solid,
+                                    ),
+                                    headingRowHeight: 70,
+                                    dataRowHeight: 56,
+                                    columns: [
+                                      DataColumn(
+                                        label: Text(
+                                          "KODE ANGGARAN",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "PENERIMAAN",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "JUMLAH",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: List.generate(
+                                      _neracaTable.length,
+                                      (index) {
+                                        return DataRow(
+                                            color:
+                                                MaterialStateColor.resolveWith(
+                                              (states) {
+                                                return index % 2 == 1
+                                                    ? primaryColor
+                                                        .withOpacity(0.2)
+                                                    : Colors.white;
+                                              },
+                                            ),
+                                            cells: _neracaTable[index].cells);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 25, vertical: 16),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "2.500.000,00",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  DataTable(
+                                    border: TableBorder.all(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.black.withOpacity(0.5),
+                                      style: BorderStyle.solid,
+                                    ),
+                                    headingRowHeight: 70,
+                                    dataRowHeight: 56,
+                                    columns: [
+                                      DataColumn(
+                                        label: Text(
+                                          "KODE ANGGARAN",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "PENGELUARAN",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          "JUMLAH",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: List.generate(
+                                      _neracaTable.length,
+                                      (index) {
+                                        return DataRow(
+                                            color:
+                                                MaterialStateColor.resolveWith(
+                                              (states) {
+                                                return index % 2 == 1
+                                                    ? primaryColor
+                                                        .withOpacity(0.2)
+                                                    : Colors.white;
+                                              },
+                                            ),
+                                            cells: _neracaTable[index].cells);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 25, vertical: 16),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "2.500.000,00",
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
               ),
             ),
           ],
