@@ -406,7 +406,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-        ],
+        ], 
       ),
     );
   }
