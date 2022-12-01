@@ -656,7 +656,6 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     } else {
       _masukAkalNominal = 0.toString();
     }
-    
   }
 
   _splitString(val) {
@@ -765,8 +764,8 @@ class _BuatKegiatanPageState extends State<BuatKegiatanPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateDariAcara,
-      firstDate: DateTime(DateTime.now().year - 5, 1, 1),
-      lastDate: DateTime(DateTime.now().year, 12, 31),
+      firstDate: selectedDateDariAcara,
+      lastDate: DateTime(2400, 12, 31),
       builder: (context, child) {
         return Theme(
             data: Theme.of(context).copyWith(
@@ -3328,94 +3327,6 @@ class _DetailKebutuhanPageState extends State<DetailKebutuhanPage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        responsiveText(
-                            "Pemasukan", 20, FontWeight.w700, darkText),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: deviceWidth,
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(10),
-                            ),
-                            border: Border.all(
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                          ),
-                          //width: deviceWidth / 2,
-                          padding: const EdgeInsets.all(10),
-                          child: FutureBuilder(
-                            future: kategoriDetailPemasukan,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                List snapData = snapshot.data! as List;
-                                if (snapData[0] != 404) {
-                                  return ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(
-                                      dragDevices: {
-                                        PointerDeviceKind.touch,
-                                        PointerDeviceKind.mouse,
-                                      },
-                                    ),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.vertical,
-                                      controller: ScrollController(),
-                                      physics: const ClampingScrollPhysics(),
-                                      itemCount: snapData[1].length,
-                                      itemBuilder: (context, index) {
-                                        return Card(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            side: BorderSide(
-                                              color: navButtonPrimary
-                                                  .withOpacity(0.4),
-                                            ),
-                                          ),
-                                          color: scaffoldBackgroundColor,
-                                          child: ListTile(
-                                            title: responsiveText(
-                                                snapData[1][index]
-                                                    ['uraian_transaksi'],
-                                                18,
-                                                FontWeight.w700,
-                                                darkText),
-                                            subtitle: responsiveText(
-                                                CurrencyFormat.convertToIdr(
-                                                    snapData[1][index]
-                                                        ['nominal'],
-                                                    2),
-                                                15,
-                                                FontWeight.w400,
-                                                darkText),
-                                            trailing: responsiveText(
-                                                snapData[1][index]
-                                                    ['tanggal_transaksi'],
-                                                15,
-                                                FontWeight.w400,
-                                                darkText),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                } else if (snapData[0] == 404) {
-                                  return noData();
-                                }
-                              }
-                              return loadingIndicator();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 )
               ],
@@ -4201,7 +4112,8 @@ class _DetailAbsensiKegiatanState extends State<DetailAbsensiKegiatan> {
                           widget.controllerPageDetailAbsensiKegiatan
                               .animateToPage(0,
                                   duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease).whenComplete(() => setState((){}));
+                                  curve: Curves.ease)
+                              .whenComplete(() => setState(() {}));
                         },
                         child: const Text("Simpan"),
                       ),
@@ -5016,12 +4928,6 @@ class _FormHistoryState extends State<FormHistory> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          DataCell(
-            Text(
-              jenis == "pengeluaran" ? nominal.toString() : "-",
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
         ],
       ),
     );
@@ -5131,16 +5037,7 @@ class _FormHistoryState extends State<FormHistory> {
                                       ),
                                       DataColumn(
                                         label: Text(
-                                          "Pemasukan",
-                                          style: GoogleFonts.nunito(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Text(
-                                          "Pengeluaran",
+                                          "Total",
                                           style: GoogleFonts.nunito(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 18,
@@ -5213,16 +5110,7 @@ class _FormHistoryState extends State<FormHistory> {
                                     ),
                                     DataColumn(
                                       label: Text(
-                                        "Pemasukan",
-                                        style: GoogleFonts.nunito(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Text(
-                                        "Pengeluaran",
+                                        "Total",
                                         style: GoogleFonts.nunito(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 18,
@@ -5266,15 +5154,8 @@ class _FormHistoryState extends State<FormHistory> {
                     width: 15,
                   ),
                   _cardInfo(
-                    "Total Pengeluaran",
+                    "Total Realisasi",
                     int.parse(_totalreal),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  _cardInfo(
-                    "Total Pemasukan",
-                    int.parse(_totalpemasukanreal),
                   ),
                 ],
               ),
