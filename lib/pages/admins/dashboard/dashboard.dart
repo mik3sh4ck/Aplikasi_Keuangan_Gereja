@@ -439,7 +439,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                         LineSeries<TransactionData, String>(
                                             // Bind data source
                                             color: Colors.green,
-                                            name: "Pemasukan",
+                                            name: "Debit",
                                             dataSource: _dataPemasukanChart,
                                             xValueMapper:
                                                 (TransactionData sales, _) =>
@@ -450,7 +450,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                         LineSeries<TransactionData, String>(
                                             // Bind data source
                                             color: Colors.red,
-                                            name: "Pengeluaran",
+                                            name: "Kredit",
                                             dataSource: _dataPengeluaranChart,
                                             xValueMapper:
                                                 (TransactionData sales, _) =>

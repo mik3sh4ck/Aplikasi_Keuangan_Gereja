@@ -1300,7 +1300,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                       ),
                                       DataColumn(
                                         label: Text(
-                                          "Pemasukan",
+                                          "Debit",
                                           style: GoogleFonts.nunito(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 18,
@@ -1309,7 +1309,7 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                                       ),
                                       DataColumn(
                                         label: Text(
-                                          "Pengeluaran",
+                                          "Kredit",
                                           style: GoogleFonts.nunito(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 18,
