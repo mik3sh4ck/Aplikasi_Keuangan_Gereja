@@ -15,6 +15,7 @@ import '../../../themes/colors.dart';
 import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 
+var kodestatus;
 String _namaKegiatan = "";
 String _namaKegiatanRiwayat = "";
 String _kodeKegiatan = "";
@@ -266,6 +267,24 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
     }
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -320,10 +339,17 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                 borderRadius: BorderRadius.circular(40),
                               ),
                             ),
-                            onPressed: () {
-                              widget.controllerPageListKode.animateToPage(1,
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.ease);
+                            onPressed: () async {
+                              kodestatus = await servicesUser.checkPrevilage(
+                                  4, kodeGereja, kodeRole);
+                              print(kodestatus[0]);
+                              if (kodestatus[0] == 200) {
+                                widget.controllerPageListKode.animateToPage(1,
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.ease);
+                              } else {
+                                showAlertNoAkses();
+                              }
                             },
                             child: Row(
                               children: [
@@ -362,11 +388,19 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                     borderRadius: BorderRadius.circular(40),
                                   ),
                                 ),
-                                onPressed: () {
-                                  widget.controllerPageKegiatan.animateToPage(1,
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.ease);
+                                onPressed: () async {
+                                  kodestatus = await servicesUser
+                                      .checkPrevilage(3, kodeGereja, kodeRole);
+                                  print(kodestatus[0]);
+                                  if (kodestatus[0] == 200) {
+                                    widget.controllerPageKegiatan.animateToPage(
+                                        1,
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        curve: Curves.ease);
+                                  } else {
+                                    showAlertNoAkses();
+                                  }
                                 },
                                 child: Row(
                                   children: [
@@ -448,42 +482,51 @@ class _AdminKegiatanPageState extends State<AdminKegiatanPage> {
                                                     const EdgeInsets.all(12),
                                                 shape: const CircleBorder(),
                                               ),
-                                              onPressed: () {
-                                                _namaKegiatan = snapData[1]
-                                                    [index]['nama_kegiatan'];
-                                                _kodeKegiatan = snapData[1]
-                                                    [index]['kode_kegiatan'];
-                                                _kodeKegiatanGabungan = snapData[
-                                                        1][index]
-                                                    ['kode_kegiatan_gabungan'];
-                                                _tempmulaiacara = snapData[1]
-                                                        [index]
-                                                    ['tanggal_acara_dimulai'];
-                                                _tempselesaiacara = snapData[1]
-                                                        [index]
-                                                    ['tanggal_acara_selesai'];
-                                                _tempmulaikegiatan = snapData[1]
-                                                        [index][
-                                                    'tanggal_kegiatan_dimulai'];
-                                                _tempselesaikegiatan = snapData[
-                                                        1][index][
-                                                    'tanggal_kegiatan_selesai'];
-                                                _lokasiKegiatan = snapData[1]
-                                                    [index]['lokasi_kegiatan'];
-                                                _tanggungjawabKegiatan =
-                                                    snapData[1][index][
-                                                        'nama_penanggungjawab'];
-                                                _keteranganKegiatan =
-                                                    snapData[1][index]
-                                                        ['keterangan_kegiatan'];
-                                                widget
-                                                    .controllerDetailPageKegiatan
-                                                    .animateToPage(1,
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    250),
-                                                        curve: Curves.ease);
+                                              onPressed: () async {
+                                                kodestatus = await servicesUser
+                                                    .checkPrevilage(4,
+                                                        kodeGereja, kodeRole);
+                                                print(kodestatus[0]);
+                                                if (kodestatus[0] == 200) {
+                                                  _namaKegiatan = snapData[1]
+                                                      [index]['nama_kegiatan'];
+                                                  _kodeKegiatan = snapData[1]
+                                                      [index]['kode_kegiatan'];
+                                                  _kodeKegiatanGabungan = snapData[
+                                                          1][index][
+                                                      'kode_kegiatan_gabungan'];
+                                                  _tempmulaiacara = snapData[1]
+                                                          [index]
+                                                      ['tanggal_acara_dimulai'];
+                                                  _tempselesaiacara = snapData[
+                                                          1][index]
+                                                      ['tanggal_acara_selesai'];
+                                                  _tempmulaikegiatan = snapData[
+                                                          1][index][
+                                                      'tanggal_kegiatan_dimulai'];
+                                                  _tempselesaikegiatan = snapData[
+                                                          1][index][
+                                                      'tanggal_kegiatan_selesai'];
+                                                  _lokasiKegiatan = snapData[1]
+                                                          [index]
+                                                      ['lokasi_kegiatan'];
+                                                  _tanggungjawabKegiatan =
+                                                      snapData[1][index][
+                                                          'nama_penanggungjawab'];
+                                                  _keteranganKegiatan = snapData[
+                                                          1][index]
+                                                      ['keterangan_kegiatan'];
+                                                  widget
+                                                      .controllerDetailPageKegiatan
+                                                      .animateToPage(1,
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      250),
+                                                          curve: Curves.ease);
+                                                } else {
+                                                  showAlertNoAkses();
+                                                }
                                               },
                                               child: const Tooltip(
                                                 message: "Detail Kegiatan",
@@ -4602,6 +4645,24 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
     });
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -4653,8 +4714,15 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                       borderRadius: BorderRadius.circular(40),
                     ),
                   ),
-                  onPressed: () {
-                    _showTambahDialogKodeKegiatan(deviceWidth, deviceHeight);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        3, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      _showTambahDialogKodeKegiatan(deviceWidth, deviceHeight);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -4730,18 +4798,26 @@ class _ListKodeKegiatanState extends State<ListKodeKegiatan> {
                                             ['kode_kategori_kegiatan'],
                                       ),
                                       trailing: IconButton(
-                                        onPressed: () {
-                                          deleteKodeKegiatan(
-                                                  kodeGereja,
-                                                  snapData[1][index][
-                                                      'kode_kategori_kegiatan'],
-                                                  context)
-                                              .whenComplete(() {
-                                            kategoriDetailPengeluaran =
-                                                servicesUser.getKodeKegiatan(
-                                                    kodeGereja);
-                                            setState(() {});
-                                          });
+                                        onPressed: () async {
+                                          kodestatus =
+                                              await servicesUser.checkPrevilage(
+                                                  2, kodeGereja, kodeRole);
+                                          print(kodestatus[0]);
+                                          if (kodestatus[0] == 200) {
+                                            deleteKodeKegiatan(
+                                                    kodeGereja,
+                                                    snapData[1][index][
+                                                        'kode_kategori_kegiatan'],
+                                                    context)
+                                                .whenComplete(() {
+                                              kategoriDetailPengeluaran =
+                                                  servicesUser.getKodeKegiatan(
+                                                      kodeGereja);
+                                              setState(() {});
+                                            });
+                                          } else {
+                                            showAlertNoAkses();
+                                          }
                                         },
                                         icon: const Tooltip(
                                           message: "Hapus Kode Kegiatan",

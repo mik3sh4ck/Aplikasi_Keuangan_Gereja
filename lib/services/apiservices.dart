@@ -76,6 +76,37 @@ class ServicesUser {
     }
   }
 
+  Future getKodePrevilage(namaprevilage) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}read-single-previlage?nama_previlage=$namaprevilage"),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
+  Future checkPrevilage(pv, kodegereja, koderoleuser) async {
+    final response = await http.get(
+      Uri.parse(
+          "${_linkPath}checking-previlage-role?previlage_value=$pv&kode_gereja=$kodegereja&user_role=$koderoleuser"),
+    );
+    if (response.statusCode == 200) {
+      var jsonRespStatus = json.decode(response.body)['status'];
+      var jsonRespData = json.decode(response.body)['data'];
+
+      return [jsonRespStatus, jsonRespData];
+    } else {
+      throw Exception("Gagal mengambil data");
+    }
+  }
+
   //TODO: Login
   Future getAuth(username, password) async {
     final response = await http.get(

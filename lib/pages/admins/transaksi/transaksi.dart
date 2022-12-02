@@ -22,6 +22,7 @@ import '../../../widgets/loadingindicator.dart';
 import '../../../widgets/responsivetext.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+var kodestatus;
 final List _kodeMaster = List.empty(growable: true);
 final List _kodePerkiraan = List.empty(growable: true);
 
@@ -1072,6 +1073,24 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
     );
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -1102,10 +1121,17 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {
-                          widget.controllerPageLihatLaporan.animateToPage(1,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
+                        onPressed: () async {
+                          kodestatus = await servicesUser.checkPrevilage(
+                              4, kodeGereja, kodeRole);
+                          print(kodestatus[0]);
+                          if (kodestatus[0] == 200) {
+                            widget.controllerPageLihatLaporan.animateToPage(1,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.ease);
+                          } else {
+                            showAlertNoAkses();
+                          }
                         },
                         child: Text(
                           "Laporan Keuangan",
@@ -1122,10 +1148,17 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {
-                          widget.controllerPageKategori.animateToPage(1,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
+                        onPressed: () async {
+                          kodestatus = await servicesUser.checkPrevilage(
+                              3, kodeGereja, kodeRole);
+                          print(kodestatus[0]);
+                          if (kodestatus[0] == 200) {
+                            widget.controllerPageKategori.animateToPage(1,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.ease);
+                          } else {
+                            showAlertNoAkses();
+                          }
                         },
                         child: Text(
                           "Kode Keuangan",
@@ -1142,10 +1175,17 @@ class _AdminTransaksiPageState extends State<AdminTransaksiPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {
-                          widget.controllerPageBuatTransaksi.animateToPage(1,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.ease);
+                        onPressed: () async {
+                          kodestatus = await servicesUser.checkPrevilage(
+                              3, kodeGereja, kodeRole);
+                          print(kodestatus[0]);
+                          if (kodestatus[0] == 200) {
+                            widget.controllerPageBuatTransaksi.animateToPage(1,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.ease);
+                          } else {
+                            showAlertNoAkses();
+                          }
                         },
                         child: Text(
                           "Buat Transaksi",
@@ -5473,6 +5513,24 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
     exportController.dispose();
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   jurnalUmumView(dw, dh) {
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
@@ -5517,8 +5575,15 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     shape: const CircleBorder(),
                     backgroundColor: const Color(0xff960000),
                   ),
-                  onPressed: () {
-                    showAsign(dw, dh, 0);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        5, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      showAsign(dw, dh, 0);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -5910,8 +5975,15 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     shape: const CircleBorder(),
                     backgroundColor: const Color(0xff960000),
                   ),
-                  onPressed: () {
-                    showAsign(dw, dh, 1);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        5, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      showAsign(dw, dh, 1);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -6347,8 +6419,15 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     shape: const CircleBorder(),
                     backgroundColor: const Color(0xff960000),
                   ),
-                  onPressed: () {
-                    showAsign(dw, dh, 2);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        5, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      showAsign(dw, dh, 2);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -6819,8 +6898,15 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                     shape: const CircleBorder(),
                     backgroundColor: const Color(0xff960000),
                   ),
-                  onPressed: () {
-                    showAsign(dw, dh, 2);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        5, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      showAsign(dw, dh, 2);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(4.0),
@@ -7203,10 +7289,17 @@ class _AdminLaporanKeuanganState extends State<AdminLaporanKeuangan>
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
-                    widget.controllerPageLihatSaldoAwal.animateToPage(1,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.ease);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        3, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      widget.controllerPageLihatSaldoAwal.animateToPage(1,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.ease);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: Text(
                     "Saldo Awal",
@@ -7702,6 +7795,24 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
     });
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -7738,8 +7849,15 @@ class _AdminLihatSaldoAwalState extends State<AdminLihatSaldoAwal> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
-                    _showUpdateSaldoAwalDialog(deviceWidth, deviceHeight);
+                  onPressed: () async {
+                    kodestatus = await servicesUser.checkPrevilage(
+                        3, kodeGereja, kodeRole);
+                    print(kodestatus[0]);
+                    if (kodestatus[0] == 200) {
+                      _showUpdateSaldoAwalDialog(deviceWidth, deviceHeight);
+                    } else {
+                      showAlertNoAkses();
+                    }
                   },
                   child: Text(
                     "Update Saldo Awal",

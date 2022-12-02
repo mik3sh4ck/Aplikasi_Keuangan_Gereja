@@ -15,6 +15,7 @@ String _kodeRole = "";
 String _namaRole = "";
 String _kodeUser = "";
 String _namaUser = "";
+var kodestatus;
 
 class AdminAnggotaController extends StatefulWidget {
   const AdminAnggotaController({Key? key}) : super(key: key);
@@ -50,6 +51,24 @@ class _AdminAnggotaControllerState extends State<AdminAnggotaController> {
     _controllerPageAbsensi.dispose();
     _controllerPageDetailAbsensi.dispose();
     super.dispose();
+  }
+
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
   }
 
   @override
@@ -338,6 +357,24 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
     ).whenComplete(() => setState(() {}));
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -417,8 +454,15 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 16),
                         ),
-                        onPressed: () {
-                          _showTambahDialogMember(deviceWidth, deviceHeight);
+                        onPressed: () async {
+                          kodestatus = await servicesUser.checkPrevilage(
+                              3, kodeGereja, kodeRole);
+                          print(kodestatus[0]);
+                          if (kodestatus[0] == 200) {
+                            _showTambahDialogMember(deviceWidth, deviceHeight);
+                          } else {
+                            showAlertNoAkses();
+                          }
                         },
                         child: Row(
                           children: const [
@@ -535,21 +579,28 @@ class _AdminAnggotaPageState extends State<AdminAnggotaPage> {
                                         ),
                                         const Spacer(),
                                         TextButton(
-                                          onPressed: () {
-                                            _kodeUser =
-                                                snapData[1][index]['kode_user'];
-                                            _namaUser = snapData[1][index]
-                                                ['nama_lengkap_user'];
-                                            widget.controllerPageBeriRole
-                                                .animateToPage(1,
-                                                    duration: const Duration(
-                                                        milliseconds: 250),
-                                                    curve: Curves.ease);
-                                            debugPrint(
-                                              "$_kodeUser, $_namaUser",
-                                            );
+                                          onPressed: () async {
+                                            kodestatus = await servicesUser
+                                                .checkPrevilage(
+                                                    1, kodeGereja, kodeRole);
+                                            print(kodestatus[0]);
+                                            if (kodestatus[0] == 200) {
+                                              _kodeUser = snapData[1][index]
+                                                  ['kode_user'];
+                                              _namaUser = snapData[1][index]
+                                                  ['nama_lengkap_user'];
+                                              widget.controllerPageBeriRole
+                                                  .animateToPage(1,
+                                                      duration: const Duration(
+                                                          milliseconds: 250),
+                                                      curve: Curves.ease);
+                                              debugPrint(
+                                                "$_kodeUser, $_namaUser",
+                                              );
+                                            } else {
+                                              showAlertNoAkses();
+                                            }
                                           },
-                                          
                                           child: Text(
                                             "Beri Role",
                                             style: GoogleFonts.nunito(
@@ -784,6 +835,24 @@ class _AdminRolePageState extends State<AdminRolePage> {
     super.dispose();
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -843,12 +912,20 @@ class _AdminRolePageState extends State<AdminRolePage> {
                             Row(
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    widget.controllerPageBuatRole.animateToPage(
-                                        1,
-                                        duration:
-                                            const Duration(milliseconds: 250),
-                                        curve: Curves.ease);
+                                  onPressed: () async {
+                                    kodestatus =
+                                        await servicesUser.checkPrevilage(
+                                            3, kodeGereja, kodeRole);
+                                    print(kodestatus[0]);
+                                    if (kodestatus[0] == 200) {
+                                      widget.controllerPageBuatRole
+                                          .animateToPage(1,
+                                              duration: const Duration(
+                                                  milliseconds: 250),
+                                              curve: Curves.ease);
+                                    } else {
+                                      showAlertNoAkses();
+                                    }
                                   },
                                   child: Row(
                                     children: const [
@@ -999,28 +1076,41 @@ class _AdminRolePageState extends State<AdminRolePage> {
                                                                         10),
                                                           ),
                                                         ),
-                                                        onPressed: () {
-                                                          _kodeRole = snapData[
-                                                                      1][index]
-                                                                  ['kode_role']
-                                                              .toString();
-                                                          _namaRole = snapData[
-                                                                      1][index]
-                                                                  ['nama_role']
-                                                              .toString();
-                                                          widget
-                                                              .controllerPageDetailRole
-                                                              .animateToPage(1,
-                                                                  duration:
-                                                                      const Duration(
-                                                                          milliseconds:
-                                                                              250),
-                                                                  curve: Curves
-                                                                      .ease);
-                                                          debugPrint(
-                                                            _kodeRole
-                                                                .toString(),
-                                                          );
+                                                        onPressed: () async {
+                                                          kodestatus =
+                                                              await servicesUser
+                                                                  .checkPrevilage(
+                                                                      1,
+                                                                      kodeGereja,
+                                                                      kodeRole);
+                                                          print(kodestatus[0]);
+                                                          if (kodestatus[0] ==
+                                                              200) {
+                                                            _kodeRole = snapData[
+                                                                            1]
+                                                                        [index][
+                                                                    'kode_role']
+                                                                .toString();
+                                                            _namaRole = snapData[
+                                                                            1]
+                                                                        [index][
+                                                                    'nama_role']
+                                                                .toString();
+                                                            widget.controllerPageDetailRole
+                                                                .animateToPage(
+                                                                    1,
+                                                                    duration: const Duration(
+                                                                        milliseconds:
+                                                                            250),
+                                                                    curve: Curves
+                                                                        .ease);
+                                                            debugPrint(
+                                                              _kodeRole
+                                                                  .toString(),
+                                                            );
+                                                          } else {
+                                                            showAlertNoAkses();
+                                                          }
                                                         },
                                                         child: const Text(
                                                             "Detail"),
@@ -1192,7 +1282,7 @@ class _AdminBuatRoleState extends State<AdminBuatRole> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         widget.controllerPageBuatRole.animateToPage(0,
                             duration: const Duration(milliseconds: 250),
                             curve: Curves.ease);
@@ -1631,3 +1721,4 @@ class _AdminDetailRoleState extends State<AdminDetailRole> {
     );
   }
 }
+      

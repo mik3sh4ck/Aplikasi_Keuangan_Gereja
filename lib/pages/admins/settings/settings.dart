@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../services/apiservices.dart';
 
 String _namaPages = "";
+var kodestatus;
 
 class AdminSettingPage extends StatefulWidget {
   const AdminSettingPage({Key? key}) : super(key: key);
@@ -231,6 +232,24 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
     });
   }
 
+  showAlertNoAkses() {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Anda Tidak Mempunyai Akses'),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Tutup'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
@@ -285,12 +304,19 @@ class _AdminSettingPageState extends State<AdminSettingPage> {
                             children: [
                               Text(pages[index]),
                               TextButton(
-                                onPressed: () {
-                                  getallrole(kodeGereja, pages[index])
-                                      .whenComplete(() {
-                                    _showTambahRolePage(deviceWidth,
-                                        deviceHeight, pages[index]);
-                                  });
+                                onPressed: () async {
+                                  kodestatus = await servicesUser
+                                      .checkPrevilage(3, kodeGereja, kodeRole);
+                                  print(kodestatus[0]);
+                                  if (kodestatus[0] == 200) {
+                                    getallrole(kodeGereja, pages[index])
+                                        .whenComplete(() {
+                                      _showTambahRolePage(deviceWidth,
+                                          deviceHeight, pages[index]);
+                                    });
+                                  } else {
+                                    showAlertNoAkses();
+                                  }
                                 },
                                 child: Text(
                                   "Beri Role",
